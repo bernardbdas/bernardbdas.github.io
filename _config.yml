@@ -23,7 +23,7 @@ repository               : "bernardbdas/bernardbdas.github.io"
 #               Additional customization can be done by editing /_includes/author-profile.html
 author:
   # Biographic information
-  avatar           : "profile.png"
+  avatar           : "profile.jpg"
   name             : "Bernard Birendra Das"
   pronouns         : "he/him"  
   bio              : "Hi I'm Bernard and Life is Great!"
