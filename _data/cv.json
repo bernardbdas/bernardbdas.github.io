@@ -1,32 +1,32 @@
 {
   "basics": {
-    "name": "Your Sidebar Name",
-    "email": "none@example.org",
+    "name": "Bernard Birendra Das",
+    "email": "bernardbdas@gmail.com",
     "phone": "",
-    "website": "https://academicpages.github.io",
-    "summary": "Currently employed at Red Brick University. Short biography for the left-hand sidebar",
+    "website": "https://bernardbdas.github.io",
+    "summary": "Currently a PhD scholar at Christ University. I'm a Data Science enthusiast with a keen interest in Federated Learning, Internet of Things and Philosophy.",
     "location": {
       "address": "",
-      "postalCode": "",
-      "city": "Earth",
-      "countryCode": "US",
-      "region": ""
+      "postalCode": "560029",
+      "city": "Bangalore",
+      "countryCode": "IN",
+      "region": "Karnataka"
     },
     "profiles": [
       {
         "network": "Google Scholar",
         "username": "",
-        "url": "https://scholar.google.com/citations?user=PS_CX0AAAAAJ"
+        "url": "https://scholar.google.com/citations?user=x4n8MREAAAAJ"
       },
       {
         "network": "ORCID",
         "username": "",
-        "url": "https://orcid.org/yourorcidurl"
+        "url": "https://orcid.org/0009-0003-8860-0616"
       },
       {
         "network": "GitHub",
-        "username": "academicpages",
-        "url": "https://github.com/academicpages"
+        "username": "bernardbdas",
+        "url": "https://github.com/bernardbdas"
       }
     ]
   },

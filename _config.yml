@@ -8,7 +8,7 @@
 
 # Basic Site Settings
 locale                   : "en-US"
-site_theme               : "default" # Currently available options are "default", "air"
+site_theme               : "air" # Currently available options are "default", "air"
 title                    : "Bernard Birendra Das"
 title_separator          : "-"
 name                     : &name "Bernard Birendra Das"
@@ -26,47 +26,48 @@ author:
   avatar           : "profile.jpg"
   name             : "Bernard Birendra Das"
   pronouns         : "he/him"  
-  bio              : "Hi I'm Bernard and Life is Great!"
+  bio              : "Hi There, I'm Bernard and Life is Great!"
   location         : "Bangalore, India"
-  employer         : "CHRIST University"
+  employer         : "Christ University"
   uri              : bernardbdas.github.io
   email            : "bernardbdas@gmail.com" 
 
   # Academic websites
-  academia         : # URL
-  arxiv            : # URL - Update with the correct link to your profile
   googlescholar    : "https://scholar.google.com/citations?user=x4n8MREAAAAJ"
+  orcid            : "https://orcid.org/0009-0003-8860-0616"
+  zotero           : "https://www.zotero.org/bernardbdas"
+  arxiv            : # URL - Update with the correct link to your profile
+  academia         : # URL
   inspire-hep      : # URL
   impactstory      : # URL
-  orcid            : "https://orcid.org/0009-0003-8860-0616"
   semantic         : # URL
   ssrn             : # URL
-  pubmed           : "https://www.ncbi.nlm.nih.gov/pubmed/?term=john+snow"
+  pubmed           : # "https://www.ncbi.nlm.nih.gov/pubmed/?term=john+snow"
   researchgate     : # URL
   scopus           : # URL
-  zotero           : "https://www.zotero.org/bernardbdas"
 
 
   # Repositories and software development
+  github           : "bernardbdas"
   bitbucket        : # Username - Update with your username on the site
   codepen          : # Username
   dribbble         : # Username
-  github           : "bernardbdas"
   kaggle           : # Username  
   stackoverflow    : # User number or user number and name (i.e., use "1" or "1/jeff-atwood")    
 
   # Social media
+  linkedin         : "bernardbdas"
+  twitter          : "bernardbdas"
+  instagram        : "therailroadmanshow"
   artstation       : # Username
-  bluesky          : "bsky.app" # Replace this with you Bluesky username
+  bluesky          : # Replace this with you Bluesky username
   facebook         : # Username
   flickr           : # Username
   foursquare       : # Username
   goodreads        : # Username
   google_plus      : # Username
   keybase          : # Username
-  instagram        : "therailroadmanshow"
   lastfm           : # Username
-  linkedin         : "bernardbdas"
   mastodon         : # URL
   medium           : # URL
   pinterest        : # Username
@@ -74,7 +75,6 @@ author:
   steam            : # Username
   telegram         : # URL
   tumblr           : # Username
-  twitter          : "bernardbdas"
   vine             : # Username
   weibo            : # Username
   wikipedia        : # Username
