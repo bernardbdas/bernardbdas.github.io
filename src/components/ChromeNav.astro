@@ -20,8 +20,41 @@ const links: NavLink[] = [
 ---
 
 <nav class="chrome-top anim-chrome" aria-label="Main navigation">
-  <div class="brand">
-    bernardbdas<span class="brand-suffix">.github.io</span>
+  <div class="brand-group">
+    <a href="#top" class="brand">
+      bernardbdas<span class="brand-suffix">.github.io</span>
+    </a>
+    <span class="hud-sep" aria-hidden="true">
+      //
+    </span>
+    <div class="age-counter" id="age-counter" title="Live Age Counter (Click to toggle format)">
+      <span class="age-badge">UPTIME</span>
+      <span class="age-display" id="age-display">
+        <span class="age-num" id="age-y">
+          --
+        </span>
+        <span class="age-unit">Y</span>
+        <span class="age-num" id="age-d">
+          --
+        </span>
+        <span class="age-unit">D</span>
+        <span class="age-num" id="age-h">
+          --
+        </span>
+        <span class="age-sep">:</span>
+        <span class="age-num" id="age-m">
+          --
+        </span>
+        <span class="age-sep">:</span>
+        <span class="age-num" id="age-s">
+          --
+        </span>
+        <span class="age-dot">.</span>
+        <span class="age-ms" id="age-ms">
+          ---
+        </span>
+      </span>
+    </div>
   </div>
   <div class="nav-links" role="navigation">
     {links.map((link, i) => (
@@ -53,6 +86,8 @@ const links: NavLink[] = [
 </nav>
 
 <script>
+  import '../scripts/age-counter';
+
   function setupThemeToggle(): void {
     const btn = document.getElementById('themeToggle');
     const label = document.getElementById('themeLabel');
