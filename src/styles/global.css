@@ -15,7 +15,7 @@
   --serif: 'Newsreader', Georgia, serif;
   --chrome-h: 28px;
   --page-margin: 32px;
-  --col-max: 560px;
+  --col-max: 640px;
   --gap-inner: 14px;
   --gap-section: 40px;
   --radius: 3px;
@@ -673,9 +673,9 @@ button {
 .bio {
   font-family: var(--serif);
   font-size: 18px;
-  line-height: 1.45;
+  line-height: 1.5;
   color: var(--ink-dim);
-  max-width: 44ch;
+  max-width: 66ch;
   margin-bottom: var(--gap-inner);
 }
 
