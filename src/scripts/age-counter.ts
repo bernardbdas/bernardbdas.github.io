@@ -12,29 +12,35 @@ const BIRTH_HOUR_UTC = 19;
 const BIRTH_MIN_UTC = 25;
 
 export function initAgeCounter(): void {
-  const container = document.getElementById('age-counter');
-  const display = document.getElementById('age-display');
-  if (!container || !display) return;
+  const containers = document.querySelectorAll<HTMLElement>('.age-counter');
+  if (containers.length === 0) return;
 
   let mode: 'standard' | 'decimal' = 'standard';
 
   function renderSkeleton(): void {
-    if (mode === 'standard') {
-      display!.innerHTML = `
-        <span class="age-num" id="age-y">--</span><span class="age-unit">Y</span>
-        <span class="age-num" id="age-d">--</span><span class="age-unit">D</span>
-        <span class="age-num" id="age-h">--</span><span class="age-sep">:</span><span class="age-num" id="age-m">--</span><span class="age-sep">:</span><span class="age-num" id="age-s">--</span><span class="age-dot">.</span><span class="age-ms" id="age-ms">---</span>
-      `;
-    } else {
-      display!.innerHTML = `<span class="age-num" id="age-dec">--.---------</span><span class="age-unit"> YRS</span>`;
-    }
+    containers.forEach((container) => {
+      const display = container.querySelector<HTMLElement>('.age-display');
+      if (!display) return;
+
+      if (mode === 'standard') {
+        display.innerHTML = `
+          <span class="age-num age-y">--</span><span class="age-unit">Y</span>
+          <span class="age-num age-d">--</span><span class="age-unit">D</span>
+          <span class="age-num age-h">--</span><span class="age-sep">:</span><span class="age-num age-m">--</span><span class="age-sep">:</span><span class="age-num age-s">--</span><span class="age-dot">.</span><span class="age-ms">---</span>
+        `;
+      } else {
+        display.innerHTML = `<span class="age-num age-dec">--.---------</span><span class="age-unit"> YRS</span>`;
+      }
+    });
   }
 
   renderSkeleton();
 
-  container.addEventListener('click', () => {
-    mode = mode === 'standard' ? 'decimal' : 'standard';
-    renderSkeleton();
+  containers.forEach((container) => {
+    container.addEventListener('click', () => {
+      mode = mode === 'standard' ? 'decimal' : 'standard';
+      renderSkeleton();
+    });
   });
 
   let rafId: number | null = null;
@@ -87,8 +93,9 @@ export function initAgeCounter(): void {
     if (mode === 'decimal') {
       const yearFraction = (nowMs - lastBdayMs) / (nextBdayMs - lastBdayMs);
       const decStr = (years + yearFraction).toFixed(9);
-      const decEl = document.getElementById('age-dec');
-      if (decEl) decEl.textContent = decStr;
+      document.querySelectorAll('.age-dec').forEach((el) => {
+        if (el.textContent !== decStr) el.textContent = decStr;
+      });
     } else {
       let diff = nowMs - lastBdayMs;
       const days = Math.floor(diff / 86400000);
@@ -100,13 +107,6 @@ export function initAgeCounter(): void {
       const seconds = Math.floor(diff / 1000);
       const ms = diff % 1000;
 
-      const yEl = document.getElementById('age-y');
-      const dEl = document.getElementById('age-d');
-      const hEl = document.getElementById('age-h');
-      const mEl = document.getElementById('age-m');
-      const sEl = document.getElementById('age-s');
-      const msEl = document.getElementById('age-ms');
-
       const yStr = String(years);
       const dStr = String(days).padStart(days > 99 ? 3 : 2, '0');
       const hStr = String(hours).padStart(2, '0');
@@ -114,12 +114,24 @@ export function initAgeCounter(): void {
       const sStr = String(seconds).padStart(2, '0');
       const msStr = String(ms).padStart(3, '0');
 
-      if (yEl && yEl.textContent !== yStr) yEl.textContent = yStr;
-      if (dEl && dEl.textContent !== dStr) dEl.textContent = dStr;
-      if (hEl && hEl.textContent !== hStr) hEl.textContent = hStr;
-      if (mEl && mEl.textContent !== mStr) mEl.textContent = mStr;
-      if (sEl && sEl.textContent !== sStr) sEl.textContent = sStr;
-      if (msEl) msEl.textContent = msStr;
+      document.querySelectorAll('.age-y').forEach((el) => {
+        if (el.textContent !== yStr) el.textContent = yStr;
+      });
+      document.querySelectorAll('.age-d').forEach((el) => {
+        if (el.textContent !== dStr) el.textContent = dStr;
+      });
+      document.querySelectorAll('.age-h').forEach((el) => {
+        if (el.textContent !== hStr) el.textContent = hStr;
+      });
+      document.querySelectorAll('.age-m').forEach((el) => {
+        if (el.textContent !== mStr) el.textContent = mStr;
+      });
+      document.querySelectorAll('.age-s').forEach((el) => {
+        if (el.textContent !== sStr) el.textContent = sStr;
+      });
+      document.querySelectorAll('.age-ms').forEach((el) => {
+        if (el.textContent !== msStr) el.textContent = msStr;
+      });
     }
 
     rafId = requestAnimationFrame(tick);

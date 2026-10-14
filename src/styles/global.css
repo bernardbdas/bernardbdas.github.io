@@ -355,9 +355,9 @@ button {
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
   border-bottom: 1px solid var(--hairline);
-  display: flex;
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
   align-items: center;
-  justify-content: space-between;
   padding: 0 var(--page-margin);
   z-index: 100;
   font-size: 11px;
@@ -367,6 +367,8 @@ button {
   display: flex;
   align-items: center;
   gap: 10px;
+  justify-self: start;
+  min-width: 0;
 }
 
 .brand {
@@ -390,6 +392,7 @@ button {
   display: flex;
   align-items: center;
   gap: 0;
+  justify-self: end;
 }
 .nav-links a {
   padding: 0 12px;
@@ -685,12 +688,10 @@ button {
    TOP CHROME CENTER HUD — LOCAL CLOCK
    ══════════════════════════════════════════════════════════════ */
 .chrome-top-center {
-  position: absolute;
-  left: 50%;
-  top: 50%;
-  transform: translate(-50%, -50%);
   display: flex;
   align-items: center;
+  justify-content: center;
+  justify-self: center;
   pointer-events: auto;
   z-index: 101;
 }
@@ -1328,10 +1329,25 @@ button {
   }
   .chrome-top {
     padding: 0 16px;
-    height: 36px;
+    height: 38px;
+    grid-template-columns: 1fr auto 1fr;
   }
   .brand-group {
     gap: 8px;
+  }
+  .brand-group .age-counter,
+  .brand-group .hud-sep {
+    display: none;
+  }
+  .chrome-top-center {
+    justify-self: center;
+  }
+  .mobile-drawer-uptime {
+    padding: 10px 0;
+    margin-bottom: 8px;
+    border-bottom: 1px solid var(--hairline);
+    display: flex;
+    justify-content: flex-start;
   }
   .brand {
     font-size: 11px;
@@ -1559,10 +1575,7 @@ button {
 }
 
 @media (max-width: 360px) {
-  .age-counter {
-    display: none;
-  }
-  .chrome-top-center {
+  .local-clock .clock-badge {
     display: none;
   }
 }
