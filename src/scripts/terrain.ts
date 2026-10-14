@@ -380,17 +380,69 @@ export function initTerrainScene(): void {
   }
 
   // Theme management for terrain
+  interface TerrainPalette {
+    clearColor: number;
+    fogColor: string;
+    baseColor: string;
+    highColor: string;
+    scanColor: string;
+    isLight: boolean;
+  }
+
+  const TERRAIN_PALETTES: Record<string, TerrainPalette> = {
+    dark: {
+      clearColor: 0x07090a,
+      fogColor: '#07090a',
+      baseColor: '#4a5a3d',
+      highColor: '#c8d6a8',
+      scanColor: '#F29559',
+      isLight: false,
+    },
+    blue: {
+      clearColor: 0x060c18,
+      fogColor: '#060c18',
+      baseColor: '#163152',
+      highColor: '#7dd3fc',
+      scanColor: '#38bdf8',
+      isLight: false,
+    },
+    emerald: {
+      clearColor: 0x050e09,
+      fogColor: '#050e09',
+      baseColor: '#0f3d26',
+      highColor: '#6ee7b7',
+      scanColor: '#10b981',
+      isLight: false,
+    },
+    violet: {
+      clearColor: 0x0c0716,
+      fogColor: '#0c0716',
+      baseColor: '#301552',
+      highColor: '#d8b4fe',
+      scanColor: '#c084fc',
+      isLight: false,
+    },
+    light: {
+      clearColor: 0xf4f5ee,
+      fogColor: '#f4f5ee',
+      baseColor: '#d6ddcf',
+      highColor: '#b0be9a',
+      scanColor: '#d65d1a',
+      isLight: true,
+    },
+  };
+
   function applyTerrainTheme(theme: string): void {
-    const isLight = theme === 'light';
-    uniforms.uIsLight.value = isLight ? 1.0 : 0.0;
-    renderer.setClearColor(isLight ? 0xf4f5ee : 0x07090a, 1);
+    const p = TERRAIN_PALETTES[theme] || TERRAIN_PALETTES.dark;
+    uniforms.uIsLight.value = p.isLight ? 1.0 : 0.0;
+    renderer.setClearColor(p.clearColor, 1);
     if (scene.fog) {
-      scene.fog.color.set(isLight ? 0xf4f5ee : 0x07090a);
+      scene.fog.color.set(p.clearColor);
     }
-    uniforms.uFogColor.value.set(isLight ? '#f4f5ee' : '#07090a');
-    uniforms.uBaseColor.value.set(isLight ? '#d6ddcf' : '#4a5a3d');
-    uniforms.uHighColor.value.set(isLight ? '#b0be9a' : '#c8d6a8');
-    uniforms.uScanColor.value.set(isLight ? '#d65d1a' : '#F29559');
+    uniforms.uFogColor.value.set(p.fogColor);
+    uniforms.uBaseColor.value.set(p.baseColor);
+    uniforms.uHighColor.value.set(p.highColor);
+    uniforms.uScanColor.value.set(p.scanColor);
   }
 
   const initialTheme = document.documentElement.getAttribute('data-theme') || 'dark';

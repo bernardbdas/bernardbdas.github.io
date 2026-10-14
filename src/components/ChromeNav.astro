@@ -105,14 +105,43 @@ const links: NavLink[] = [
       </>
     ))}
     <span class="nav-sep" aria-hidden="true"></span>
-    <button class="theme-toggle" id="themeToggle" type="button" aria-label="Toggle color theme">
-      <span class="theme-icon" aria-hidden="true">
-        ◐
-      </span>
-      <span class="theme-label" id="themeLabel">
-        LIGHT
-      </span>
-    </button>
+    <div class="theme-dropdown-wrap">
+      <button
+        class="theme-toggle"
+        id="themeToggle"
+        type="button"
+        aria-label="Color theme selector (Click to cycle, hover for options)"
+        title="Color Theme (Click to cycle)"
+      >
+        <span class="theme-swatch" id="themeSwatch" aria-hidden="true"></span>
+        <span class="theme-label" id="themeLabel">
+          AMBER
+        </span>
+      </button>
+
+      <div class="theme-palette-menu" id="themePaletteMenu" role="menu" aria-label="Color themes">
+        <button class="palette-item" data-set-theme="dark" role="menuitem" type="button">
+          <span class="swatch-dot dot-amber"></span>
+          <span>Amber</span>
+        </button>
+        <button class="palette-item" data-set-theme="blue" role="menuitem" type="button">
+          <span class="swatch-dot dot-blue"></span>
+          <span>Blue</span>
+        </button>
+        <button class="palette-item" data-set-theme="emerald" role="menuitem" type="button">
+          <span class="swatch-dot dot-emerald"></span>
+          <span>Emerald</span>
+        </button>
+        <button class="palette-item" data-set-theme="violet" role="menuitem" type="button">
+          <span class="swatch-dot dot-violet"></span>
+          <span>Violet</span>
+        </button>
+        <button class="palette-item" data-set-theme="light" role="menuitem" type="button">
+          <span class="swatch-dot dot-light"></span>
+          <span>Light</span>
+        </button>
+      </div>
+    </div>
     <button
       class="mobile-nav-toggle"
       id="mobileNavToggle"
@@ -185,6 +214,37 @@ const links: NavLink[] = [
       </a>
     </div>
 
+    <div class="mobile-theme-palette">
+      <span class="palette-title">COLOR PALETTE</span>
+      <div class="palette-swatches">
+        <button class="palette-btn" data-set-theme="dark" type="button" aria-label="Amber theme">
+          <span class="swatch-dot dot-amber"></span>
+          <span>Amber</span>
+        </button>
+        <button class="palette-btn" data-set-theme="blue" type="button" aria-label="Blue theme">
+          <span class="swatch-dot dot-blue"></span>
+          <span>Blue</span>
+        </button>
+        <button
+          class="palette-btn"
+          data-set-theme="emerald"
+          type="button"
+          aria-label="Emerald theme"
+        >
+          <span class="swatch-dot dot-emerald"></span>
+          <span>Emerald</span>
+        </button>
+        <button class="palette-btn" data-set-theme="violet" type="button" aria-label="Violet theme">
+          <span class="swatch-dot dot-violet"></span>
+          <span>Violet</span>
+        </button>
+        <button class="palette-btn" data-set-theme="light" type="button" aria-label="Light theme">
+          <span class="swatch-dot dot-light"></span>
+          <span>Light</span>
+        </button>
+      </div>
+    </div>
+
     <div class="mobile-nav-footer">
       <div class="mobile-nav-status">
         <span class="status-dot"></span>
@@ -193,7 +253,7 @@ const links: NavLink[] = [
       <button class="mobile-theme-toggle" id="mobileThemeToggle" type="button">
         <span class="theme-icon">◐</span>
         <span class="theme-label" id="mobileThemeLabel">
-          LIGHT MODE
+          CYCLE THEME
         </span>
       </button>
     </div>
@@ -204,26 +264,62 @@ const links: NavLink[] = [
   import '../scripts/age-counter';
   import '../scripts/local-clock';
 
+  const THEMES = [
+    { id: 'dark', label: 'AMBER' },
+    { id: 'blue', label: 'BLUE' },
+    { id: 'emerald', label: 'EMERALD' },
+    { id: 'violet', label: 'VIOLET' },
+    { id: 'light', label: 'LIGHT' },
+  ] as const;
+
   function setupThemeToggle(): void {
     const btn = document.getElementById('themeToggle');
     const label = document.getElementById('themeLabel');
+    const paletteButtons = document.querySelectorAll<HTMLElement>('[data-set-theme]');
+    const mobileThemeToggle = document.getElementById('mobileThemeToggle');
+    const mobileThemeLabel = document.getElementById('mobileThemeLabel');
 
-    function syncLabel(theme: string): void {
+    function applyTheme(themeId: string): void {
+      const matched = THEMES.find((t) => t.id === themeId) || THEMES[0];
+      document.documentElement.setAttribute('data-theme', matched.id);
+      localStorage.setItem('theme', matched.id);
+
       if (label) {
-        label.textContent = theme === 'dark' ? 'LIGHT' : 'DARK';
+        label.textContent = matched.label;
       }
+      if (btn) {
+        btn.setAttribute('title', `Color Theme: ${matched.label} (Click to cycle)`);
+      }
+      if (mobileThemeLabel) {
+        mobileThemeLabel.textContent = `THEME: ${matched.label}`;
+      }
+
+      paletteButtons.forEach((b) => {
+        const isCur = b.getAttribute('data-set-theme') === matched.id;
+        b.classList.toggle('active', isCur);
+      });
+
+      window.dispatchEvent(new CustomEvent('themechange', { detail: { theme: matched.id } }));
     }
 
-    const current = document.documentElement.getAttribute('data-theme') || 'dark';
-    syncLabel(current);
+    function cycleTheme(): void {
+      const current = document.documentElement.getAttribute('data-theme') || 'dark';
+      const curIndex = THEMES.findIndex((t) => t.id === current);
+      const nextIndex = (curIndex + 1) % THEMES.length;
+      applyTheme(THEMES[nextIndex].id);
+    }
 
-    btn?.addEventListener('click', () => {
-      const active = document.documentElement.getAttribute('data-theme') || 'dark';
-      const target = active === 'dark' ? 'light' : 'dark';
-      document.documentElement.setAttribute('data-theme', target);
-      localStorage.setItem('theme', target);
-      syncLabel(target);
-      window.dispatchEvent(new CustomEvent('themechange', { detail: { theme: target } }));
+    const initial = document.documentElement.getAttribute('data-theme') || 'dark';
+    applyTheme(initial);
+
+    btn?.addEventListener('click', cycleTheme);
+    mobileThemeToggle?.addEventListener('click', cycleTheme);
+
+    paletteButtons.forEach((b) => {
+      b.addEventListener('click', () => {
+        const target = b.getAttribute('data-set-theme');
+        if (target) applyTheme(target);
+      });
     });
   }
 
@@ -262,34 +358,8 @@ const links: NavLink[] = [
     const closeBtn = document.getElementById('mobileNavClose');
     const backdrop = document.getElementById('mobileNavBackdrop');
     const mobileLinks = document.querySelectorAll<HTMLAnchorElement>('.mobile-nav-item');
-    const mobileThemeToggle = document.getElementById('mobileThemeToggle');
-    const mobileThemeLabel = document.getElementById('mobileThemeLabel');
 
     if (!toggleBtn || !drawer) return;
-
-    function syncMobileThemeLabel(theme: string): void {
-      if (mobileThemeLabel) {
-        mobileThemeLabel.textContent = theme === 'dark' ? 'LIGHT MODE' : 'DARK MODE';
-      }
-    }
-
-    const curTheme = document.documentElement.getAttribute('data-theme') || 'dark';
-    syncMobileThemeLabel(curTheme);
-
-    window.addEventListener('themechange', (e: Event) => {
-      const custom = e as CustomEvent<{ theme: string }>;
-      if (custom.detail?.theme) {
-        syncMobileThemeLabel(custom.detail.theme);
-      }
-    });
-
-    mobileThemeToggle?.addEventListener('click', () => {
-      const active = document.documentElement.getAttribute('data-theme') || 'dark';
-      const target = active === 'dark' ? 'light' : 'dark';
-      document.documentElement.setAttribute('data-theme', target);
-      localStorage.setItem('theme', target);
-      window.dispatchEvent(new CustomEvent('themechange', { detail: { theme: target } }));
-    });
 
     function openMenu(): void {
       drawer!.setAttribute('aria-hidden', 'false');
