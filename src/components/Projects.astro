@@ -1,0 +1,60 @@
+---
+/**
+ * Projects — Systems I've Built with dashed-separated rows.
+ */
+import Loader from './Loader.astro';
+
+interface Project {
+  name: string;
+  desc: string;
+  tags: string[];
+}
+
+const projects: Project[] = [
+  {
+    name: 'Distributed LLM Fine-Tuning & Evaluation Pipeline',
+    desc: 'Multi-node PEFT/LoRA with PyTorch FSDP and JAX, automated gradient checkpointing, synthetic data evaluation.',
+    tags: ['PyTorch', 'JAX', 'Hugging Face', 'FSDP', 'CUDA'],
+  },
+  {
+    name: 'Autonomous Agentic RAG & Semantic Retrieval Engine',
+    desc: 'Production RAG with LangChain, vector embeddings, hybrid dense-sparse reranking, agent tooling.',
+    tags: ['LangChain', 'RAG', 'Embeddings', 'Reranking'],
+  },
+  {
+    name: 'High-Throughput Streaming Feature Store & Inference',
+    desc: 'Streaming feature pipelines with real-time serving.',
+    tags: ['Kafka', 'Spark', 'Triton'],
+  },
+];
+---
+
+<section class="section anim-s3" id="systems" aria-labelledby="projects-heading">
+  <p class="micro-label">
+    <Loader />
+    Systems &amp; Workloads
+  </p>
+
+  <h2 class="section-heading" id="projects-heading">
+    Selected AI Architectures
+  </h2>
+
+  <div role="list">
+    {projects.map((project) => (
+      <div class="project-row" role="listitem">
+        <div class="project-name">
+          {project.name}
+          <span class="arrow" aria-hidden="true">
+            →
+          </span>
+        </div>
+        <p class="project-desc">{project.desc}</p>
+        <div class="tags">
+          {project.tags.map((tag) => (
+            <span class="tag">{tag}</span>
+          ))}
+        </div>
+      </div>
+    ))}
+  </div>
+</section>

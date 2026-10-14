@@ -1,0 +1,31 @@
+---
+/**
+ * About — Who am I ? overview with chips.
+ */
+import Loader from './Loader.astro';
+
+const chips: string[] = ['2+ Years Software Engineering', 'Ex-Simplify3x', 'AI & ML Systems'];
+---
+
+<section class="section anim-s1" id="about" aria-labelledby="about-heading">
+  <p class="micro-label">
+    <Loader />
+    About
+  </p>
+
+  <h2 class="section-heading" id="about-heading">
+    Software Engineering &amp; AI Systems
+  </h2>
+
+  <p class="bio">
+    Software Engineer with 2+ years of enterprise experience at Simplify3x, specializing in
+    high-throughput backend services and machine learning infrastructure. Work focused on resilient
+    production software, scalable microservices, and practical AI/ML pipelines.
+  </p>
+
+  <div class="chips">
+    {chips.map((chip) => (
+      <span class="chip">{chip}</span>
+    ))}
+  </div>
+</section>

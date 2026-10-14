@@ -1,0 +1,50 @@
+---
+/**
+ * Hero — Main landing section.
+ * Micro-label, H1 with blinking caret, focus strip, serif bio, links, stat.
+ */
+import Loader from './Loader.astro';
+---
+
+<section class="section hero anim-hero" aria-labelledby="hero-heading">
+  <p class="micro-label">
+    <Loader />
+    AI &amp; Machine Learning Engineer
+  </p>
+
+  <h1 id="hero-heading">
+    Bernard Birendra Das<span class="caret" aria-hidden="true"></span>
+  </h1>
+
+  <p class="focus-strip">
+    Deep Learning <span aria-hidden="true">•</span> LLM Pipelines <span aria-hidden="true">•</span>{' '}
+    Distributed MLOps
+  </p>
+
+  <p class="bio">
+    Software engineer with 2+ years of production experience at Simplify3x building distributed
+    systems, scalable backend architectures, and production AI/ML pipelines.
+  </p>
+
+  <div class="hero-links">
+    <a
+      class="hero-link"
+      href="/bernard-resume-sourceserifpro.pdf"
+      target="_blank"
+      rel="noopener noreferrer"
+    >
+      View Visual Resume{' '}
+      <span class="arrow" aria-hidden="true">
+        →
+      </span>
+    </a>
+    <a class="hero-link" href="#systems">
+      Explore AI Systems{' '}
+      <span class="arrow" aria-hidden="true">
+        →
+      </span>
+    </a>
+  </div>
+
+  <p class="hero-stat">2+ Years — Software Engineering</p>
+</section>

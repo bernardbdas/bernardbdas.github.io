@@ -1,0 +1,44 @@
+---
+/**
+ * index.astro — Single-page portfolio: brutalist terminal-HUD aesthetic.
+ * Assembles all components into an asymmetric two-column layout with
+ * canvas wireframe terrain in the right column.
+ */
+import BaseLayout from '../layouts/BaseLayout.astro';
+import ChromeNav from '../components/ChromeNav.astro';
+import ChromeFooter from '../components/ChromeFooter.astro';
+import Hero from '../components/Hero.astro';
+import About from '../components/About.astro';
+import Projects from '../components/Projects.astro';
+import Skills from '../components/Skills.astro';
+import Contact from '../components/Contact.astro';
+---
+
+<BaseLayout
+  title="Bernard Birendra Das — AI & Machine Learning Engineer"
+  description="Software engineer with 2+ years of production experience building distributed systems, scalable backend architectures, and production AI/ML pipelines."
+>
+  <canvas id="scene" aria-hidden="true"></canvas>
+
+  <ChromeNav />
+
+  <div class="page-grid">
+    <!-- ─── LEFT: CONTENT COLUMN ─────────────────────────────── -->
+    <main class="content-col" id="top">
+      <Hero />
+      <About />
+      <Projects />
+      <Skills />
+      <Contact />
+    </main>
+
+    <!-- ─── RIGHT: NEGATIVE SPACE SHOWING 3D TERRAIN ─────────── -->
+    <div class="bg-col" aria-hidden="true"></div>
+  </div>
+
+  <ChromeFooter />
+
+  <script>
+    import '../scripts/terrain.ts';
+  </script>
+</BaseLayout>

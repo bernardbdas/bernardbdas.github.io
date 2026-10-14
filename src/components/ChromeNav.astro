@@ -1,0 +1,84 @@
+---
+/**
+ * ChromeNav — Fixed top navigation bar (instrument HUD style).
+ * Brand mark left, inline typographic links right separated by 1px hairlines.
+ */
+
+interface NavLink {
+  label: string;
+  href: string;
+  external?: boolean;
+}
+
+const links: NavLink[] = [
+  { label: 'About', href: '#about' },
+  { label: 'Systems', href: '#systems' },
+  { label: 'Skills', href: '#skills' },
+  { label: 'GitHub', href: 'https://github.com/bernardbdas', external: true },
+  { label: 'LinkedIn', href: 'https://linkedin.com/in/bernardbdas', external: true },
+];
+---
+
+<nav class="chrome-top anim-chrome" aria-label="Main navigation">
+  <div class="brand">
+    bernardbdas<span class="brand-suffix">.github.io</span>
+  </div>
+  <div class="nav-links" role="navigation">
+    {links.map((link, i) => (
+      <>
+        {i > 0 && <span class="nav-sep" aria-hidden="true" />}
+        <a
+          href={link.href}
+          {...(link.external ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
+        >
+          {link.label}
+          {link.external && (
+            <span class="arrow" aria-hidden="true">
+              ↗
+            </span>
+          )}
+        </a>
+      </>
+    ))}
+    <span class="nav-sep" aria-hidden="true"></span>
+    <button class="theme-toggle" id="themeToggle" type="button" aria-label="Toggle color theme">
+      <span class="theme-icon" aria-hidden="true">
+        ◐
+      </span>
+      <span class="theme-label" id="themeLabel">
+        LIGHT
+      </span>
+    </button>
+  </div>
+</nav>
+
+<script>
+  function setupThemeToggle(): void {
+    const btn = document.getElementById('themeToggle');
+    const label = document.getElementById('themeLabel');
+
+    function syncLabel(theme: string): void {
+      if (label) {
+        label.textContent = theme === 'dark' ? 'LIGHT' : 'DARK';
+      }
+    }
+
+    const current = document.documentElement.getAttribute('data-theme') || 'dark';
+    syncLabel(current);
+
+    btn?.addEventListener('click', () => {
+      const active = document.documentElement.getAttribute('data-theme') || 'dark';
+      const target = active === 'dark' ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-theme', target);
+      localStorage.setItem('theme', target);
+      syncLabel(target);
+      window.dispatchEvent(new CustomEvent('themechange', { detail: { theme: target } }));
+    });
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', setupThemeToggle);
+  } else {
+    setupThemeToggle();
+  }
+</script>

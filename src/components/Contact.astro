@@ -1,0 +1,61 @@
+---
+/**
+ * Contact — Get in touch links (GitHub, LinkedIn, Email).
+ */
+import Loader from './Loader.astro';
+
+interface ContactLink {
+  label: string;
+  text: string;
+  href: string;
+}
+
+const contacts: ContactLink[] = [
+  {
+    label: 'GitHub',
+    text: 'github.com/bernardbdas',
+    href: 'https://github.com/bernardbdas',
+  },
+  {
+    label: 'LinkedIn',
+    text: 'linkedin.com/in/bernardbdas',
+    href: 'https://linkedin.com/in/bernardbdas',
+  },
+  {
+    label: 'Email',
+    text: 'bernardbdas@gmail.com',
+    href: 'mailto:bernardbdas@gmail.com',
+  },
+];
+---
+
+<section class="section anim-s5" id="contact" aria-labelledby="contact-heading">
+  <p class="micro-label">
+    <Loader />
+    Get In Touch
+  </p>
+
+  <h2 class="section-heading visually-hidden" id="contact-heading">
+    Contact
+  </h2>
+
+  <div role="list">
+    {contacts.map((contact) => {
+      const isExternal = contact.href.startsWith('http');
+      return (
+        <div class="contact-row" role="listitem">
+          <span class="contact-label">{contact.label}</span>
+          <a
+            href={contact.href}
+            {...(isExternal ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
+          >
+            {contact.text}
+            <span class="arrow" aria-hidden="true">
+              ↗
+            </span>
+          </a>
+        </div>
+      );
+    })}
+  </div>
+</section>

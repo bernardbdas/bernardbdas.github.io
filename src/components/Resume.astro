@@ -1,0 +1,77 @@
+---
+/**
+ * Resume — Curriculum Vitae with numbered terminal-style rows.
+ */
+import Loader from './Loader.astro';
+
+interface ResumeEntry {
+  idx: string;
+  title: string;
+  desc: string;
+}
+
+const entries: ResumeEntry[] = [
+  {
+    idx: '01',
+    title: 'Software Engineering',
+    desc: 'Resilient backend architectures, automated workflows, microservices.',
+  },
+  {
+    idx: '02',
+    title: 'Enterprise Systems',
+    desc: 'Production engineering at Simplify3x, distributed execution pipelines.',
+  },
+  {
+    idx: '03',
+    title: 'Modern AI & MLOps',
+    desc: 'Fine-tuning LLMs, agentic RAG systems, GCP feature stores.',
+  },
+];
+---
+
+<section class="section anim-s2" id="resume" aria-labelledby="resume-heading">
+  <p class="micro-label">
+    <Loader />
+    Curriculum Vitae
+  </p>
+
+  <h2 class="section-heading" id="resume-heading">
+    Resume
+  </h2>
+
+  <div role="list">
+    {entries.map((entry) => (
+      <div class="resume-row" role="listitem">
+        <span class="resume-idx">{entry.idx}</span>
+        <div>
+          <div class="resume-title">{entry.title}</div>
+          <p class="resume-desc">{entry.desc}</p>
+        </div>
+      </div>
+    ))}
+  </div>
+
+  <div class="resume-actions">
+    <a
+      class="resume-action"
+      href="https://github.com/bernardbdas/professional-portfolio/blob/main/02-visual-resume/builds/bernard-resume-sourceserifpro.pdf"
+      target="_blank"
+      rel="noopener noreferrer"
+    >
+      Open Full Resume{' '}
+      <span class="arrow" aria-hidden="true">
+        →
+      </span>
+    </a>
+    <a
+      class="resume-action"
+      href="/bernard-resume-sourceserifpro.pdf"
+      download="bernard-resume-sourceserifpro.pdf"
+    >
+      Download PDF{' '}
+      <span class="arrow" aria-hidden="true">
+        ↓
+      </span>
+    </a>
+  </div>
+</section>

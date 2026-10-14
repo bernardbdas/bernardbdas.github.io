@@ -1,0 +1,50 @@
+---
+/**
+ * Skills — Core Competencies grid with four skill groups.
+ */
+import Loader from './Loader.astro';
+
+interface SkillGroup {
+  label: string;
+  items: string[];
+}
+
+const groups: SkillGroup[] = [
+  {
+    label: 'ML & GenAI',
+    items: ['PyTorch', 'TensorFlow', 'Hugging Face', 'LangChain', 'JAX', 'Computer Vision'],
+  },
+  {
+    label: 'Inference & Systems',
+    items: ['TensorRT', 'Triton', 'vLLM', 'Spark', 'Kafka', 'PostgreSQL'],
+  },
+  {
+    label: 'MLOps & Cloud',
+    items: ['Vertex AI', 'SageMaker', 'Kubernetes', 'Docker', 'MLflow', 'CI/CD'],
+  },
+  {
+    label: 'Languages',
+    items: ['Python', 'TypeScript', 'Java', 'C++', 'Rust', 'SQL'],
+  },
+];
+---
+
+<section class="section anim-s4" id="skills" aria-labelledby="skills-heading">
+  <p class="micro-label">
+    <Loader />
+    Core Competencies
+  </p>
+
+  <h2 class="section-heading" id="skills-heading">
+    My Toolkit
+  </h2>
+
+  <div class="skills-grid">
+    {groups.map((group) => (
+      <div>
+        <div class="skill-group-label">{group.label}</div>
+        <div class="skill-group-items">{group.items.join(', ')}</div>
+      </div>
+    ))}
+  </div>
+</section>
