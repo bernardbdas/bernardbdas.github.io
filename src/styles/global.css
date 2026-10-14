@@ -772,6 +772,13 @@ button {
   white-space: nowrap;
 }
 
+.clock-weekday {
+  font-size: 9.5px;
+  font-weight: 600;
+  color: var(--accent);
+  letter-spacing: 0.08em;
+}
+
 .clock-date {
   font-size: 9.5px;
   color: var(--ink);
@@ -805,6 +812,7 @@ button {
 }
 
 @media (max-width: 960px) {
+  .local-clock .clock-weekday,
   .local-clock .clock-date,
   .local-clock .clock-sep {
     display: none;
@@ -1516,6 +1524,7 @@ button {
 }
 
 @media (max-width: 680px) {
+  .local-clock .clock-weekday,
   .local-clock .clock-date,
   .local-clock .clock-sep {
     display: none;

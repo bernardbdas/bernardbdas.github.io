@@ -60,6 +60,7 @@ async function copyText(text: string): Promise<boolean> {
 export function initLocalClock(): void {
   const container = document.getElementById('local-clock');
   const badgeEl = document.getElementById('clock-badge');
+  const weekdayEl = document.getElementById('clock-weekday');
   const dateEl = document.getElementById('clock-date');
   const timeEl = document.getElementById('clock-time');
   const tzEl = document.getElementById('clock-tz');
@@ -78,12 +79,20 @@ export function initLocalClock(): void {
   function updateClock(): void {
     const now = new Date();
 
+    let weekdayStr = '';
     let dateStr = '';
     let timeStr = '';
     let tzStr = '';
 
     if (mode === 'bernard') {
       try {
+        weekdayStr = new Intl.DateTimeFormat('en-GB', {
+          timeZone: BERNARD_TIMEZONE,
+          weekday: 'short',
+        })
+          .format(now)
+          .toUpperCase();
+
         const day = new Intl.DateTimeFormat('en-GB', {
           timeZone: BERNARD_TIMEZONE,
           day: '2-digit',
@@ -111,17 +120,19 @@ export function initLocalClock(): void {
         tzStr = 'IST';
       } catch {
         // In case environment lacks timezone DB
+        weekdayStr = 'THU';
         dateStr = now.toLocaleDateString();
         timeStr = now.toLocaleTimeString();
         tzStr = 'IST';
       }
 
-      if (badgeEl) badgeEl.textContent = "Bernard's Clock";
+      if (badgeEl) badgeEl.textContent = "BERNARD'S TIME";
       container!.classList.add('mode-bernard');
       container!.title =
-        "Bernard's Clock — Asia/Kolkata (IST) (Double-click for Your Local Time, click to copy)";
-      currentString = `Bernard's Clock (Asia/Kolkata): ${dateStr} ${timeStr} ${tzStr}`;
+        "Bernard's Time — Asia/Kolkata (IST) (Double-click for Your Local Time, click to copy)";
+      currentString = `Bernard's Time (Asia/Kolkata): ${weekdayStr}, ${dateStr} ${timeStr} ${tzStr}`;
     } else {
+      weekdayStr = now.toLocaleString('en-US', { weekday: 'short' }).toUpperCase();
       const day = String(now.getDate()).padStart(2, '0');
       const month = now.toLocaleString('en-US', { month: 'short' }).toUpperCase();
       const year = now.getFullYear();
@@ -137,10 +148,11 @@ export function initLocalClock(): void {
       if (badgeEl) badgeEl.textContent = 'LOCAL';
       container!.classList.remove('mode-bernard');
       container!.title =
-        "Your Local Time (Double-click for Bernard's Clock [Asia/Kolkata], click to copy)";
-      currentString = `Local Time: ${dateStr} ${timeStr} ${tzStr}`;
+        "Your Local Time (Double-click for Bernard's Time [Asia/Kolkata], click to copy)";
+      currentString = `Local Time: ${weekdayStr}, ${dateStr} ${timeStr} ${tzStr}`;
     }
 
+    if (weekdayEl && weekdayEl.textContent !== weekdayStr) weekdayEl.textContent = weekdayStr;
     if (dateEl && dateEl.textContent !== dateStr) dateEl.textContent = dateStr;
     if (!isCopied && timeEl && timeEl.textContent !== timeStr) timeEl.textContent = timeStr;
     if (tzEl && tzEl.textContent !== tzStr) tzEl.textContent = tzStr;
