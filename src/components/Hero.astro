@@ -5,11 +5,27 @@
  */
 import Loader from './Loader.astro';
 
+interface WorkEntry {
+  period: string;
+  company: string;
+  role: string;
+  location?: string;
+}
+
 interface EduEntry {
   period: string;
   institute: string;
   degree: string;
 }
+
+const experience: WorkEntry[] = [
+  {
+    period: '2023 – 2025',
+    company: 'Simplify3x Software Private Limited',
+    role: 'Software Engineer',
+    location: 'Bengaluru, Karnataka',
+  },
+];
 
 const education: EduEntry[] = [
   {
@@ -68,6 +84,24 @@ const education: EduEntry[] = [
         →
       </span>
     </a>
+  </div>
+
+  <div class="hero-work" aria-label="Work Experience">
+    <p class="edu-label">WORK EXPERIENCE</p>
+    <div class="edu-list" role="list">
+      {experience.map((item) => (
+        <div class="edu-item" role="listitem">
+          <span class="edu-period">{item.period}</span>
+          <div class="edu-details">
+            <span class="edu-institute">{item.company}</span>
+            <span class="edu-degree">
+              {item.role}
+              {item.location && <span> — {item.location}</span>}
+            </span>
+          </div>
+        </div>
+      ))}
+    </div>
   </div>
 
   <div class="hero-education" aria-label="Academic Journey">
