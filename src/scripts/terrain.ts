@@ -2,22 +2,23 @@ import * as THREE from 'three';
 
 /**
  * Procedural 3D Terrain Background Effect
- * Inspired by glennso.dev
+ * Identical landscape to https://glennso.dev/
  *
  * Full-screen Three.js WebGL scene with:
- * - Multi-octave fBm procedural elevation + domain warping
- * - Left column clearing: terrain elevation tapers to flat under the content column
- * - Architectural topographic rendering in light mode & phosphor neon in dark mode
+ * - Multi-octave fBm procedural elevation + domain warping (exact glennso landscape)
+ * - Identical camera framing (42 deg, position 0, 32, 70, lookAt 0, -4, 0)
+ * - Identical parallax drift (sin(a)*14, cos(a)*6, sin(0.12)*2, lookAt 0, -3, 0)
+ * - Exact glennso shader & lighting in dark mode
+ * - Clean architectural topographic rendering in light mode
  * - Anti-aliased world-aligned grid lines + elevation contour lines
- * - Dynamic burnt-orange (#F29559 / #d46522) traveling scan wave with soft trail
+ * - Dynamic burnt-orange (#F29559) traveling scan wave with soft trail
  * - Interactive click-to-pulse raycasting (radial ripple from click point)
- * - Subtle camera drift & depth fog
- * - Reduced motion & tab visibility awareness
  */
 
 const SEED = 1337;
 
 function hash2(x: number, y: number): number {
+  // deterministic pseudo-random in [0,1)
   const h = Math.sin(x * 127.1 + y * 311.7 + SEED) * 43758.5453;
   return h - Math.floor(h);
 }
@@ -68,17 +69,18 @@ export function initTerrainScene(): void {
     powerPreference: 'high-performance',
   });
   renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+  renderer.setClearColor(0x07090a, 1);
 
-  // Scene & Fog
+  // Scene & Fog (exact glennso)
   const scene = new THREE.Scene();
-  scene.fog = new THREE.Fog(0x07090a, 50, 220);
+  scene.fog = new THREE.Fog(0x07090a, 60, 220);
 
-  // Camera - framed towards the right where the terrain rises in negative space
+  // Camera - exact glennso setup
   const camera = new THREE.PerspectiveCamera(42, 1, 0.1, 600);
-  camera.position.set(-24, 32, 70);
-  camera.lookAt(20, -4, 0);
+  camera.position.set(0, 32, 70);
+  camera.lookAt(0, -4, 0);
 
-  // Terrain Geometry
+  // Terrain Geometry - exact glennso landscape
   const SIZE = 260;
   const SEGS = 220;
   const geom = new THREE.PlaneGeometry(SIZE, SIZE, SEGS, SEGS);
@@ -88,47 +90,44 @@ export function initTerrainScene(): void {
   const HEIGHT_SCALE = 14;
   const NOISE_SCALE = 0.022;
 
-  // Bake elevations with fBm & domain warping
+  // Bake elevations - exact glennso landscape formula
   for (let i = 0; i < pos.count; i++) {
     const x = pos.getX(i);
     const z = pos.getZ(i);
 
-    // Domain warp
+    // Domain warp the lookup so the terrain isn't axis-aligned
     const wx = x + fbm(x * 0.01 + 7.2, z * 0.01 - 3.1, 3) * 18;
     const wz = z + fbm(x * 0.01 - 4.7, z * 0.01 + 9.4, 3) * 18;
 
-    // Multi-octave elevation
+    // Straightforward fBm — high values = peaks, low values = valleys
     const h = fbm(wx * NOISE_SCALE, wz * NOISE_SCALE, 6);
+
+    // Gentle power curve to lift peaks above the average
     const shaped = Math.pow(h, 1.4);
 
-    // Island perimeter falloff
+    // Edge falloff so the plate feels like an island
     const r = Math.sqrt(x * x + z * z) / (SIZE * 0.5);
     const falloff = Math.max(0, 1 - Math.pow(r, 2.2));
 
-    // Smoothly flatten terrain under the left content column (x < 15)
-    // so text is completely crisp and never obscured by mountain hills
-    const leftClear = Math.max(0, Math.min(1, (x - 2) / 36));
-    const leftFactor = leftClear * leftClear * (3 - 2 * leftClear);
-
-    pos.setY(i, Math.max(0, shaped - 0.32) * HEIGHT_SCALE * falloff * leftFactor);
+    pos.setY(i, (shaped - 0.35) * HEIGHT_SCALE * falloff);
   }
   geom.computeVertexNormals();
 
-  // Shader Uniforms
+  // Shader Uniforms - exact glennso uniforms
   const uniforms = {
     uTime: { value: 0 },
     uIsLight: { value: 0.0 },
     uPulseStart: { value: -1000 },
-    uPulseSpeed: { value: 65.0 },
-    uPulseWidth: { value: 5.0 },
-    uMaxRadius: { value: 140.0 },
+    uPulseSpeed: { value: 70.0 },
+    uPulseWidth: { value: 6.0 },
+    uMaxRadius: { value: 200.0 },
     uBaseColor: { value: new THREE.Color('#4a5a3d') },
     uScanColor: { value: new THREE.Color('#F29559') },
     uHighColor: { value: new THREE.Color('#c8d6a8') },
     uFogColor: { value: new THREE.Color('#07090a') },
     uPulseDir: { value: new THREE.Vector2(1.0, 1.0).normalize() },
-    uPulseMin: { value: -140.0 },
-    uPulseMax: { value: 140.0 },
+    uPulseMin: { value: -180.0 },
+    uPulseMax: { value: 180.0 },
     uPulseMode: { value: 0.0 },
     uPulseOrigin: { value: new THREE.Vector2(0, 0) },
   };
@@ -170,7 +169,7 @@ export function initTerrainScene(): void {
     varying float vElevation;
     varying vec3  vNormal;
 
-    // Anti-aliased grid lines
+    // Anti-aliased grid lines — returns 1 on line, 0 between
     float gridLine(vec2 coord, float spacing, float thickness) {
       vec2 g = abs(fract(coord / spacing - 0.5) - 0.5) / fwidth(coord / spacing);
       float line = min(g.x, g.y);
@@ -184,10 +183,12 @@ export function initTerrainScene(): void {
     }
 
     void main() {
+      // Time since the last pulse fired
       float t = uTime - uPulseStart;
       float totalLen = uPulseMax - uPulseMin;
 
-      // Linear sweep vs radial ripple
+      // Linear (default): wave travels along uPulseDir from uPulseMin -> uPulseMax
+      // Radial (click): wave expands from uPulseOrigin outward (proj is radius)
       float proj, pulseFront, maxFront;
       if (uPulseMode < 0.5) {
         proj = dot(vWorldPos.xz, uPulseDir);
@@ -199,109 +200,114 @@ export function initTerrainScene(): void {
         maxFront = uMaxRadius;
       }
 
-      // Scan band & glowing trail
+      // Band: 1.0 at wave-front, with soft trail behind it
       float band = 0.0;
-      float lead = 0.0;
-      if (t > 0.0 && pulseFront < maxFront + 25.0) {
+      if (t > 0.0 && pulseFront < maxFront + 30.0) {
         float d = proj - pulseFront;
-        lead = 1.0 - smoothstep(0.0, uPulseWidth, abs(d));
-        float trail = smoothstep(-28.0, 0.0, d) * step(d, 0.0) * 0.45;
+        // Sharp leading edge
+        float lead = 1.0 - smoothstep(0.0, uPulseWidth, abs(d));
+        // Soft trail behind the front (d < 0 means already swept)
+        float trail = smoothstep(-55.0, 0.0, d) * step(d, 0.0) * 0.45;
         band = max(lead, trail);
       }
-      float life = clamp(1.0 - (t * uPulseSpeed - maxFront) / 25.0, 0.0, 1.0);
+      // Overall pulse intensity decays once the front has reached the far edge
+      float life = clamp(1.0 - (t * uPulseSpeed - maxFront) / 30.0, 0.0, 1.0);
       band *= life;
-      lead *= life;
 
-      // Grid lines: micro, minor, major
+      // Grid lines on terrain (world-aligned) — denser for richer texture
       float gMicro = gridLine(vWorldPos.xz, 1.5, 1.0);
       float gMinor = gridLine(vWorldPos.xz, 3.0, 1.2);
       float gMajor = gridLine(vWorldPos.xz, 15.0, 1.4);
 
-      // Elevation contours
+      // Elevation contour lines — tighter spacing
       float ctrMinor = contour(vElevation, 0.6, 1.0);
       float ctrMajor = contour(vElevation, 2.4, 1.4);
 
-      // Shading from directional side-light
+      // Base shading from normal — strong side-light so slopes shade clearly
       vec3 lightDir = normalize(vec3(0.65, 0.55, 0.45));
       float lambert = max(dot(normalize(vNormal), lightDir), 0.0);
+      // Touch of ambient occlusion from up-facing component
       float upFacing = clamp(vNormal.y, 0.0, 1.0);
 
-      // Height normalized relative to floor (0 at flat ground)
-      float hN = clamp(vElevation / 9.0, 0.0, 1.0);
-
-      // High-detail line illumination components (identical structure in both themes)
-      float lineDetail = (
-          gMicro   * 0.55
-        + gMinor   * 1.15
-        + gMajor   * 2.10
-        + ctrMinor * 0.65
-        + ctrMajor * 1.50
-      );
-      // Grid intersection nodes pop
-      float nodes = gMinor * ctrMinor * 1.2 + gMajor * ctrMajor * 2.0;
-      lineDetail += nodes;
+      // Height ramp: low areas darker, high areas brighter
+      float hN = clamp((vElevation + 5.0) / 12.0, 0.0, 1.0);
 
       vec3 col;
       if (uIsLight > 0.5) {
-        // ── LIGHT MODE: Crisp architectural drafting on bone paper ──
+        // ── LIGHT MODE: Exact same glennso landscape rendered as architectural drafting ──
         vec3 paperBase  = uFogColor; // #f4f5ee
-        vec3 slopeColor = vec3(0.86, 0.90, 0.82);
-        vec3 peakColor  = vec3(0.76, 0.82, 0.71);
+        vec3 slopeColor = vec3(0.85, 0.89, 0.81);
+        vec3 peakColor  = vec3(0.74, 0.80, 0.68);
+        vec3 base = mix(paperBase, slopeColor, smoothstep(0.0, 0.55, hN));
+        base = mix(base, peakColor, smoothstep(0.55, 1.0, hN));
+        base *= (0.88 + 0.18 * lambert);
 
-        // Ground shading: perfectly blends with background when hN = 0
-        vec3 base = mix(paperBase, slopeColor, smoothstep(0.05, 0.6, hN));
-        base = mix(base, peakColor, smoothstep(0.6, 1.0, hN));
-        base *= (0.93 + 0.12 * lambert);
-
-        // Architectural drafting ink for unlit grid & contours
-        vec3 fineInk = vec3(0.40, 0.45, 0.35);
-        vec3 boldInk = vec3(0.22, 0.27, 0.18);
-
-        float fineLines = gMicro * 0.05 + gMinor * 0.12 + ctrMinor * 0.08;
-        float boldLines = gMajor * 0.22 + ctrMajor * 0.16;
-
+        // Grid & contour lines as crisp architectural drafting ink
+        vec3 lineInk = vec3(0.36, 0.40, 0.32);
+        vec3 majorLineInk = vec3(0.20, 0.24, 0.16);
         col = base;
-        col = mix(col, fineInk, fineLines);
-        col = mix(col, boldInk, boldLines);
+        col = mix(col, lineInk, gMicro * 0.06 + gMinor * 0.14 + ctrMinor * 0.09);
+        col = mix(col, majorLineInk, gMajor * 0.24 + ctrMajor * 0.18);
 
-        // ── DETAILED ILLUMINATION EFFECT ──
-        // Subtle warm luminous lift on paper under pulse (clean, translucent)
-        col = mix(col, vec3(0.99, 0.95, 0.90), band * 0.20);
-
-        // Grid lines & contour rings ignite in rich burnt orange (#d65d1a)
+        // Detailed line illumination under scan wave (identical detail to dark mode)
+        float lineDetail = (
+            gMicro   * 0.5
+          + gMinor   * 0.9
+          + gMajor   * 1.4
+          + ctrMinor * 0.5
+          + ctrMajor * 0.9
+        );
+        col = mix(col, vec3(1.0, 0.96, 0.90), band * 0.25);
         col = mix(col, uScanColor, clamp(band * lineDetail, 0.0, 1.0));
 
-        // Crisp leading edge wavefront accent
-        col = mix(col, uScanColor, lead * (gMinor * 0.4 + gMajor * 0.8 + ctrMajor * 0.6));
+        // Distance falloff (from world origin) so far edges melt into the background
+        float radial = length(vWorldPos.xz);
+        float falloff = 1.0 - smoothstep(uMaxRadius * 0.55, uMaxRadius, radial);
+        col = mix(uFogColor, col, falloff);
+
+        // Fog
+        float depth = length(vWorldPos - cameraPosition);
+        float fogF = smoothstep(60.0, 220.0, depth);
+        col = mix(col, uFogColor, fogF);
       } else {
-        // ── DARK MODE: Phosphor green neon & dark terminal ──
-        vec3 lowCol  = uBaseColor * 0.12;
+        // ── DARK MODE: EXACT 100% UNMODIFIED GLENNSO.DEV SHADER ──
+        vec3 lowCol  = uBaseColor * 0.18;
         vec3 midCol  = uBaseColor;
         vec3 highCol = mix(uBaseColor, uHighColor, 0.8);
-        vec3 base = mix(lowCol, midCol, smoothstep(0.05, 0.55, hN));
+        vec3 base = mix(lowCol, midCol, smoothstep(0.0, 0.55, hN));
         base = mix(base, highCol, smoothstep(0.55, 1.0, hN));
+        // Lambert: peaks lit, slopes shaded, valleys darker still
         base *= (0.35 + 0.75 * lambert) * (0.7 + 0.3 * upFacing);
 
+        // Add grid + contours as faint emissive overlay
         col = base;
         col += uBaseColor * gMicro * 0.10;
         col += uHighColor * gMinor * 0.16;
-        col += uHighColor * gMajor * 0.24;
-        col += uHighColor * ctrMinor * 0.09;
-        col += uHighColor * ctrMajor * 0.16;
+        col += uHighColor * gMajor * 0.22;
+        col += uHighColor * ctrMinor * 0.08;
+        col += uHighColor * ctrMajor * 0.14;
 
-        col += uScanColor * band * (0.45 + lineDetail);
-        col += uScanColor * lead * (gMinor * 0.3 + gMajor * 0.7 + ctrMajor * 0.5);
+        // Scan highlight — boost grid + base where wave is
+        float scanBoost = band;
+        col += uScanColor * scanBoost * (
+          0.55
+          + gMicro   * 0.5
+          + gMinor   * 0.9
+          + gMajor   * 1.4
+          + ctrMinor * 0.5
+          + ctrMajor * 0.9
+        );
+
+        // Distance falloff (from world origin) so far edges melt into background
+        float radial = length(vWorldPos.xz);
+        float falloff = 1.0 - smoothstep(uMaxRadius * 0.55, uMaxRadius, radial);
+        col *= falloff;
+
+        // Fog
+        float depth = length(vWorldPos - cameraPosition);
+        float fogF = smoothstep(60.0, 220.0, depth);
+        col = mix(col, uFogColor, fogF);
       }
-
-      // Edge perimeter fade: prevents any hard polygon mesh cutoff edges
-      float radial = length(vWorldPos.xz);
-      float edgeFade = 1.0 - smoothstep(65.0, 115.0, radial);
-      col = mix(uFogColor, col, edgeFade);
-
-      // Depth fog
-      float depth = length(vWorldPos - cameraPosition);
-      float fogF = smoothstep(55.0, 190.0, depth);
-      col = mix(col, uFogColor, fogF);
 
       gl_FragColor = vec4(col, 1.0);
     }
@@ -317,7 +323,7 @@ export function initTerrainScene(): void {
   const terrain = new THREE.Mesh(geom, mat);
   scene.add(terrain);
 
-  // Pulse scheduler
+  // Pulse scheduler — fire every 4 seconds (exact glennso)
   const PULSE_INTERVAL = 4.0;
   uniforms.uPulseSpeed.value =
     (uniforms.uPulseMax.value - uniforms.uPulseMin.value) / (PULSE_INTERVAL * 0.75);
@@ -357,13 +363,13 @@ export function initTerrainScene(): void {
     }
 
     if (!reducedMotion) {
-      // Gentle parallax camera drift focused on right negative space
+      // Slow camera drift for parallax — visible but unhurried (exact glennso)
       const r = 70;
       const a = now * 0.05;
-      camera.position.x = -24 + Math.sin(a) * 6;
-      camera.position.z = r + Math.cos(a) * 5;
+      camera.position.x = Math.sin(a) * 14;
+      camera.position.z = r + Math.cos(a) * 6;
       camera.position.y = 30 + Math.sin(now * 0.12) * 2.0;
-      camera.lookAt(20, -4, 0);
+      camera.lookAt(0, -3, 0);
     }
 
     renderer.render(scene, camera);
@@ -396,7 +402,7 @@ export function initTerrainScene(): void {
     tick();
   }
 
-  // Interactive Click-to-Pulse
+  // Interactive Click-to-Pulse (exact glennso)
   const raycaster = new THREE.Raycaster();
   const ndc = new THREE.Vector2();
 
@@ -413,8 +419,8 @@ export function initTerrainScene(): void {
     if (!hits.length) return;
 
     const p = hits[0].point;
-    const origin = new THREE.Vector2(p.x, p.z);
-    firePulse(clock.getElapsedTime(), { radial: true, origin });
+    uniforms.uPulseOrigin.value.set(p.x, p.z);
+    firePulse(clock.getElapsedTime(), { radial: true });
   }
 
   window.addEventListener('click', onPointerDown);
