@@ -616,9 +616,21 @@ button {
   gap: 6px;
 }
 
-@media (max-width: 1080px) {
-  #telemetry-ip-pill {
+@media (max-width: 1360px) {
+  .chrome-bottom-left .author-name {
     display: none;
+  }
+}
+
+@media (max-width: 1120px) {
+  #telemetry-ipv6-pill {
+    display: none !important;
+  }
+}
+
+@media (max-width: 880px) {
+  #telemetry-ipv4-pill {
+    display: none !important;
   }
 }
 

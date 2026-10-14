@@ -13,18 +13,24 @@
     <div
       class="client-telemetry"
       id="client-telemetry"
-      title="Client Location & IP (Click to copy telemetry)"
+      title="Client Telemetry (Click to copy IPv4 / IPv6 / Location)"
     >
-      <span class="telemetry-pill">
+      <span class="telemetry-pill" id="telemetry-loc-pill">
         <span class="pill-dot" aria-hidden="true"></span>
         <span class="pill-label">LOC</span>
         <span class="pill-val" id="telemetry-loc">
           DETECTING...
         </span>
       </span>
-      <span class="telemetry-pill" id="telemetry-ip-pill">
-        <span class="pill-label">IP</span>
-        <span class="pill-val" id="telemetry-ip">
+      <span class="telemetry-pill" id="telemetry-ipv4-pill">
+        <span class="pill-label">IPv4</span>
+        <span class="pill-val" id="telemetry-ipv4">
+          DETECTING...
+        </span>
+      </span>
+      <span class="telemetry-pill" id="telemetry-ipv6-pill" style="display: none;">
+        <span class="pill-label">IPv6</span>
+        <span class="pill-val" id="telemetry-ipv6">
           ---
         </span>
       </span>
