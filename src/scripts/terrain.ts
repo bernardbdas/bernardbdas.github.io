@@ -107,10 +107,10 @@ export function initTerrainScene(): void {
 
     // Smoothly flatten terrain under the left content column (x < 15)
     // so text is completely crisp and never obscured by mountain hills
-    const leftClear = Math.max(0, Math.min(1, (x + 45) / 60));
+    const leftClear = Math.max(0, Math.min(1, (x - 2) / 36));
     const leftFactor = leftClear * leftClear * (3 - 2 * leftClear);
 
-    pos.setY(i, (shaped - 0.35) * HEIGHT_SCALE * falloff * leftFactor);
+    pos.setY(i, Math.max(0, shaped - 0.32) * HEIGHT_SCALE * falloff * leftFactor);
   }
   geom.computeVertexNormals();
 
@@ -119,16 +119,16 @@ export function initTerrainScene(): void {
     uTime: { value: 0 },
     uIsLight: { value: 0.0 },
     uPulseStart: { value: -1000 },
-    uPulseSpeed: { value: 70.0 },
-    uPulseWidth: { value: 6.0 },
-    uMaxRadius: { value: 200.0 },
+    uPulseSpeed: { value: 65.0 },
+    uPulseWidth: { value: 5.0 },
+    uMaxRadius: { value: 140.0 },
     uBaseColor: { value: new THREE.Color('#4a5a3d') },
     uScanColor: { value: new THREE.Color('#F29559') },
     uHighColor: { value: new THREE.Color('#c8d6a8') },
     uFogColor: { value: new THREE.Color('#07090a') },
     uPulseDir: { value: new THREE.Vector2(1.0, 1.0).normalize() },
-    uPulseMin: { value: -180.0 },
-    uPulseMax: { value: 180.0 },
+    uPulseMin: { value: -140.0 },
+    uPulseMax: { value: 140.0 },
     uPulseMode: { value: 0.0 },
     uPulseOrigin: { value: new THREE.Vector2(0, 0) },
   };
@@ -201,14 +201,16 @@ export function initTerrainScene(): void {
 
       // Scan band & glowing trail
       float band = 0.0;
-      if (t > 0.0 && pulseFront < maxFront + 30.0) {
+      float lead = 0.0;
+      if (t > 0.0 && pulseFront < maxFront + 25.0) {
         float d = proj - pulseFront;
-        float lead = 1.0 - smoothstep(0.0, uPulseWidth, abs(d));
-        float trail = smoothstep(-55.0, 0.0, d) * step(d, 0.0) * 0.45;
+        lead = 1.0 - smoothstep(0.0, uPulseWidth, abs(d));
+        float trail = smoothstep(-28.0, 0.0, d) * step(d, 0.0) * 0.45;
         band = max(lead, trail);
       }
-      float life = clamp(1.0 - (t * uPulseSpeed - maxFront) / 30.0, 0.0, 1.0);
+      float life = clamp(1.0 - (t * uPulseSpeed - maxFront) / 25.0, 0.0, 1.0);
       band *= life;
+      lead *= life;
 
       // Grid lines: micro, minor, major
       float gMicro = gridLine(vWorldPos.xz, 1.5, 1.0);
@@ -224,66 +226,82 @@ export function initTerrainScene(): void {
       float lambert = max(dot(normalize(vNormal), lightDir), 0.0);
       float upFacing = clamp(vNormal.y, 0.0, 1.0);
 
-      // Height normalized
-      float hN = clamp((vElevation + 4.0) / 12.0, 0.0, 1.0);
+      // Height normalized relative to floor (0 at flat ground)
+      float hN = clamp(vElevation / 9.0, 0.0, 1.0);
+
+      // High-detail line illumination components (identical structure in both themes)
+      float lineDetail = (
+          gMicro   * 0.55
+        + gMinor   * 1.15
+        + gMajor   * 2.10
+        + ctrMinor * 0.65
+        + ctrMajor * 1.50
+      );
+      // Grid intersection nodes pop
+      float nodes = gMinor * ctrMinor * 1.2 + gMajor * ctrMajor * 2.0;
+      lineDetail += nodes;
 
       vec3 col;
       if (uIsLight > 0.5) {
         // ── LIGHT MODE: Crisp architectural drafting on bone paper ──
-        vec3 lowCol  = vec3(0.96, 0.97, 0.93);
-        vec3 midCol  = uBaseColor;
-        vec3 highCol = uHighColor;
-        vec3 base = mix(lowCol, midCol, smoothstep(0.0, 0.6, hN));
-        base = mix(base, highCol, smoothstep(0.6, 1.0, hN));
-        base *= (0.88 + 0.18 * lambert);
+        vec3 paperBase  = uFogColor; // #f4f5ee
+        vec3 slopeColor = vec3(0.86, 0.90, 0.82);
+        vec3 peakColor  = vec3(0.76, 0.82, 0.71);
+
+        // Ground shading: perfectly blends with background when hN = 0
+        vec3 base = mix(paperBase, slopeColor, smoothstep(0.05, 0.6, hN));
+        base = mix(base, peakColor, smoothstep(0.6, 1.0, hN));
+        base *= (0.93 + 0.12 * lambert);
+
+        // Architectural drafting ink for unlit grid & contours
+        vec3 fineInk = vec3(0.40, 0.45, 0.35);
+        vec3 boldInk = vec3(0.22, 0.27, 0.18);
+
+        float fineLines = gMicro * 0.05 + gMinor * 0.12 + ctrMinor * 0.08;
+        float boldLines = gMajor * 0.22 + ctrMajor * 0.16;
 
         col = base;
-        vec3 lineInk = vec3(0.32, 0.38, 0.26);
-        col = mix(col, lineInk, gMicro * 0.05 + gMinor * 0.12 + gMajor * 0.20 + ctrMinor * 0.07 + ctrMajor * 0.15);
+        col = mix(col, fineInk, fineLines);
+        col = mix(col, boldInk, boldLines);
 
-        // Warm amber scan pulse
-        col = mix(col, uScanColor, band * 0.65);
+        // ── DETAILED ILLUMINATION EFFECT ──
+        // Subtle warm luminous lift on paper under pulse (clean, translucent)
+        col = mix(col, vec3(0.99, 0.95, 0.90), band * 0.20);
 
-        float radial = length(vWorldPos.xz);
-        float falloff = 1.0 - smoothstep(uMaxRadius * 0.55, uMaxRadius, radial);
-        col = mix(uFogColor, col, falloff);
+        // Grid lines & contour rings ignite in rich burnt orange (#d65d1a)
+        col = mix(col, uScanColor, clamp(band * lineDetail, 0.0, 1.0));
 
-        float depth = length(vWorldPos - cameraPosition);
-        float fogF = smoothstep(50.0, 200.0, depth);
-        col = mix(col, uFogColor, fogF);
+        // Crisp leading edge wavefront accent
+        col = mix(col, uScanColor, lead * (gMinor * 0.4 + gMajor * 0.8 + ctrMajor * 0.6));
       } else {
         // ── DARK MODE: Phosphor green neon & dark terminal ──
-        vec3 lowCol  = uBaseColor * 0.18;
+        vec3 lowCol  = uBaseColor * 0.12;
         vec3 midCol  = uBaseColor;
         vec3 highCol = mix(uBaseColor, uHighColor, 0.8);
-        vec3 base = mix(lowCol, midCol, smoothstep(0.0, 0.55, hN));
+        vec3 base = mix(lowCol, midCol, smoothstep(0.05, 0.55, hN));
         base = mix(base, highCol, smoothstep(0.55, 1.0, hN));
         base *= (0.35 + 0.75 * lambert) * (0.7 + 0.3 * upFacing);
 
         col = base;
         col += uBaseColor * gMicro * 0.10;
         col += uHighColor * gMinor * 0.16;
-        col += uHighColor * gMajor * 0.22;
-        col += uHighColor * ctrMinor * 0.08;
-        col += uHighColor * ctrMajor * 0.14;
+        col += uHighColor * gMajor * 0.24;
+        col += uHighColor * ctrMinor * 0.09;
+        col += uHighColor * ctrMajor * 0.16;
 
-        col += uScanColor * band * (
-          0.55
-          + gMicro   * 0.5
-          + gMinor   * 0.9
-          + gMajor   * 1.4
-          + ctrMinor * 0.5
-          + ctrMajor * 0.9
-        );
-
-        float radial = length(vWorldPos.xz);
-        float falloff = 1.0 - smoothstep(uMaxRadius * 0.55, uMaxRadius, radial);
-        col *= falloff;
-
-        float depth = length(vWorldPos - cameraPosition);
-        float fogF = smoothstep(60.0, 220.0, depth);
-        col = mix(col, uFogColor, fogF);
+        col += uScanColor * band * (0.45 + lineDetail);
+        col += uScanColor * lead * (gMinor * 0.3 + gMajor * 0.7 + ctrMajor * 0.5);
       }
+
+      // Edge perimeter fade: prevents any hard polygon mesh cutoff edges
+      float radial = length(vWorldPos.xz);
+      float edgeFade = 1.0 - smoothstep(65.0, 115.0, radial);
+      col = mix(uFogColor, col, edgeFade);
+
+      // Depth fog
+      float depth = length(vWorldPos - cameraPosition);
+      float fogF = smoothstep(55.0, 190.0, depth);
+      col = mix(col, uFogColor, fogF);
 
       gl_FragColor = vec4(col, 1.0);
     }
@@ -366,7 +384,7 @@ export function initTerrainScene(): void {
     uniforms.uFogColor.value.set(isLight ? '#f4f5ee' : '#07090a');
     uniforms.uBaseColor.value.set(isLight ? '#d6ddcf' : '#4a5a3d');
     uniforms.uHighColor.value.set(isLight ? '#b0be9a' : '#c8d6a8');
-    uniforms.uScanColor.value.set(isLight ? '#d46522' : '#F29559');
+    uniforms.uScanColor.value.set(isLight ? '#d65d1a' : '#F29559');
   }
 
   const initialTheme = document.documentElement.getAttribute('data-theme') || 'dark';
