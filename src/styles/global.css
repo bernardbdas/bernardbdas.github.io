@@ -744,6 +744,19 @@ button {
   font-weight: 600;
 }
 
+.local-clock.mode-bernard {
+  border-color: rgba(242, 149, 89, 0.45);
+}
+
+.local-clock.mode-bernard:hover {
+  border-color: var(--accent);
+}
+
+.local-clock.mode-bernard .clock-badge {
+  color: var(--accent);
+  font-weight: 700;
+}
+
 .clock-badge {
   font-size: 9px;
   font-weight: 600;
@@ -1526,12 +1539,13 @@ button {
   .age-badge {
     display: none;
   }
-  .local-clock .clock-badge {
-    display: none;
-  }
   .local-clock {
     padding: 1px 5px;
     font-size: 9px;
+  }
+  .local-clock .clock-badge {
+    font-size: 8px;
+    letter-spacing: 0.1em;
   }
 }
 

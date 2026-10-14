@@ -1,10 +1,13 @@
 /**
- * User Local Time and Date HUD Clock
+ * User Local Time & Bernard's Clock HUD Clock
  *
- * Displays live user local date (e.g. 15 OCT 2026),
- * 24-hour time (e.g. 04:00:25), and timezone abbreviation.
- * Supports click-to-copy with feedback.
+ * Displays live user local date, time, and timezone.
+ * On double-click / double-tap, toggles to Bernard's Clockzone (Asia/Kolkata)
+ * saying "Bernard's Clock".
+ * On single-click, copies the active timestamp with visual feedback.
  */
+
+const BERNARD_TIMEZONE = 'Asia/Kolkata';
 
 function getTimezoneAbbr(): string {
   try {
@@ -34,7 +37,7 @@ async function copyText(text: string): Promise<boolean> {
       return true;
     }
   } catch {
-    // fallback
+    // fallback below
   }
 
   try {
@@ -56,42 +59,102 @@ async function copyText(text: string): Promise<boolean> {
 
 export function initLocalClock(): void {
   const container = document.getElementById('local-clock');
+  const badgeEl = document.getElementById('clock-badge');
   const dateEl = document.getElementById('clock-date');
   const timeEl = document.getElementById('clock-time');
   const tzEl = document.getElementById('clock-tz');
 
   if (!container || !dateEl || !timeEl) return;
 
+  type ClockMode = 'local' | 'bernard';
+  let mode: ClockMode = 'local';
   let currentString = '';
   let copyTimeout: ReturnType<typeof setTimeout> | null = null;
   let isCopied = false;
+  let clickCount = 0;
+  let clickTimer: ReturnType<typeof setTimeout> | null = null;
+  let lastToggleTime = 0;
 
   function updateClock(): void {
     const now = new Date();
 
-    const day = String(now.getDate()).padStart(2, '0');
-    const month = now.toLocaleString('en-US', { month: 'short' }).toUpperCase();
-    const year = now.getFullYear();
-    const dateStr = `${day} ${month} ${year}`;
+    let dateStr = '';
+    let timeStr = '';
+    let tzStr = '';
 
-    const hours = String(now.getHours()).padStart(2, '0');
-    const minutes = String(now.getMinutes()).padStart(2, '0');
-    const seconds = String(now.getSeconds()).padStart(2, '0');
-    const timeStr = `${hours}:${minutes}:${seconds}`;
+    if (mode === 'bernard') {
+      try {
+        const day = new Intl.DateTimeFormat('en-GB', {
+          timeZone: BERNARD_TIMEZONE,
+          day: '2-digit',
+        }).format(now);
+        const month = new Intl.DateTimeFormat('en-GB', {
+          timeZone: BERNARD_TIMEZONE,
+          month: 'short',
+        })
+          .format(now)
+          .toUpperCase();
+        const year = new Intl.DateTimeFormat('en-GB', {
+          timeZone: BERNARD_TIMEZONE,
+          year: 'numeric',
+        }).format(now);
+        dateStr = `${day} ${month} ${year}`;
 
-    const tzStr = getTimezoneAbbr();
+        timeStr = new Intl.DateTimeFormat('en-GB', {
+          timeZone: BERNARD_TIMEZONE,
+          hour: '2-digit',
+          minute: '2-digit',
+          second: '2-digit',
+          hourCycle: 'h23',
+        }).format(now);
 
-    currentString = `${dateStr} ${timeStr} ${tzStr}`;
+        tzStr = 'IST';
+      } catch {
+        // In case environment lacks timezone DB
+        dateStr = now.toLocaleDateString();
+        timeStr = now.toLocaleTimeString();
+        tzStr = 'IST';
+      }
+
+      if (badgeEl) badgeEl.textContent = "Bernard's Clock";
+      container!.classList.add('mode-bernard');
+      container!.title =
+        "Bernard's Clock — Asia/Kolkata (IST) (Double-click for Your Local Time, click to copy)";
+      currentString = `Bernard's Clock (Asia/Kolkata): ${dateStr} ${timeStr} ${tzStr}`;
+    } else {
+      const day = String(now.getDate()).padStart(2, '0');
+      const month = now.toLocaleString('en-US', { month: 'short' }).toUpperCase();
+      const year = now.getFullYear();
+      dateStr = `${day} ${month} ${year}`;
+
+      const hours = String(now.getHours()).padStart(2, '0');
+      const minutes = String(now.getMinutes()).padStart(2, '0');
+      const seconds = String(now.getSeconds()).padStart(2, '0');
+      timeStr = `${hours}:${minutes}:${seconds}`;
+
+      tzStr = getTimezoneAbbr();
+
+      if (badgeEl) badgeEl.textContent = 'LOCAL';
+      container!.classList.remove('mode-bernard');
+      container!.title =
+        "Your Local Time (Double-click for Bernard's Clock [Asia/Kolkata], click to copy)";
+      currentString = `Local Time: ${dateStr} ${timeStr} ${tzStr}`;
+    }
 
     if (dateEl && dateEl.textContent !== dateStr) dateEl.textContent = dateStr;
     if (!isCopied && timeEl && timeEl.textContent !== timeStr) timeEl.textContent = timeStr;
     if (tzEl && tzEl.textContent !== tzStr) tzEl.textContent = tzStr;
   }
 
-  updateClock();
-  window.setInterval(updateClock, 1000);
+  function toggleMode(): void {
+    const now = Date.now();
+    if (now - lastToggleTime < 180) return;
+    lastToggleTime = now;
 
-  // Copy on click or Enter/Space
+    mode = mode === 'local' ? 'bernard' : 'local';
+    updateClock();
+  }
+
   const handleCopy = async (): Promise<void> => {
     if (!currentString) return;
     const ok = await copyText(currentString);
@@ -107,18 +170,55 @@ export function initLocalClock(): void {
       isCopied = false;
       container.classList.remove('copied');
       updateClock();
-      container.title = 'User Local Time & Date (Click to copy)';
       copyTimeout = null;
     }, 1500);
   };
 
-  container.addEventListener('click', handleCopy);
+  // Click & Double-click discrimination
+  container.addEventListener('click', (e: MouseEvent) => {
+    e.preventDefault();
+    clickCount++;
+
+    if (clickCount === 1) {
+      clickTimer = setTimeout(() => {
+        clickCount = 0;
+        clickTimer = null;
+        handleCopy();
+      }, 260);
+    } else if (clickCount >= 2) {
+      if (clickTimer) {
+        clearTimeout(clickTimer);
+        clickTimer = null;
+      }
+      clickCount = 0;
+      toggleMode();
+    }
+  });
+
+  // Native double click listener for fast double-clicks
+  container.addEventListener('dblclick', (e: MouseEvent) => {
+    e.preventDefault();
+    if (clickTimer) {
+      clearTimeout(clickTimer);
+      clickTimer = null;
+    }
+    clickCount = 0;
+    toggleMode();
+  });
+
+  // Keyboard accessibility: Enter to copy, Shift+Enter or Space to toggle
   container.addEventListener('keydown', (e: KeyboardEvent) => {
-    if (e.key === 'Enter' || e.key === ' ') {
+    if (e.key === ' ' || (e.key === 'Enter' && e.shiftKey)) {
+      e.preventDefault();
+      toggleMode();
+    } else if (e.key === 'Enter') {
       e.preventDefault();
       handleCopy();
     }
   });
+
+  updateClock();
+  window.setInterval(updateClock, 1000);
 
   // Pause/refresh on visibility change
   document.addEventListener('visibilitychange', () => {

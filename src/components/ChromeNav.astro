@@ -63,10 +63,12 @@ const links: NavLink[] = [
       id="local-clock"
       role="button"
       tabindex="0"
-      title="User Local Time & Date (Click to copy)"
-      aria-label="User local time and date"
+      title="User Local Time (Double-click for Bernard's Clock, click to copy)"
+      aria-label="Local time and date instrument readout"
     >
-      <span class="clock-badge">LOCAL</span>
+      <span class="clock-badge" id="clock-badge">
+        LOCAL
+      </span>
       <span class="clock-display" id="clock-display">
         <span class="clock-date" id="clock-date">
           -- --- ----
