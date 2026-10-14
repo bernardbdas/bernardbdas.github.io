@@ -979,10 +979,71 @@ button {
   color: var(--accent);
 }
 
+.vitals-cluster {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
 .vitals {
-  display: flex;
+  display: inline-flex;
   align-items: center;
   gap: 6px;
+  cursor: pointer;
+  user-select: none;
+  transition: color 0.15s ease;
+}
+
+.vitals:hover .vitals-text {
+  color: var(--accent);
+}
+
+.vitals:focus-visible {
+  outline: 1px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.vitals.copied .vitals-text {
+  color: #a3e635;
+  font-weight: 600;
+}
+
+.status-dot.status-warn {
+  background: #f59e0b;
+  box-shadow: 0 0 6px #f59e0b;
+}
+
+.status-dot.status-alert {
+  background: #ef4444;
+  box-shadow: 0 0 6px #ef4444;
+}
+
+.vitals-metrics {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.vital-pill {
+  font-variant-numeric: tabular-nums;
+}
+
+.vital-pill .pill-val {
+  min-width: 22px;
+  text-align: right;
+  transition: color 0.15s ease;
+}
+
+.vital-pill.vital-optimal .pill-val {
+  color: var(--accent);
+}
+
+.vital-pill.vital-moderate .pill-val {
+  color: #facc15;
+}
+
+.vital-pill.vital-slow .pill-val {
+  color: #f87171;
 }
 
 @media (max-width: 880px) {
@@ -1031,6 +1092,21 @@ button {
   .vitals-text {
     display: inline;
   }
+  .vitals-sep {
+    display: inline;
+  }
+  .vitals-cluster {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    flex-shrink: 0;
+  }
+  .vitals-metrics {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    flex-shrink: 0;
+  }
 }
 
 /* ══════════════════════════════════════════════════════════════
@@ -1048,6 +1124,11 @@ button {
 
 .section {
   margin-bottom: var(--gap-section);
+}
+
+.section:not(.hero) {
+  content-visibility: auto;
+  contain-intrinsic-size: 1px 400px;
 }
 .section-heading {
   font-size: 20px;

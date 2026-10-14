@@ -63,15 +63,76 @@
     <a href="#top" class="back-to-top" aria-label="Scroll back to top">
       TOP ↑
     </a>
-    <span class="vitals">
-      <span class="status-dot"></span>
-      <span class="vitals-text">Vitals — Optimal</span>
+    <span class="hud-sep vitals-sep" aria-hidden="true">
+      //
     </span>
+    <div class="vitals-cluster">
+      <span
+        class="vitals"
+        id="vitals-badge"
+        role="button"
+        tabindex="0"
+        title="Web Vitals Status (Click to copy full performance audit)"
+        aria-label="Web Vitals Performance Status"
+      >
+        <span class="status-dot" id="vitals-status-dot"></span>
+        <span class="vitals-text" id="vitals-status-text">
+          Vitals — Optimal
+        </span>
+      </span>
+      <div class="vitals-metrics" id="vitals-metrics" role="region" aria-label="Web Vitals Metrics">
+        <span
+          class="telemetry-pill vital-pill"
+          id="vital-fcp"
+          role="button"
+          tabindex="0"
+          title="First Contentful Paint (Good: <1.8s) — Click to copy"
+          aria-label="First Contentful Paint"
+        >
+          <span class="pill-label">FCP</span>
+          <span class="pill-val vital-fcp-val">--</span>
+        </span>
+        <span
+          class="telemetry-pill vital-pill"
+          id="vital-lcp"
+          role="button"
+          tabindex="0"
+          title="Largest Contentful Paint (Good: <2.5s) — Click to copy"
+          aria-label="Largest Contentful Paint"
+        >
+          <span class="pill-label">LCP</span>
+          <span class="pill-val vital-lcp-val">--</span>
+        </span>
+        <span
+          class="telemetry-pill vital-pill"
+          id="vital-cls"
+          role="button"
+          tabindex="0"
+          title="Cumulative Layout Shift (Good: <0.1) — Click to copy"
+          aria-label="Cumulative Layout Shift"
+        >
+          <span class="pill-label">CLS</span>
+          <span class="pill-val vital-cls-val">0.00</span>
+        </span>
+        <span
+          class="telemetry-pill vital-pill vital-pill-ttfb"
+          id="vital-ttfb"
+          role="button"
+          tabindex="0"
+          title="Time to First Byte (Good: <0.8s) — Click to copy"
+          aria-label="Time to First Byte"
+        >
+          <span class="pill-label">TTFB</span>
+          <span class="pill-val vital-ttfb-val">--</span>
+        </span>
+      </div>
+    </div>
   </div>
 </footer>
 
 <script>
   import '../scripts/client-telemetry';
+  import '../scripts/web-vitals';
 
   // Smooth scroll to top for scrollable content container and window
   const backToTop = document.querySelector('.back-to-top');

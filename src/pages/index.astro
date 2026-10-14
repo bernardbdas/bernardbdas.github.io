@@ -39,6 +39,16 @@ import Contact from '../components/Contact.astro';
   <ChromeFooter />
 
   <script>
-    import '../scripts/terrain.ts';
+    // Defer heavy Three.js 3D terrain canvas to idle time to maximize FCP, LCP and minimize TBT
+    const loadTerrain = () => {
+      import('../scripts/terrain.ts');
+    };
+    if (typeof window !== 'undefined') {
+      if ('requestIdleCallback' in window) {
+        window.requestIdleCallback(loadTerrain, { timeout: 1000 });
+      } else {
+        setTimeout(loadTerrain, 100);
+      }
+    }
   </script>
 </BaseLayout>
