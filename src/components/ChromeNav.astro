@@ -12,7 +12,7 @@ interface NavLink {
 
 const links: NavLink[] = [
   { label: 'About', href: '#about' },
-  { label: 'Works', href: '#works' },
+  { label: 'Work', href: '#work' },
   { label: 'Skills', href: '#skills' },
   { label: 'GitHub', href: 'https://github.com/bernardbdas', external: true },
   { label: 'LinkedIn', href: 'https://linkedin.com/in/bernardbdas', external: true },
@@ -135,10 +135,37 @@ const links: NavLink[] = [
       </a>
     </div>
 
+    <!-- Mobile HUD Status & Identity Panel -->
+    <div class="mobile-drawer-hud">
+      <div class="drawer-hud-label">TELEMETRY &amp; IDENTITY</div>
+      <div class="drawer-hud-card">
+        <div class="drawer-hud-row">
+          <span class="hud-key">COPYRIGHT</span>
+          <span class="hud-val">&copy; 2026 Bernard Birendra Das</span>
+        </div>
+        <div class="drawer-hud-row">
+          <span class="hud-key">LOCATION</span>
+          <span class="hud-val telemetry-loc-val">DETECTING...</span>
+        </div>
+        <div class="drawer-hud-row">
+          <span class="hud-key">CLIENT IPv4</span>
+          <span class="hud-val telemetry-ipv4-val">DETECTING...</span>
+        </div>
+        <div class="drawer-hud-row telemetry-ipv6-container" style="display: none;">
+          <span class="hud-key">CLIENT IPv6</span>
+          <span class="hud-val telemetry-ipv6-val">---</span>
+        </div>
+        <div class="drawer-hud-row">
+          <span class="hud-key">SYSTEM</span>
+          <span class="hud-val text-accent">Vitals — Optimal // Online</span>
+        </div>
+      </div>
+    </div>
+
     <div class="mobile-nav-footer">
       <div class="mobile-nav-status">
         <span class="status-dot"></span>
-        <span>INSTRUMENT ONLINE // 2026</span>
+        <span>&copy; 2026 BERNARD BIRENDRA DAS</span>
       </div>
       <button class="mobile-theme-toggle" id="mobileThemeToggle" type="button">
         <span class="theme-icon">◐</span>

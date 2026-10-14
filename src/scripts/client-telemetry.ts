@@ -110,7 +110,6 @@ export function initClientTelemetry(): void {
   const locEl = document.getElementById('telemetry-loc');
   const ipv4El = document.getElementById('telemetry-ipv4');
   const ipv4Pill = document.getElementById('telemetry-ipv4-pill');
-  const ipv6El = document.getElementById('telemetry-ipv6');
   const ipv6Pill = document.getElementById('telemetry-ipv6-pill');
   const container = document.getElementById('client-telemetry');
 
@@ -138,52 +137,61 @@ export function initClientTelemetry(): void {
       ipv6 = geo.ip.trim();
     }
 
+    function updateAll(selector: string, text: string): void {
+      document.querySelectorAll(selector).forEach((el) => {
+        el.textContent = text;
+      });
+    }
+
+    function setDisplayAll(selector: string, display: string): void {
+      document.querySelectorAll<HTMLElement>(selector).forEach((el) => {
+        el.style.display = display;
+      });
+    }
+
     // Update Location
+    let locStr = 'ONLINE';
     if (geo && typeof geo.latitude === 'number' && typeof geo.longitude === 'number') {
       const coordStr = formatCoord(geo.latitude, geo.longitude);
       const cityStr = geo.city ? ` [${geo.city.toUpperCase()}]` : '';
-      locEl!.textContent = `${coordStr}${cityStr}`;
+      locStr = `${coordStr}${cityStr}`;
     } else {
       try {
         const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
-        locEl!.textContent = tz ? tz.toUpperCase() : 'ONLINE';
+        locStr = tz ? tz.toUpperCase() : 'ONLINE';
       } catch {
-        locEl!.textContent = 'ONLINE';
+        locStr = 'ONLINE';
       }
     }
+    updateAll('.telemetry-loc-val', locStr);
 
     // Update IPv4
     if (ipv4) {
-      ipv4El!.textContent = ipv4;
+      updateAll('.telemetry-ipv4-val', ipv4);
+      setDisplayAll('.telemetry-ipv4-container', 'inline-flex');
       if (ipv4Pill) {
-        ipv4Pill.style.display = 'inline-flex';
         ipv4Pill.title = `IPv4 Address: ${ipv4}`;
       }
     } else {
-      if (ipv4Pill) {
-        ipv4Pill.style.display = 'none';
-      }
+      setDisplayAll('.telemetry-ipv4-container', 'none');
     }
 
     // Update IPv6
     if (ipv6) {
-      if (ipv6El) {
-        ipv6El.textContent = ipv6;
-      }
+      updateAll('.telemetry-ipv6-val', ipv6);
+      setDisplayAll('.telemetry-ipv6-container', 'flex');
       if (ipv6Pill) {
         ipv6Pill.style.display = 'inline-flex';
         ipv6Pill.title = `IPv6 Address: ${ipv6}`;
       }
     } else {
-      if (ipv6Pill) {
-        ipv6Pill.style.display = 'none';
-      }
+      setDisplayAll('.telemetry-ipv6-container', 'none');
     }
 
     // Fallback if neither IP was resolvable (e.g. offline / blocking proxy)
     if (!ipv4 && !ipv6) {
-      ipv4El!.textContent = 'OFFLINE';
-      if (ipv4Pill) ipv4Pill.style.display = 'inline-flex';
+      updateAll('.telemetry-ipv4-val', 'OFFLINE');
+      setDisplayAll('.telemetry-ipv4-container', 'inline-flex');
     }
 
     // Build clipboard string
@@ -199,26 +207,42 @@ export function initClientTelemetry(): void {
     fullTelemetry = lines.join('\n');
   }
 
-  // Click to copy telemetry data
-  if (container) {
-    container.addEventListener('click', async () => {
+  // Click to copy telemetry data on any telemetry container
+  const copyTargets = [
+    container,
+    document.querySelector('.footer-telemetry-grid'),
+    document.querySelector('.mobile-drawer-hud'),
+  ].filter(Boolean) as HTMLElement[];
+
+  copyTargets.forEach((target) => {
+    target.addEventListener('click', async () => {
       if (!fullTelemetry) return;
       try {
         await navigator.clipboard.writeText(fullTelemetry);
-        const originalText = locEl.textContent;
-        locEl.textContent = 'COPIED TO CLIPBOARD';
+        const locEls = document.querySelectorAll('.telemetry-loc-val');
+        const prevTexts: string[] = [];
+        locEls.forEach((el) => {
+          prevTexts.push(el.textContent || '');
+          el.textContent = 'COPIED TO CLIPBOARD';
+        });
         setTimeout(() => {
-          locEl.textContent = originalText;
+          locEls.forEach((el, idx) => {
+            el.textContent = prevTexts[idx] || '';
+          });
         }, 1600);
       } catch {
         // clipboard access denied, ignore silently
       }
     });
-  }
+  });
 
   loadTelemetry().catch(() => {
-    locEl.textContent = 'ONLINE';
-    ipv4El.textContent = 'ACTIVE';
+    document.querySelectorAll('.telemetry-loc-val').forEach((el) => {
+      el.textContent = 'ONLINE';
+    });
+    document.querySelectorAll('.telemetry-ipv4-val').forEach((el) => {
+      el.textContent = 'ACTIVE';
+    });
   });
 }
 

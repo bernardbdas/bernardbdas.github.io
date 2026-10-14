@@ -678,32 +678,10 @@ button {
   gap: 6px;
 }
 
-@media (max-width: 1360px) {
-  .chrome-bottom-left .author-name {
-    display: none;
-  }
-}
-
-@media (max-width: 1120px) {
-  #telemetry-ipv6-pill {
-    display: none !important;
-  }
-}
-
 @media (max-width: 880px) {
-  #telemetry-ipv4-pill {
-    display: none !important;
-  }
-}
-
-@media (max-width: 768px) {
-  .chrome-bottom-left .author-name,
-  .hud-sep,
-  .client-telemetry {
-    display: none;
-  }
-  .vitals-text {
-    display: none;
+  .chrome-bottom {
+    padding: 0 16px;
+    height: 32px;
   }
 }
 
@@ -714,11 +692,19 @@ button {
   }
 }
 
-@media (max-width: 520px) {
-  .chrome-bottom-left {
+@media (max-width: 640px) {
+  .chrome-bottom .client-telemetry,
+  .chrome-bottom .hud-sep {
     display: none;
   }
-  .back-to-top {
+}
+
+@media (max-width: 480px) {
+  .chrome-bottom-left {
+    font-size: 9.5px;
+    letter-spacing: 0.1em;
+  }
+  .vitals-text {
     display: none;
   }
 }
@@ -1386,5 +1372,178 @@ button {
 @media (max-width: 360px) {
   .age-counter {
     display: none;
+  }
+}
+
+/* ══════════════════════════════════════════════════════════════
+   IN-FLOW DOCUMENT PAGE FOOTER
+   ══════════════════════════════════════════════════════════════ */
+.page-footer {
+  margin-top: 50px;
+  padding-top: 24px;
+  padding-bottom: 50px;
+  border-top: 1px solid var(--hairline);
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.footer-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.footer-top-link {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.16em;
+  color: var(--ink-dim);
+  text-transform: uppercase;
+  text-decoration: none;
+  padding: 3px 8px;
+  border: 1px solid var(--hairline);
+  border-radius: var(--radius);
+  transition: all 0.15s ease;
+}
+.footer-top-link:hover {
+  color: var(--accent);
+  border-color: var(--hairline-hover);
+}
+
+.footer-telemetry-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 10px;
+}
+
+.telemetry-card {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 10px 12px;
+  border: 1px solid var(--hairline);
+  border-radius: var(--radius);
+  background: rgba(var(--bg-rgb), 0.55);
+  font-family: var(--font-mono);
+  transition: border-color 0.15s ease;
+}
+.telemetry-card:hover {
+  border-color: var(--accent);
+}
+
+.telemetry-card .card-label {
+  font-size: 9px;
+  letter-spacing: 0.14em;
+  color: var(--accent);
+  text-transform: uppercase;
+  font-weight: 600;
+}
+
+.telemetry-card .card-val {
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+  word-break: break-all;
+}
+
+.footer-bottom-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 16px;
+  border-top: 1px dashed var(--hairline-dashed);
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  color: var(--ink-dim);
+  letter-spacing: 0.08em;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.footer-copyright {
+  color: var(--ink);
+  font-weight: 500;
+}
+
+.footer-vitals {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--ink-dim);
+  font-size: 10px;
+  letter-spacing: 0.1em;
+}
+
+/* ══════════════════════════════════════════════════════════════
+   MOBILE DRAWER TELEMETRY & IDENTITY CARD
+   ══════════════════════════════════════════════════════════════ */
+.mobile-drawer-hud {
+  margin: 16px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.drawer-hud-label {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: 0.24em;
+  color: var(--accent);
+  text-transform: uppercase;
+  font-weight: 600;
+}
+
+.drawer-hud-card {
+  border: 1px solid var(--hairline);
+  border-radius: var(--radius);
+  background: rgba(var(--bg-rgb), 0.5);
+  padding: 10px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.drawer-hud-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  padding-bottom: 6px;
+  border-bottom: 1px dashed var(--hairline-dashed);
+}
+.drawer-hud-row:last-child {
+  padding-bottom: 0;
+  border-bottom: none;
+}
+
+.hud-key {
+  font-size: 9px;
+  letter-spacing: 0.14em;
+  color: var(--ink-dim);
+  text-transform: uppercase;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.hud-val {
+  font-size: 10px;
+  letter-spacing: 0.04em;
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+  word-break: break-all;
+}
+
+.text-accent {
+  color: var(--accent) !important;
+}
+
+@media (max-width: 640px) {
+  .footer-telemetry-grid {
+    grid-template-columns: 1fr;
   }
 }
