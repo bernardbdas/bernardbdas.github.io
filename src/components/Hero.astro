@@ -1,9 +1,38 @@
 ---
 /**
  * Hero — Main landing section.
- * Micro-label, H1 with blinking caret, focus strip, serif bio, links, stat.
+ * Micro-label, H1 with blinking caret, focus strip, links, and educational journey.
  */
 import Loader from './Loader.astro';
+
+interface EduEntry {
+  period: string;
+  institute: string;
+  degree: string;
+}
+
+const education: EduEntry[] = [
+  {
+    period: '2024 – Present',
+    institute: 'CHRIST (Deemed-to-be-University), Bangalore',
+    degree: 'PhD in Data Science',
+  },
+  {
+    period: '2021 – 2023',
+    institute: 'CHRIST (Deemed-to-be-University), Bangalore',
+    degree: 'MCA with Data Analytics',
+  },
+  {
+    period: '2018 – 2021',
+    institute: "St. Xavier's College (Autonomous), Kolkata",
+    degree: 'BSc (Honours) Computer Science',
+  },
+  {
+    period: '2004 – 2018',
+    institute: 'Auxilium Convent School, Barasat',
+    degree: 'High School (ISC & ICSE)',
+  },
+];
 ---
 
 <section class="section hero anim-hero" aria-labelledby="hero-heading">
@@ -21,11 +50,6 @@ import Loader from './Loader.astro';
     Distributed MLOps
   </p>
 
-  <p class="bio">
-    Software engineer with 2+ years of production experience at Simplify3x building distributed
-    systems, scalable backend architectures, and production AI/ML pipelines.
-  </p>
-
   <div class="hero-links">
     <a
       class="hero-link"
@@ -38,7 +62,7 @@ import Loader from './Loader.astro';
         →
       </span>
     </a>
-    <a class="hero-link" href="#systems">
+    <a class="hero-link" href="#works">
       Explore AI Systems{' '}
       <span class="arrow" aria-hidden="true">
         →
@@ -46,5 +70,18 @@ import Loader from './Loader.astro';
     </a>
   </div>
 
-  <p class="hero-stat">2+ Years — Software Engineering</p>
+  <div class="hero-education" aria-label="Educational Journey">
+    <p class="edu-label">EDUCATIONAL JOURNEY</p>
+    <div class="edu-list" role="list">
+      {education.map((item) => (
+        <div class="edu-item" role="listitem">
+          <span class="edu-period">{item.period}</span>
+          <div class="edu-details">
+            <span class="edu-institute">{item.institute}</span>
+            <span class="edu-degree">{item.degree}</span>
+          </div>
+        </div>
+      ))}
+    </div>
+  </div>
 </section>
