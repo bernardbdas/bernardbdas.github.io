@@ -13,16 +13,30 @@
     <div
       class="client-telemetry"
       id="client-telemetry"
-      title="Client Telemetry (Click to copy IPv4 / IPv6 / Location)"
+      title="Client Telemetry (Click any item to copy)"
     >
-      <span class="telemetry-pill" id="telemetry-loc-pill">
+      <span
+        class="telemetry-pill"
+        id="telemetry-loc-pill"
+        role="button"
+        tabindex="0"
+        aria-label="Copy location to clipboard"
+        title="Click to copy Location"
+      >
         <span class="pill-dot" aria-hidden="true"></span>
         <span class="pill-label">LOC</span>
         <span class="pill-val telemetry-loc-val" id="telemetry-loc">
           DETECTING...
         </span>
       </span>
-      <span class="telemetry-pill telemetry-ipv4-container" id="telemetry-ipv4-pill">
+      <span
+        class="telemetry-pill telemetry-ipv4-container"
+        id="telemetry-ipv4-pill"
+        role="button"
+        tabindex="0"
+        aria-label="Copy IPv4 address to clipboard"
+        title="Click to copy IPv4 address"
+      >
         <span class="pill-label">IPv4</span>
         <span class="pill-val telemetry-ipv4-val" id="telemetry-ipv4">
           DETECTING...
@@ -31,6 +45,10 @@
       <span
         class="telemetry-pill telemetry-ipv6-container"
         id="telemetry-ipv6-pill"
+        role="button"
+        tabindex="0"
+        aria-label="Copy IPv6 address to clipboard"
+        title="Click to copy IPv6 address"
         style="display: none;"
       >
         <span class="pill-label">IPv6</span>

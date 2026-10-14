@@ -106,16 +106,126 @@ async function fetchGeo(): Promise<GeoData | null> {
   return null;
 }
 
+async function copyText(text: string): Promise<boolean> {
+  if (!text) return false;
+  try {
+    if (navigator.clipboard && window.isSecureContext) {
+      await navigator.clipboard.writeText(text);
+      return true;
+    }
+  } catch {
+    // fallback below
+  }
+
+  try {
+    const textArea = document.createElement('textarea');
+    textArea.value = text;
+    textArea.style.position = 'fixed';
+    textArea.style.left = '-9999px';
+    textArea.style.top = '-9999px';
+    document.body.appendChild(textArea);
+    textArea.focus();
+    textArea.select();
+    const ok = document.execCommand('copy');
+    document.body.removeChild(textArea);
+    return ok;
+  } catch {
+    return false;
+  }
+}
+
 export function initClientTelemetry(): void {
   const locEl = document.getElementById('telemetry-loc');
+  const locPill = document.getElementById('telemetry-loc-pill');
   const ipv4El = document.getElementById('telemetry-ipv4');
   const ipv4Pill = document.getElementById('telemetry-ipv4-pill');
+  const ipv6El = document.getElementById('telemetry-ipv6');
   const ipv6Pill = document.getElementById('telemetry-ipv6-pill');
   const container = document.getElementById('client-telemetry');
 
   if (!locEl || !ipv4El) return;
 
+  let currentIpv4: string | null = null;
+  let currentIpv6: string | null = null;
+  let currentLoc: string | null = null;
   let fullTelemetry = '';
+
+  const activeTimeouts = new WeakMap<HTMLElement, ReturnType<typeof setTimeout>>();
+
+  function setupPill(
+    pill: HTMLElement | null,
+    valEl: HTMLElement | null,
+    getValue: () => string | null,
+    getDefaultTitle: () => string,
+  ): void {
+    if (!pill || !valEl) return;
+
+    const executeCopy = async (e: Event): Promise<void> => {
+      e.stopPropagation();
+      const val = getValue();
+      if (!val || val === 'DETECTING...' || val === '---' || val === 'OFFLINE') {
+        return;
+      }
+
+      const success = await copyText(val);
+      if (!success) return;
+
+      const existing = activeTimeouts.get(pill);
+      if (existing) clearTimeout(existing);
+
+      pill.classList.add('copied');
+      valEl.textContent = 'COPIED!';
+      pill.title = `Copied: ${val}`;
+
+      const t = setTimeout(() => {
+        pill.classList.remove('copied');
+        valEl.textContent = getValue() || '';
+        pill.title = getDefaultTitle();
+        activeTimeouts.delete(pill);
+      }, 1500);
+
+      activeTimeouts.set(pill, t);
+    };
+
+    pill.addEventListener('click', executeCopy);
+    pill.addEventListener('keydown', (e: KeyboardEvent) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        executeCopy(e);
+      }
+    });
+  }
+
+  // Bind individual pill copy actions
+  setupPill(
+    ipv4Pill,
+    ipv4El,
+    () => currentIpv4 || ipv4El.textContent?.trim() || null,
+    () => (currentIpv4 ? `Click to copy IPv4 (${currentIpv4})` : 'Click to copy IPv4 address'),
+  );
+
+  setupPill(
+    ipv6Pill,
+    ipv6El,
+    () => currentIpv6 || ipv6El?.textContent?.trim() || null,
+    () => (currentIpv6 ? `Click to copy IPv6 (${currentIpv6})` : 'Click to copy IPv6 address'),
+  );
+
+  setupPill(
+    locPill,
+    locEl,
+    () => currentLoc || locEl.textContent?.trim() || null,
+    () => (currentLoc ? `Click to copy Location (${currentLoc})` : 'Click to copy Location'),
+  );
+
+  // Fallback for clicks directly on container background
+  if (container) {
+    container.addEventListener('click', async (e) => {
+      if ((e.target as HTMLElement).closest('.telemetry-pill')) return;
+      if (!fullTelemetry) return;
+      await copyText(fullTelemetry);
+    });
+  }
 
   async function loadTelemetry(): Promise<void> {
     // Query IPv4, IPv6, and Geolocation concurrently
@@ -163,14 +273,19 @@ export function initClientTelemetry(): void {
         locStr = 'ONLINE';
       }
     }
+    currentLoc = locStr;
     updateAll('.telemetry-loc-val', locStr);
+    if (locPill) {
+      locPill.title = `Click to copy Location (${locStr})`;
+    }
 
     // Update IPv4
     if (ipv4) {
+      currentIpv4 = ipv4;
       updateAll('.telemetry-ipv4-val', ipv4);
       setDisplayAll('.telemetry-ipv4-container', 'inline-flex');
       if (ipv4Pill) {
-        ipv4Pill.title = `IPv4 Address: ${ipv4}`;
+        ipv4Pill.title = `Click to copy IPv4 (${ipv4})`;
       }
     } else {
       setDisplayAll('.telemetry-ipv4-container', 'none');
@@ -178,11 +293,12 @@ export function initClientTelemetry(): void {
 
     // Update IPv6
     if (ipv6) {
+      currentIpv6 = ipv6;
       updateAll('.telemetry-ipv6-val', ipv6);
-      setDisplayAll('.telemetry-ipv6-container', 'flex');
+      setDisplayAll('.telemetry-ipv6-container', 'inline-flex');
       if (ipv6Pill) {
         ipv6Pill.style.display = 'inline-flex';
-        ipv6Pill.title = `IPv6 Address: ${ipv6}`;
+        ipv6Pill.title = `Click to copy IPv6 (${ipv6})`;
       }
     } else {
       setDisplayAll('.telemetry-ipv6-container', 'none');
@@ -206,35 +322,6 @@ export function initClientTelemetry(): void {
     }
     fullTelemetry = lines.join('\n');
   }
-
-  // Click to copy telemetry data on any telemetry container
-  const copyTargets = [
-    container,
-    document.querySelector('.footer-telemetry-grid'),
-    document.querySelector('.mobile-drawer-hud'),
-  ].filter(Boolean) as HTMLElement[];
-
-  copyTargets.forEach((target) => {
-    target.addEventListener('click', async () => {
-      if (!fullTelemetry) return;
-      try {
-        await navigator.clipboard.writeText(fullTelemetry);
-        const locEls = document.querySelectorAll('.telemetry-loc-val');
-        const prevTexts: string[] = [];
-        locEls.forEach((el) => {
-          prevTexts.push(el.textContent || '');
-          el.textContent = 'COPIED TO CLIPBOARD';
-        });
-        setTimeout(() => {
-          locEls.forEach((el, idx) => {
-            el.textContent = prevTexts[idx] || '';
-          });
-        }, 1600);
-      } catch {
-        // clipboard access denied, ignore silently
-      }
-    });
-  });
 
   loadTelemetry().catch(() => {
     document.querySelectorAll('.telemetry-loc-val').forEach((el) => {

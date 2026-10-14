@@ -552,13 +552,7 @@ button {
   gap: 6px;
   font-family: var(--font-mono);
   font-size: 10px;
-  cursor: pointer;
   user-select: none;
-  transition: opacity 0.15s ease;
-}
-
-.client-telemetry:hover {
-  opacity: 0.95;
 }
 
 .telemetry-pill {
@@ -570,14 +564,38 @@ button {
   padding: 1px 6px;
   border-radius: 2px;
   color: var(--ink-dim);
+  cursor: pointer;
+  user-select: none;
   transition:
     border-color 0.15s ease,
-    color 0.15s ease;
+    color 0.15s ease,
+    background 0.15s ease,
+    transform 0.1s ease;
 }
 
-.client-telemetry:hover .telemetry-pill {
-  border-color: rgba(242, 149, 89, 0.5);
+.telemetry-pill:hover {
+  border-color: rgba(242, 149, 89, 0.65);
   color: var(--ink);
+  background: rgba(var(--bg-rgb), 0.95);
+}
+
+.telemetry-pill:active {
+  transform: translateY(1px);
+}
+
+.telemetry-pill:focus-visible {
+  outline: 1px solid var(--accent);
+  outline-offset: 1px;
+}
+
+.telemetry-pill.copied {
+  border-color: rgba(184, 200, 96, 0.85) !important;
+  background: rgba(106, 122, 46, 0.2) !important;
+}
+
+.telemetry-pill.copied .pill-val {
+  color: #b8c860 !important;
+  font-weight: 600;
 }
 
 .pill-dot {
@@ -809,7 +827,7 @@ button {
 }
 
 /* ══════════════════════════════════════════════════════════════
-   HERO EDUCATIONAL JOURNEY
+   HERO EDUCATIONAL EXPERIENCE
    ══════════════════════════════════════════════════════════════ */
 .hero-work,
 .hero-education {
