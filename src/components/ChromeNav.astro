@@ -56,6 +56,32 @@ const links: NavLink[] = [
       </span>
     </div>
   </div>
+
+  <div class="chrome-top-center">
+    <div
+      class="local-clock"
+      id="local-clock"
+      role="button"
+      tabindex="0"
+      title="User Local Time & Date (Click to copy)"
+      aria-label="User local time and date"
+    >
+      <span class="clock-badge">LOCAL</span>
+      <span class="clock-display" id="clock-display">
+        <span class="clock-date" id="clock-date">
+          -- --- ----
+        </span>
+        <span class="clock-sep" aria-hidden="true">
+          //
+        </span>
+        <span class="clock-time" id="clock-time">
+          --:--:--
+        </span>
+        <span class="clock-tz" id="clock-tz"></span>
+      </span>
+    </div>
+  </div>
+
   <div class="nav-links" role="navigation">
     {links.map((link, i) => (
       <>
@@ -152,6 +178,7 @@ const links: NavLink[] = [
 
 <script>
   import '../scripts/age-counter';
+  import '../scripts/local-clock';
 
   function setupThemeToggle(): void {
     const btn = document.getElementById('themeToggle');

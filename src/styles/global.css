@@ -681,6 +681,123 @@ button {
   text-align: left;
 }
 
+/* ══════════════════════════════════════════════════════════════
+   TOP CHROME CENTER HUD — LOCAL CLOCK
+   ══════════════════════════════════════════════════════════════ */
+.chrome-top-center {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  align-items: center;
+  pointer-events: auto;
+  z-index: 101;
+}
+
+.local-clock {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: rgba(var(--bg-rgb), 0.72);
+  border: 1px solid var(--hairline);
+  padding: 1px 7px;
+  border-radius: var(--radius);
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  font-size: 10px;
+  letter-spacing: 0.04em;
+  color: var(--ink);
+  cursor: pointer;
+  user-select: none;
+  transition:
+    border-color 0.15s ease,
+    background 0.15s ease,
+    color 0.15s ease,
+    transform 0.1s ease;
+  line-height: 1.4;
+  white-space: nowrap;
+}
+
+.local-clock:hover {
+  border-color: rgba(242, 149, 89, 0.65);
+  background: rgba(var(--bg-rgb), 0.95);
+  color: var(--ink);
+}
+
+.local-clock:active {
+  transform: translateY(1px);
+}
+
+.local-clock:focus-visible {
+  outline: 1px solid var(--accent);
+  outline-offset: 1px;
+}
+
+.local-clock.copied {
+  border-color: rgba(184, 200, 96, 0.85) !important;
+  background: rgba(106, 122, 46, 0.2) !important;
+}
+
+.local-clock.copied .clock-time {
+  color: #b8c860 !important;
+  font-weight: 600;
+}
+
+.clock-badge {
+  font-size: 9px;
+  font-weight: 600;
+  color: var(--accent);
+  letter-spacing: 0.16em;
+  margin-right: 2px;
+}
+
+.clock-display {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 4px;
+  white-space: nowrap;
+}
+
+.clock-date {
+  font-size: 9.5px;
+  color: var(--ink);
+  letter-spacing: 0.04em;
+}
+
+.clock-sep {
+  color: var(--ink-dim);
+  opacity: 0.45;
+  font-size: 8.5px;
+}
+
+.clock-time {
+  font-size: 10px;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.04em;
+  color: var(--ink);
+}
+
+.clock-tz {
+  font-size: 8.5px;
+  color: var(--ink-dim);
+  letter-spacing: 0.08em;
+  margin-left: 2px;
+}
+
+@media (max-width: 1120px) {
+  .local-clock .clock-tz {
+    display: none;
+  }
+}
+
+@media (max-width: 960px) {
+  .local-clock .clock-date,
+  .local-clock .clock-sep {
+    display: none;
+  }
+}
+
 .chrome-bottom a {
   color: var(--ink-dim);
   transition: color 0.15s ease;
@@ -1385,6 +1502,13 @@ button {
   }
 }
 
+@media (max-width: 680px) {
+  .local-clock .clock-date,
+  .local-clock .clock-sep {
+    display: none;
+  }
+}
+
 @media (max-width: 480px) {
   .brand .brand-suffix {
     display: none;
@@ -1402,10 +1526,20 @@ button {
   .age-badge {
     display: none;
   }
+  .local-clock .clock-badge {
+    display: none;
+  }
+  .local-clock {
+    padding: 1px 5px;
+    font-size: 9px;
+  }
 }
 
 @media (max-width: 360px) {
   .age-counter {
+    display: none;
+  }
+  .chrome-top-center {
     display: none;
   }
 }
