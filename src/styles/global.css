@@ -376,6 +376,8 @@ button {
   text-decoration: none;
   display: inline-flex;
   align-items: center;
+  cursor: pointer;
+  transition: color 0.15s ease;
 }
 .brand:hover {
   color: var(--accent);

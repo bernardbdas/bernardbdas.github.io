@@ -21,7 +21,7 @@ const links: NavLink[] = [
 
 <nav class="chrome-top anim-chrome" aria-label="Main navigation">
   <div class="brand-group">
-    <a href="#top" class="brand">
+    <a href="/" class="brand" aria-label="Bernard Birendra Das (Home)">
       bernardbdas<span class="brand-suffix">.github.io</span>
     </a>
     <span class="hud-sep" aria-hidden="true">
@@ -111,9 +111,43 @@ const links: NavLink[] = [
     });
   }
 
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', setupThemeToggle);
-  } else {
+  function setupBrandNavigation(): void {
+    const brandLink = document.querySelector<HTMLAnchorElement>('a.brand');
+    if (!brandLink) return;
+
+    brandLink.addEventListener('click', (e: MouseEvent) => {
+      // Respect standard browser modifier clicks (Cmd/Ctrl click, new tab)
+      if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0) return;
+
+      const contentCol = document.querySelector('.content-col');
+      const isScrolled = (contentCol && contentCol.scrollTop > 30) || window.scrollY > 30;
+
+      if (isScrolled) {
+        e.preventDefault();
+        if (contentCol) {
+          contentCol.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+
+        if (window.location.hash) {
+          history.pushState(null, '', window.location.pathname);
+        }
+      } else {
+        // Already at top: trigger a clean reload/refresh
+        e.preventDefault();
+        window.location.href = '/';
+      }
+    });
+  }
+
+  function initNav(): void {
     setupThemeToggle();
+    setupBrandNavigation();
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initNav);
+  } else {
+    initNav();
   }
 </script>
