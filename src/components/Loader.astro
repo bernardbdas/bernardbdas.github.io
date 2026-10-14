@@ -1,10 +1,14 @@
 ---
-/** Loader — 2×2 grid of orange squares that chase each other. */
+/**
+ * TensorReticle — High-precision AI telemetry reticle & coordinate node.
+ * Original signature marker for Bernard Birendra Das.
+ */
 ---
 
-<span class="loader" aria-hidden="true">
-  <span></span>
-  <span></span>
-  <span></span>
-  <span></span>
+<span class="tensor-reticle" aria-hidden="true">
+  <svg class="reticle-svg" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <circle cx="7" cy="7" r="2.2" class="reticle-core"></circle>
+    <path d="M7 0.5V2.5M7 11.5V13.5M0.5 7H2.5M11.5 7H13.5" class="reticle-axes"></path>
+    <circle cx="7" cy="7" r="5.2" class="reticle-orbit" stroke-dasharray="2.5 2.5"></circle>
+  </svg>
 </span>
