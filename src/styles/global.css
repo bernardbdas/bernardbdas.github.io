@@ -420,7 +420,7 @@ button {
 }
 
 /* ══════════════════════════════════════════════════════════════
-   BOTTOM CHROME FOOTER
+   BOTTOM CHROME FOOTER & LIVE AGE COUNTER
    ══════════════════════════════════════════════════════════════ */
 .chrome-bottom {
   position: fixed;
@@ -442,17 +442,120 @@ button {
   text-transform: uppercase;
   letter-spacing: 0.18em;
 }
+
+.chrome-bottom-left,
+.chrome-bottom-right {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  z-index: 2;
+}
+
+.chrome-bottom-center {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 3;
+  pointer-events: auto;
+}
+
+.age-counter {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(var(--bg-rgb), 0.72);
+  border: 1px solid var(--hairline);
+  padding: 2px 8px;
+  border-radius: 3px;
+  cursor: pointer;
+  user-select: none;
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  font-size: 10.5px;
+  letter-spacing: 0.05em;
+  color: var(--ink);
+  transition:
+    border-color 0.15s ease,
+    background 0.15s ease;
+}
+
+.age-counter:hover {
+  border-color: rgba(242, 149, 89, 0.6);
+  background: rgba(var(--bg-rgb), 0.95);
+}
+
+.age-badge {
+  font-size: 9px;
+  font-weight: 600;
+  color: var(--accent);
+  letter-spacing: 0.16em;
+  margin-right: 2px;
+}
+
+.age-display {
+  display: inline-flex;
+  align-items: baseline;
+  white-space: nowrap;
+}
+
+.age-unit {
+  font-size: 8.5px;
+  color: var(--ink-dim);
+  margin-right: 4px;
+}
+
+.age-sep,
+.age-dot {
+  color: var(--ink-dim);
+  opacity: 0.7;
+}
+
+.age-ms {
+  color: var(--accent);
+  font-weight: 500;
+  display: inline-block;
+  min-width: 3ch;
+  text-align: left;
+}
+
 .chrome-bottom a {
   color: var(--ink-dim);
   transition: color 0.15s ease;
 }
+
 .chrome-bottom a:hover {
   color: var(--accent);
 }
+
 .vitals {
   display: flex;
   align-items: center;
   gap: 6px;
+}
+
+@media (max-width: 768px) {
+  .chrome-bottom-left .author-name {
+    display: none;
+  }
+  .vitals-text {
+    display: none;
+  }
+}
+
+@media (max-width: 520px) {
+  .chrome-bottom-left {
+    display: none;
+  }
+  .back-to-top {
+    display: none;
+  }
+  .chrome-bottom-center {
+    left: 24px;
+    transform: none;
+  }
 }
 
 /* ══════════════════════════════════════════════════════════════

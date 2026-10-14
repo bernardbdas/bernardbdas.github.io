@@ -1,12 +1,56 @@
 ---
-/** ChromeFooter — Fixed bottom status bar with copyright, back-to-top, and vitals readout. */
+/** ChromeFooter — Fixed bottom status bar with copyright, live age counter, and vitals readout. */
 ---
 
 <footer class="chrome-bottom anim-chrome">
-  <span>&copy; 2026 Bernard Birendra Das</span>
-  <a href="#top">TOP ↑</a>
-  <span class="vitals">
-    <span class="status-dot"></span>
-    Vitals — Optimal
-  </span>
+  <div class="chrome-bottom-left">
+    <span>
+      &copy; 2026 <span class="author-name">Bernard Birendra Das</span>
+    </span>
+  </div>
+
+  <div class="chrome-bottom-center">
+    <div class="age-counter" id="age-counter" title="Live Age Counter (Click to toggle format)">
+      <span class="age-badge">AGE</span>
+      <span class="age-display" id="age-display">
+        <span class="age-num" id="age-y">
+          --
+        </span>
+        <span class="age-unit">Y</span>
+        <span class="age-num" id="age-d">
+          --
+        </span>
+        <span class="age-unit">D</span>
+        <span class="age-num" id="age-h">
+          --
+        </span>
+        <span class="age-sep">:</span>
+        <span class="age-num" id="age-m">
+          --
+        </span>
+        <span class="age-sep">:</span>
+        <span class="age-num" id="age-s">
+          --
+        </span>
+        <span class="age-dot">.</span>
+        <span class="age-ms" id="age-ms">
+          ---
+        </span>
+      </span>
+    </div>
+  </div>
+
+  <div class="chrome-bottom-right">
+    <a href="#top" class="back-to-top">
+      TOP ↑
+    </a>
+    <span class="vitals">
+      <span class="status-dot"></span>
+      <span class="vitals-text">Vitals — Optimal</span>
+    </span>
+  </div>
 </footer>
+
+<script>
+  import '../scripts/age-counter';
+</script>
