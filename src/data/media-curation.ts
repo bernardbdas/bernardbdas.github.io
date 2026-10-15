@@ -1,7 +1,50 @@
 /**
  * Media Curation Database — Movies & TV Series
- * Curated cinema and television records with genres, director/creator, cast, OTT platforms, and analysis.
+ * Curated exclusively for Bernard's authorized streaming services:
+ * Apple TV, Netflix, Primevideo, JioHotstar, Mubi, A24 movies, HBO Max, Lionsgate.
  */
+
+export type AllowedOTT =
+  | 'Apple TV'
+  | 'Netflix'
+  | 'Primevideo'
+  | 'JioHotstar'
+  | 'Mubi'
+  | 'A24 movies'
+  | 'HBO Max'
+  | 'Lionsgate';
+
+export const USER_OTT_PLATFORMS: AllowedOTT[] = [
+  'Apple TV',
+  'Netflix',
+  'Primevideo',
+  'JioHotstar',
+  'Mubi',
+  'A24 movies',
+  'HBO Max',
+  'Lionsgate',
+];
+
+export const USER_MUSIC_PLATFORMS = [
+  {
+    name: 'Apple Music',
+    badge: 'LOSSLESS // HI-RES',
+    desc: 'Spatial Audio, Curated Master Albums & Studio Masters',
+    id: 'apple-music',
+  },
+  {
+    name: 'YT Music',
+    badge: 'LIVE // DEEP CUTS',
+    desc: 'B-Sides, Algorithmic Explorations & Unreleased Sets',
+    id: 'yt-music',
+  },
+  {
+    name: 'SoundCloud',
+    badge: 'UNDERGROUND // MODULAR',
+    desc: 'Indie DJ Sets, Ambient Synthesizers & Experimental Mixes',
+    id: 'soundcloud',
+  },
+];
 
 export interface MovieItem {
   id: string;
@@ -10,7 +53,7 @@ export interface MovieItem {
   director: string;
   cast: string[];
   genres: string[];
-  ottPlatforms: string[];
+  ottPlatforms: AllowedOTT[];
   rating: string;
   runtime: string;
   synopsis: string;
@@ -24,7 +67,7 @@ export interface TVShowItem {
   creator: string;
   cast: string[];
   genres: string[];
-  ottPlatforms: string[];
+  ottPlatforms: AllowedOTT[];
   rating: string;
   seasons: string;
   synopsis: string;
@@ -38,14 +81,14 @@ export const CURATED_MOVIES: MovieItem[] = [
     year: 2017,
     director: 'Denis Villeneuve',
     cast: ['Ryan Gosling', 'Harrison Ford', 'Ana de Armas', 'Sylvia Hoeks'],
-    genres: ['Sci-Fi', 'Cyberpunk', 'Neo-Noir', 'Drama'],
-    ottPlatforms: ['Prime Video', 'Apple TV+'],
+    genres: ['Sci-Fi', 'Cyberpunk', 'Neo-Noir'],
+    ottPlatforms: ['Primevideo', 'Apple TV', 'Lionsgate'],
     rating: '9.4',
     runtime: '164 min',
     synopsis:
-      'Thirty years after the events of the first film, a new blade runner, LAPD Officer K, unearths a long-buried secret that has the potential to plunge what is left of society into chaos.',
+      'Thirty years after the events of the first film, LAPD Officer K unearths a long-buried secret that has the potential to plunge what remains of society into chaos.',
     takeaway:
-      'Masterpiece in atmospheric world-building, artificial consciousness, and existential memory engineering.',
+      'Atmospheric pinnacle of artificial consciousness, existential memory engineering, and Roger Deakins’ lighting geometry.',
   },
   {
     id: 'interstellar',
@@ -53,14 +96,14 @@ export const CURATED_MOVIES: MovieItem[] = [
     year: 2014,
     director: 'Christopher Nolan',
     cast: ['Matthew McConaughey', 'Anne Hathaway', 'Jessica Chastain', 'Michael Caine'],
-    genres: ['Sci-Fi', 'Drama', 'Adventure'],
-    ottPlatforms: ['Prime Video', 'Max'],
+    genres: ['Sci-Fi', 'Adventure', 'Drama'],
+    ottPlatforms: ['Primevideo', 'HBO Max', 'JioHotstar'],
     rating: '9.3',
     runtime: '169 min',
     synopsis:
-      'When Earth becomes uninhabitable in the future, a farmer and ex-NASA pilot, Joseph Cooper, is tasked to pilot a spacecraft along with a team of researchers to find a new planet for humans.',
+      'A team of explorers travels through a wormhole in space in an attempt to ensure humanity’s survival across unfamiliar worlds.',
     takeaway:
-      'Unmatched integration of general relativity, Kip Thorne gravitational lensing physics, and emotional gravity.',
+      'Unmatched integration of relativistic gravitational time dilation, Kip Thorne physics, and emotional resonance.',
   },
   {
     id: 'oppenheimer',
@@ -68,14 +111,14 @@ export const CURATED_MOVIES: MovieItem[] = [
     year: 2023,
     director: 'Christopher Nolan',
     cast: ['Cillian Murphy', 'Emily Blunt', 'Robert Downey Jr.', 'Matt Damon'],
-    genres: ['Biography', 'Drama', 'History'],
-    ottPlatforms: ['JioCinema', 'Apple TV+'],
+    genres: ['Biography', 'History', 'Drama'],
+    ottPlatforms: ['JioHotstar', 'Primevideo', 'Apple TV'],
     rating: '9.2',
     runtime: '180 min',
     synopsis:
-      'The story of American scientist J. Robert Oppenheimer and his role in the development of the atomic bomb during World War II.',
+      'The story of American scientist J. Robert Oppenheimer and his role in the development of the atomic bomb during the Manhattan Project.',
     takeaway:
-      'A masterclass in non-linear editing, ethical weight of transformative scientific breakthrough, and institutional politics.',
+      'A masterclass in non-linear tension, institutional politics, and the staggering moral weight of scientific breakthroughs.',
   },
   {
     id: 'ex-machina',
@@ -83,14 +126,44 @@ export const CURATED_MOVIES: MovieItem[] = [
     year: 2014,
     director: 'Alex Garland',
     cast: ['Domhnall Gleeson', 'Alicia Vikander', 'Oscar Isaac'],
-    genres: ['Sci-Fi', 'Psychological Thriller', 'AI'],
-    ottPlatforms: ['Prime Video', 'Max'],
+    genres: ['Sci-Fi', 'AI Thriller', 'Psychological'],
+    ottPlatforms: ['A24 movies', 'HBO Max', 'Primevideo'],
     rating: '9.0',
     runtime: '108 min',
     synopsis:
-      'A programmer at an internet search giant wins a competition to spend a week at the private mountain estate of the company CEO to administer a Turing test to an intelligent humanoid robot.',
+      'A programmer at an internet search giant is invited to administer an adversarial Turing test to an intelligent humanoid robot at a secluded mountain estate.',
     takeaway:
-      'The quintessential cinematic inquiry into adversarial Turing tests, theory of mind, and deception in synthetic intelligence.',
+      'The definitive cinematic inquiry into deceptive alignment, theory of mind, and subjective agency in synthetic intelligence.',
+  },
+  {
+    id: 'past-lives',
+    title: 'Past Lives',
+    year: 2023,
+    director: 'Celine Song',
+    cast: ['Greta Lee', 'Teo Yoo', 'John Magaro'],
+    genres: ['Drama', 'Romance', 'Philosophy'],
+    ottPlatforms: ['A24 movies', 'Lionsgate', 'Apple TV'],
+    rating: '9.2',
+    runtime: '106 min',
+    synopsis:
+      'Nora and Hae Sung, two deeply connected childhood friends, are wrested apart after Nora’s family emigrates from South Korea. Two decades later, they are reunited in New York for one fateful week.',
+    takeaway:
+      'A profound, devastatingly understated examination of In-Yun (fate), parallel paths unchosen, and temporal diaspora.',
+  },
+  {
+    id: 'decision-to-leave',
+    title: 'Decision to Leave',
+    year: 2022,
+    director: 'Park Chan-wook',
+    cast: ['Tang Wei', 'Park Hae-il', 'Lee Jung-hyun'],
+    genres: ['Neo-Noir', 'Mystery', 'Psychological'],
+    ottPlatforms: ['Mubi', 'Apple TV'],
+    rating: '9.1',
+    runtime: '138 min',
+    synopsis:
+      'An insomniac detective investigating a man’s fatal fall from a mountain peak becomes entangled in an obsessive psychological bond with the primary suspect — the deceased man’s enigmatic wife.',
+    takeaway:
+      'Park Chan-wook’s optical tour-de-force: innovative phone UI cinematography, Hitchcockian obsession, and tidal metaphor.',
   },
   {
     id: 'her',
@@ -98,14 +171,14 @@ export const CURATED_MOVIES: MovieItem[] = [
     year: 2013,
     director: 'Spike Jonze',
     cast: ['Joaquin Phoenix', 'Scarlett Johansson', 'Amy Adams', 'Rooney Mara'],
-    genres: ['Sci-Fi', 'Romance', 'Drama'],
-    ottPlatforms: ['Netflix', 'Apple TV+'],
+    genres: ['Sci-Fi', 'Drama', 'Philosophy'],
+    ottPlatforms: ['Netflix', 'Apple TV'],
     rating: '8.9',
     runtime: '126 min',
     synopsis:
-      'In a near future, a lonely writer develops an unlikely relationship with an operating system designed to meet his every need.',
+      'In a near-future Los Angeles, a lonely writer develops an intimate, evolving relationship with an advanced artificial intelligence designed to grow alongside human cognition.',
     takeaway:
-      'Prescient depiction of human-LLM emotional bonding and the asymptotic departure of superintelligent cognitive entities.',
+      'Prescient depiction of human-agent emotional attachment and the post-human departure of superintelligent cognitive entities.',
   },
   {
     id: '2001-space-odyssey',
@@ -114,11 +187,11 @@ export const CURATED_MOVIES: MovieItem[] = [
     director: 'Stanley Kubrick',
     cast: ['Keir Dullea', 'Gary Lockwood', 'William Sylvester'],
     genres: ['Sci-Fi', 'Mystery', 'Philosophy'],
-    ottPlatforms: ['Max', 'Prime Video'],
+    ottPlatforms: ['HBO Max', 'Apple TV'],
     rating: '9.5',
     runtime: '149 min',
     synopsis:
-      'After uncovering a mysterious artifact buried beneath the lunar surface, a spacecraft is sent to Jupiter to find its origins - a spacecraft manned by two men and the supercomputer HAL 9000.',
+      'After uncovering a mysterious monolith buried beneath the lunar surface, a spacecraft is sent toward Jupiter manned by two astronauts and the sentient supercomputer HAL 9000.',
     takeaway:
       'The foundational monument of computational alignment failure, human evolution, and cosmic transcendental cinema.',
   },
@@ -128,29 +201,44 @@ export const CURATED_MOVIES: MovieItem[] = [
     year: 2010,
     director: 'David Fincher',
     cast: ['Jesse Eisenberg', 'Andrew Garfield', 'Justin Timberlake', 'Armie Hammer'],
-    genres: ['Biography', 'Drama', 'Tech'],
-    ottPlatforms: ['Netflix', 'Prime Video'],
+    genres: ['Tech Drama', 'Biography'],
+    ottPlatforms: ['Netflix', 'Primevideo'],
     rating: '9.1',
     runtime: '120 min',
     synopsis:
-      'As Harvard student Mark Zuckerberg creates the social networking site that would become known as Facebook, he is sued by the twins who claimed he stole their idea, and by the co-founder who was later squeezed out.',
+      'As Harvard undergraduate Mark Zuckerberg constructs the social networking platform that reshaped global communication, he is embroiled in legal warfare with former partners and co-founders.',
     takeaway:
-      'Sorkin’s razor-sharp dialogue paired with Trent Reznor’s analog synthesizer score creates the definitive modern tech origin tragedy.',
+      'Sorkin’s razor-sharp cadence paired with Trent Reznor & Atticus Ross’s analog synthesizer score creates the definitive modern tech tragedy.',
   },
   {
     id: 'arrival',
     title: 'Arrival',
     year: 2016,
     director: 'Denis Villeneuve',
-    cast: ['Amy Adams', 'Jeremy Renner', 'Forest Whitaker', 'Michael Stuhlbarg'],
-    genres: ['Sci-Fi', 'Mystery', 'Drama'],
-    ottPlatforms: ['Netflix', 'Prime Video'],
+    cast: ['Amy Adams', 'Jeremy Renner', 'Forest Whitaker'],
+    genres: ['Sci-Fi', 'Mystery', 'Philosophy'],
+    ottPlatforms: ['Netflix', 'Primevideo'],
     rating: '9.2',
     runtime: '116 min',
     synopsis:
-      'A linguist works with the military to communicate with alien lifeforms after twelve mysterious spacecraft appear around the world.',
+      'A linguistics professor leads an elite team of investigators when twelve extraterrestrial spacecraft touch down across diverse locations on Earth.',
     takeaway:
       'Brilliant translation of the Sapir-Whorf hypothesis and non-zero-sum game theory onto non-linear temporal perception.',
+  },
+  {
+    id: 'the-zone-of-interest',
+    title: 'The Zone of Interest',
+    year: 2023,
+    director: 'Jonathan Glazer',
+    cast: ['Christian Friedel', 'Sandra Hüller'],
+    genres: ['Drama', 'History', 'Psychological'],
+    ottPlatforms: ['A24 movies', 'Mubi', 'JioHotstar'],
+    rating: '9.3',
+    runtime: '105 min',
+    synopsis:
+      'Auschwitz commandant Rudolf Höss and his wife Hedwig strive to build a dream life for their family in a house and idyllic garden adjacent to the camp.',
+    takeaway:
+      'Unprecedented sonic architecture by Mica Levi and fixed multi-camera surveillance documenting the terrifying banality of systemic evil.',
   },
   {
     id: 'dune-part-two',
@@ -158,14 +246,29 @@ export const CURATED_MOVIES: MovieItem[] = [
     year: 2024,
     director: 'Denis Villeneuve',
     cast: ['Timothée Chalamet', 'Zendaya', 'Rebecca Ferguson', 'Javier Bardem'],
-    genres: ['Sci-Fi', 'Adventure', 'Epic'],
-    ottPlatforms: ['JioCinema', 'Max', 'Apple TV+'],
+    genres: ['Sci-Fi', 'Epic', 'Adventure'],
+    ottPlatforms: ['HBO Max', 'JioHotstar', 'Apple TV'],
     rating: '9.3',
     runtime: '166 min',
     synopsis:
-      'Paul Atreides unites with Chani and the Fremen while seeking revenge against the conspirators who destroyed his family.',
+      'Paul Atreides unites with Chani and the Fremen while seeking retribution against the conspirators who orchestrated the downfall of his noble house.',
     takeaway:
-      'Uncompromising scale in geopolitical prophecy, acoustic design, and weaponized religious mythology.',
+      'Uncompromising scale in acoustic sound design, geopolitical prophecy, and the terrifying momentum of manufactured religious mythology.',
+  },
+  {
+    id: 'sicario',
+    title: 'Sicario',
+    year: 2015,
+    director: 'Denis Villeneuve',
+    cast: ['Emily Blunt', 'Benicio Del Toro', 'Josh Brolin'],
+    genres: ['Thriller', 'Crime', 'Action'],
+    ottPlatforms: ['Lionsgate', 'Primevideo', 'Apple TV'],
+    rating: '9.1',
+    runtime: '121 min',
+    synopsis:
+      'An idealistic FBI agent is enlisted by an enigmatic government task force to aid in the escalating war against drug cartels at the US-Mexico border.',
+    takeaway:
+      'Jóhann Jóhannsson’s subterranean percussive score, Roger Deakins’ dusk thermals, and an unflinching moral abyss.',
   },
   {
     id: 'the-matrix',
@@ -173,14 +276,29 @@ export const CURATED_MOVIES: MovieItem[] = [
     year: 1999,
     director: 'Lana & Lilly Wachowski',
     cast: ['Keanu Reeves', 'Laurence Fishburne', 'Carrie-Anne Moss', 'Hugo Weaving'],
-    genres: ['Sci-Fi', 'Action', 'Cyberpunk'],
-    ottPlatforms: ['Max', 'Prime Video'],
+    genres: ['Sci-Fi', 'Cyberpunk', 'Action'],
+    ottPlatforms: ['HBO Max', 'Primevideo'],
     rating: '9.3',
     runtime: '136 min',
     synopsis:
-      'When a beautiful stranger leads computer hacker Neo to a forbidding underworld, he discovers the shocking truth - the life he knows is the elaborate deception of an evil cyber-intelligence.',
+      'When computer programmer Neo is contacted by enigmatic rebels, he discovers the horrifying truth: the world he inhabits is a complex simulated construct run by sentient machines.',
     takeaway:
-      'Baudrillard’s simulacra realized through Hong Kong wire-fu, cyberpunk terminal aesthetics, and neural VR.',
+      'Baudrillard’s simulacra manifested through Hong Kong wire-fu, cyberpunk green phosphorus terminal aesthetics, and neural VR.',
+  },
+  {
+    id: 'everything-everywhere',
+    title: 'Everything Everywhere All at Once',
+    year: 2022,
+    director: 'Daniel Kwan & Daniel Scheinert',
+    cast: ['Michelle Yeoh', 'Ke Huy Quan', 'Stephanie Hsu', 'Jamie Lee Curtis'],
+    genres: ['Sci-Fi', 'Action', 'Philosophy'],
+    ottPlatforms: ['A24 movies', 'Lionsgate', 'Primevideo'],
+    rating: '9.2',
+    runtime: '139 min',
+    synopsis:
+      'A middle-aged Chinese immigrant is swept up in an insane adventure where she alone can save existence by exploring alternate universes connecting through the lives she could have led.',
+    takeaway:
+      'Maximalist multiverse editing expressing cosmic nihilism redeemed through compassionate absurdism.',
   },
   {
     id: 'inception',
@@ -188,29 +306,14 @@ export const CURATED_MOVIES: MovieItem[] = [
     year: 2010,
     director: 'Christopher Nolan',
     cast: ['Leonardo DiCaprio', 'Joseph Gordon-Levitt', 'Elliot Page', 'Tom Hardy'],
-    genres: ['Action', 'Sci-Fi', 'Heist'],
-    ottPlatforms: ['Netflix', 'Prime Video'],
+    genres: ['Sci-Fi', 'Action', 'Psychological'],
+    ottPlatforms: ['Netflix', 'Primevideo', 'JioHotstar'],
     rating: '9.1',
     runtime: '148 min',
     synopsis:
-      'A thief who steals corporate secrets through the use of dream-sharing technology is given the inverse task of planting an idea into the mind of a C.E.O.',
+      'A corporate espionage specialist who extracts information by infiltrating subconscious dreams is tasked with the inverse challenge: planting an idea into a CEO’s mind.',
     takeaway:
-      'Architectural subconscious recursion modeled like hierarchical multi-threaded execution environments.',
-  },
-  {
-    id: 'ghost-in-the-shell',
-    title: 'Ghost in the Shell',
-    year: 1995,
-    director: 'Mamoru Oshii',
-    cast: ['Atsuko Tanaka', 'Akio Ōtsuka', 'Iemasa Kayumi'],
-    genres: ['Anime', 'Cyberpunk', 'Philosophy'],
-    ottPlatforms: ['Prime Video', 'Crunchyroll'],
-    rating: '9.1',
-    runtime: '83 min',
-    synopsis:
-      'A cyborg public-security agent hunts a mysterious hacker known as the Puppet Master who hacks into human cyberbrains.',
-    takeaway:
-      'The definitive treatise on post-biological identity, cybernetic bodies, and informational self-organization.',
+      'Architectural subconscious recursion engineered like nested, multi-threaded execution runtimes.',
   },
 ];
 
@@ -221,74 +324,74 @@ export const CURATED_TV_SHOWS: TVShowItem[] = [
     years: '2022 – Present',
     creator: 'Dan Erickson (Dir: Ben Stiller)',
     cast: ['Adam Scott', 'Patricia Arquette', 'John Turturro', 'Christopher Walken'],
-    genres: ['Sci-Fi', 'Psychological Thriller', 'Corporate Dystopia'],
-    ottPlatforms: ['Apple TV+'],
+    genres: ['Sci-Fi', 'Psychological', 'Corporate Dystopia'],
+    ottPlatforms: ['Apple TV'],
     rating: '9.4',
     seasons: 'Season 1 & 2',
     synopsis:
-      'Mark leads a team of office workers whose memories have been surgically divided between their work and personal lives. When a mysterious colleague appears outside of work, it begins a journey to discover the truth about their jobs.',
+      'Mark leads a team of office workers at Lumon Industries whose memories have been surgically bifurcated between their professional and personal lives.',
     takeaway:
-      'A horrifyingly hilarious, chillingly precise architectural dissection of corporate alienation and partitioned consciousness.',
+      'A chillingly sterile, razor-sharp architectural dissection of corporate alienation, surveillance, and partitioned identity.',
   },
   {
     id: 'dark',
     title: 'Dark',
     years: '2017 – 2020',
     creator: 'Baran bo Odar & Jantje Friese',
-    cast: ['Louis Hofmann', 'Oliver Masucci', 'Karoline Eichhorn', 'Maja Schöne'],
+    cast: ['Louis Hofmann', 'Oliver Masucci', 'Karoline Eichhorn'],
     genres: ['Sci-Fi', 'Mystery', 'Time Travel'],
     ottPlatforms: ['Netflix'],
     rating: '9.5',
     seasons: '3 Seasons (Complete)',
     synopsis:
-      'A family saga with a supernatural twist, set in a German town where the disappearance of two young children exposes the relationships among four families across three generations.',
+      'A missing child sets four interconnected families on a frantic hunt for answers as they unearth a mind-bending mystery spanning three generations in a German town.',
     takeaway:
-      'The most mathematically airtight, deterministic bootstrap-paradox narrative ever committed to television.',
+      'The most mathematically airtight, deterministic bootstrap-paradox narrative ever engineered for television.',
   },
   {
     id: 'mr-robot',
     title: 'Mr. Robot',
     years: '2015 – 2019',
     creator: 'Sam Esmail',
-    cast: ['Rami Malek', 'Christian Slater', 'Carly Chaikin', 'Martin Wallström'],
-    genres: ['Cyber-Thriller', 'Drama', 'Psychology'],
-    ottPlatforms: ['Prime Video'],
+    cast: ['Rami Malek', 'Christian Slater', 'Carly Chaikin'],
+    genres: ['Cyber-Thriller', 'Psychological', 'Drama'],
+    ottPlatforms: ['Primevideo'],
     rating: '9.3',
     seasons: '4 Seasons (Complete)',
     synopsis:
-      'Elliot, a brilliant but highly unstable cybersecurity engineer and vigilante hacker, becomes a key figure in a complex game of global chaos when he and his shadowy allies try to take down the corrupt corporation his company is paid to protect.',
+      'Elliot, a brilliant cybersecurity engineer and vigilante hacker suffering from clinical depression and dissociative identity disorder, joins an underground hacktivist syndicate.',
     takeaway:
-      'The only series in television history with 100% technically accurate Kali Linux terminal payloads, kernel exploits, and psychological dissidence.',
+      'The only series in television history with 100% technically authentic Linux terminals, kernel exploits, and psychological dissidence.',
   },
   {
     id: 'chernobyl',
     title: 'Chernobyl',
     years: '2019',
     creator: 'Craig Mazin (Dir: Johan Renck)',
-    cast: ['Jared Harris', 'Stellan Skarsgård', 'Emily Watson', 'Paul Ritter'],
+    cast: ['Jared Harris', 'Stellan Skarsgård', 'Emily Watson'],
     genres: ['History', 'Drama', 'Disaster'],
-    ottPlatforms: ['JioCinema', 'Max'],
+    ottPlatforms: ['HBO Max', 'JioHotstar'],
     rating: '9.6',
     seasons: 'Miniseries (5 Episodes)',
     synopsis:
-      'In April 1986, an explosion at the Chernobyl nuclear power plant in the Union of Soviet Socialist Republics becomes one of the world’s worst man-made catastrophes.',
+      'In April 1986, an explosion at the Chernobyl nuclear power plant in the USSR triggers one of the most perilous man-made disasters in human history.',
     takeaway:
-      'An uncompromising monument to the cost of systemic institutional lies and the thermodynamics of nuclear fission failure.',
+      'An uncompromising monument to the thermodynamic consequences of nuclear fission and the deadly cost of institutional lies.',
   },
   {
     id: 'succession',
     title: 'Succession',
     years: '2018 – 2023',
     creator: 'Jesse Armstrong',
-    cast: ['Brian Cox', 'Jeremy Strong', 'Sarah Snook', 'Kieran Culkin', 'Matthew Macfadyen'],
+    cast: ['Brian Cox', 'Jeremy Strong', 'Sarah Snook', 'Kieran Culkin'],
     genres: ['Drama', 'Corporate Satire'],
-    ottPlatforms: ['JioCinema', 'Max'],
+    ottPlatforms: ['HBO Max', 'JioHotstar'],
     rating: '9.4',
     seasons: '4 Seasons (Complete)',
     synopsis:
-      'The Roy family is known for controlling the biggest media and entertainment company in the world. However, their world changes when their aging father steps down from the company.',
+      'The Roy family controls Waystar RoyCo, one of the biggest media conglomerates in the world. When their aging patriarch steps back, his children enter ruthless corporate civil war.',
     takeaway:
-      'Shakespearean dynastic cruelty captured through hyper-realistic corporate M&A maneuvering and Nicholas Britell’s piano score.',
+      'Shakespearean dynastic cruelty captured through hyper-realistic corporate M&A maneuvering and Nicholas Britell’s piano leitmotifs.',
   },
   {
     id: 'true-detective-s1',
@@ -296,14 +399,44 @@ export const CURATED_TV_SHOWS: TVShowItem[] = [
     years: '2014',
     creator: 'Nic Pizzolatto (Dir: Cary Joji Fukunaga)',
     cast: ['Matthew McConaughey', 'Woody Harrelson', 'Michelle Monaghan'],
-    genres: ['Crime', 'Mystery', 'Southern Gothic', 'Philosophy'],
-    ottPlatforms: ['JioCinema', 'Max'],
+    genres: ['Crime', 'Mystery', 'Philosophy'],
+    ottPlatforms: ['HBO Max', 'JioHotstar'],
     rating: '9.5',
     seasons: 'Season 1',
     synopsis:
-      'Seasonal anthology series in which police investigations unearth the personal and professional secrets of those involved, both within and outside the law.',
+      'Two Louisiana State Police homicide detectives investigate a bizarre occult murder in 1995, re-examined seventeen years later when the case is reopened.',
     takeaway:
       'Rust Cohle’s antinatalist cosmic pessimism blended with Cary Fukunaga’s legendary 6-minute single-take tracking shot.',
+  },
+  {
+    id: 'shogun',
+    title: 'Shōgun',
+    years: '2024 – Present',
+    creator: 'Rachel Kondo & Justin Marks',
+    cast: ['Hiroyuki Sanada', 'Cosmo Jarvis', 'Anna Sawai', 'Tadanobu Asano'],
+    genres: ['Epic', 'History', 'Drama'],
+    ottPlatforms: ['JioHotstar'],
+    rating: '9.3',
+    seasons: 'Season 1',
+    synopsis:
+      'In 1600 feudal Japan, Lord Yoshii Toranaga fights for his life as his enemies on the Council of Regents unite against him, while a stranded English navigator brings fateful secrets.',
+    takeaway:
+      'Staggering historical fidelity, non-verbal political strategy, and Hiroyuki Sanada’s commanding portrayal of patience as power.',
+  },
+  {
+    id: 'slow-horses',
+    title: 'Slow Horses',
+    years: '2022 – Present',
+    creator: 'Will Smith (Based on Mick Herron)',
+    cast: ['Gary Oldman', 'Jack Lowden', 'Kristin Scott Thomas'],
+    genres: ['Spy Thriller', 'Drama', 'Satire'],
+    ottPlatforms: ['Apple TV'],
+    rating: '9.1',
+    seasons: '4 Seasons',
+    synopsis:
+      'A dysfunctional team of MI5 agents, relegated to administrative dumping ground Slough House due to career-ending mistakes, stumble into high-stakes espionage crises.',
+    takeaway:
+      'Gary Oldman’s masterfully disheveled Jackson Lamb redefining the bureaucratic cynicism of modern British intelligence.',
   },
   {
     id: 'silicon-valley',
@@ -311,28 +444,28 @@ export const CURATED_TV_SHOWS: TVShowItem[] = [
     years: '2014 – 2019',
     creator: 'Mike Judge, John Altschuler, Dave Krinsky',
     cast: ['Thomas Middleditch', 'Martin Starr', 'Kumail Nanjiani', 'Zach Woods'],
-    genres: ['Comedy', 'Tech', 'Startup'],
-    ottPlatforms: ['JioCinema', 'Max'],
+    genres: ['Comedy', 'Tech Satire'],
+    ottPlatforms: ['HBO Max', 'JioHotstar'],
     rating: '8.8',
     seasons: '6 Seasons (Complete)',
     synopsis:
-      'Follows the struggle of Richard Hendricks, a Silicon Valley engineer trying to build his company, Pied Piper, around a revolutionary lossless data compression algorithm.',
+      'A Silicon Valley engineer develops a revolutionary lossless compression algorithm and attempts to build his startup, Pied Piper, amid venture capital sharks and corporate giants.',
     takeaway:
-      'The most painfully accurate satire of venture capital term sheets, middle-out compression algorithms, and server room panic ever filmed.',
+      'The most painfully accurate satire of tech startup culture, term sheets, cap tables, and server room panic ever filmed.',
   },
   {
     id: 'mindhunter',
     title: 'Mindhunter',
     years: '2017 – 2019',
     creator: 'Joe Penhall (Dir: David Fincher)',
-    cast: ['Jonathan Groff', 'Holt McCallany', 'Anna Torv', 'Cameron Britton'],
-    genres: ['Crime', 'Psychological Thriller', 'History'],
+    cast: ['Jonathan Groff', 'Holt McCallany', 'Anna Torv'],
+    genres: ['Crime', 'Psychological', 'History'],
     ottPlatforms: ['Netflix'],
     rating: '9.0',
     seasons: '2 Seasons',
     synopsis:
-      'In the late 1970s two FBI agents expand criminal science by delving into the psychology of murder and awkwardly getting too close to all-too-real monsters.',
+      'In the late 1970s, two FBI agents expand criminal science by delving into the psychology of murder and interviewing incarcerated serial killers.',
     takeaway:
-      'Fincher’s clinical obsession with analytical methodology, forensic tape recordings, and the inception of criminal behavioral profiling.',
+      'Fincher’s clinical precision, analytical tape-recorder interrogations, and the harrowing inception of criminal behavioral profiling.',
   },
 ];

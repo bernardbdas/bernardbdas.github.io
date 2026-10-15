@@ -2,8 +2,9 @@
 /**
  * media.astro — Media Deck & Cultural Artifacts
  * Multi-mode deck: Radio Shack (SDR), Curated Cinema, and Prestige TV Series.
- * Includes interactive mode switcher, persistent background audio playback,
- * and real-time faceted search by genre, cast, director, and OTT platform.
+ * Features minimalist tactical HUD filtering for Bernard's authorized OTT platforms
+ * (Apple TV, Netflix, Primevideo, JioHotstar, Mubi, A24 movies, HBO Max, Lionsgate)
+ * and primary music streaming services (Apple Music, YT Music, SoundCloud).
  */
 import BaseLayout from '../layouts/BaseLayout.astro';
 import ChromeNav from '../components/ChromeNav.astro';
@@ -32,6 +33,7 @@ import MediaTV from '../components/MediaTV.astro';
         </div>
 
         <div class="media-mode-buttons" role="tablist">
+          <!-- Mode 1: Radio Shack (SDR) -->
           <button
             type="button"
             class="media-mode-tab active"
@@ -41,11 +43,31 @@ import MediaTV from '../components/MediaTV.astro';
             aria-selected="true"
             aria-controls="view-radio"
           >
-            <span class="tab-icon">📻</span>
-            <span class="tab-label">RADIO SHACK (SDR)</span>
-            <span class="tab-count-tag">20 STATIONS</span>
+            <span class="tab-icon-wrap" aria-hidden="true">
+              <svg
+                class="mode-svg-icon"
+                viewBox="0 0 20 20"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.3"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <rect x="2.5" y="6" width="15" height="11.5" rx="1.5"></rect>
+                <circle cx="7.5" cy="11.5" r="2.5"></circle>
+                <path d="M12.5 9.5H15.5M12.5 13.5H15.5"></path>
+                <path d="M5 6L8.5 2"></path>
+                <circle cx="8.5" cy="2" r="0.75" fill="currentColor"></circle>
+              </svg>
+            </span>
+            <div class="tab-content">
+              <span class="tab-label">RADIO SHACK (SDR)</span>
+              <span class="tab-sublabel">20 LIVE STATIONS</span>
+            </div>
+            <span class="tab-count-tag">TUNED</span>
           </button>
 
+          <!-- Mode 2: Curated Cinema -->
           <button
             type="button"
             class="media-mode-tab"
@@ -55,11 +77,32 @@ import MediaTV from '../components/MediaTV.astro';
             aria-selected="false"
             aria-controls="view-cinema"
           >
-            <span class="tab-icon">🎬</span>
-            <span class="tab-label">CURATED CINEMA</span>
-            <span class="tab-count-tag">12 FILMS</span>
+            <span class="tab-icon-wrap" aria-hidden="true">
+              <svg
+                class="mode-svg-icon"
+                viewBox="0 0 20 20"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.3"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <circle cx="10" cy="10" r="7.5"></circle>
+                <circle cx="10" cy="10" r="2"></circle>
+                <circle cx="10" cy="5.2" r="1.1" fill="currentColor" stroke="none"></circle>
+                <circle cx="10" cy="14.8" r="1.1" fill="currentColor" stroke="none"></circle>
+                <circle cx="5.2" cy="10" r="1.1" fill="currentColor" stroke="none"></circle>
+                <circle cx="14.8" cy="10" r="1.1" fill="currentColor" stroke="none"></circle>
+              </svg>
+            </span>
+            <div class="tab-content">
+              <span class="tab-label">CURATED CINEMA</span>
+              <span class="tab-sublabel">16 MASTER FILMS</span>
+            </div>
+            <span class="tab-count-tag">ARCHIVE</span>
           </button>
 
+          <!-- Mode 3: TV Series -->
           <button
             type="button"
             class="media-mode-tab"
@@ -69,9 +112,28 @@ import MediaTV from '../components/MediaTV.astro';
             aria-selected="false"
             aria-controls="view-tv"
           >
-            <span class="tab-icon">📺</span>
-            <span class="tab-label">TV SERIES</span>
-            <span class="tab-count-tag">8 SHOWS</span>
+            <span class="tab-icon-wrap" aria-hidden="true">
+              <svg
+                class="mode-svg-icon"
+                viewBox="0 0 20 20"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.3"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <rect x="2.5" y="5.5" width="15" height="12" rx="1.5"></rect>
+                <path d="M13.5 8.5H15M13.5 11H15"></path>
+                <circle cx="14.25" cy="14" r="0.8" fill="currentColor" stroke="none"></circle>
+                <rect x="4.5" y="7.5" width="7" height="8" rx="0.75"></rect>
+                <path d="M7 5.5L4.5 2M13 5.5L15.5 2"></path>
+              </svg>
+            </span>
+            <div class="tab-content">
+              <span class="tab-label">TV SERIES</span>
+              <span class="tab-sublabel">10 PRESTIGE SHOWS</span>
+            </div>
+            <span class="tab-count-tag">ARCHIVE</span>
           </button>
         </div>
       </nav>
@@ -99,7 +161,21 @@ import MediaTV from '../components/MediaTV.astro';
             class="ticker-action-btn ticker-action-primary"
             id="mini-ticker-switch-btn"
           >
-            OPEN SDR 📻
+            <svg
+              class="btn-reticle-svg"
+              viewBox="0 0 14 14"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.3"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              aria-hidden="true"
+            >
+              <rect x="2" y="4" width="10" height="8" rx="1"></rect>
+              <circle cx="5" cy="8" r="1.5"></circle>
+              <line x1="8.5" y1="7" x2="10.5" y2="7"></line>
+            </svg>
+            <span>OPEN SDR TUNER</span>
           </button>
         </div>
       </aside>
@@ -155,15 +231,15 @@ import MediaTV from '../components/MediaTV.astro';
           </p>
           <h1 class="subpage-title">Curated Cinema</h1>
           <p class="focus-strip">
-            Feature Films • Philosophical Sci-Fi • Cyberpunk • Psychological Realism • OTT
-            Availability
+            Feature Films • Philosophical Sci-Fi • Cyberpunk • Psychological Realism • Bernard's
+            Curated Platforms
           </p>
         </div>
 
         <MediaCinema />
       </section>
 
-      <!-- ── MODE 03: PRESTIGE TELEVISION SERIES ────────────────── -->
+      <!-- ── MODE 03: TV SERIES ────────────────────────────────── -->
       <section
         id="view-tv"
         class="media-mode-view"
@@ -177,7 +253,7 @@ import MediaTV from '../components/MediaTV.astro';
             <span>INDEX // CORE SYSTEMS</span>
           </a>
           <span class="breadcrumb-sep">//</span>
-          <span class="breadcrumb-current">MODULE: TELEVISION SERIES</span>
+          <span class="breadcrumb-current">MODULE: TV SERIES</span>
         </div>
 
         <div class="section-title-wrap">
@@ -232,7 +308,7 @@ import MediaTV from '../components/MediaTV.astro';
       }
     }
   </script>
-  <!-- Interactive Client Controller for Multi-Mode Media Switcher and Filters -->
+  <!-- Interactive Client Controller for Multi-Mode Media Switcher and Tactical Filters -->
   <script>
     function setupMediaDeck() {
       const tabs = document.querySelectorAll<HTMLButtonElement>('.media-mode-tab');
@@ -334,27 +410,28 @@ import MediaTV from '../components/MediaTV.astro';
       // Check audio status periodically for mini ticker
       setInterval(updateMiniTicker, 800);
 
-      // ── Search & Filter Logic for Cinema ─────────────────────
-      setupFilterMatrix('cinema');
+      // ── Tactical Search & Filter Logic for Cinema ───────────
+      setupTacticalFilterMatrix('cinema');
 
-      // ── Search & Filter Logic for TV Shows ───────────────────
-      setupFilterMatrix('tv');
+      // ── Tactical Search & Filter Logic for TV Shows ─────────
+      setupTacticalFilterMatrix('tv');
     }
 
-    function setupFilterMatrix(category: 'cinema' | 'tv') {
+    function setupTacticalFilterMatrix(category: 'cinema' | 'tv') {
       const searchInput = document.getElementById(
         `${category}-search-input`,
       ) as HTMLInputElement | null;
       const clearBtn = document.getElementById(`${category}-search-clear`);
-      const platformPills = document.querySelectorAll<HTMLButtonElement>(
-        `#${category}-platform-pills .filter-pill`,
-      );
-      const genrePills = document.querySelectorAll<HTMLButtonElement>(
-        `#${category}-genre-pills .filter-pill`,
+      const genreSelect = document.getElementById(
+        `${category}-genre-select`,
+      ) as HTMLSelectElement | null;
+      const platformChips = document.querySelectorAll<HTMLButtonElement>(
+        `#${category}-platform-pills .ott-filter-chip`,
       );
       const countEl = document.getElementById(`${category}-visible-count`);
       const emptyNotice = document.getElementById(`${category}-empty-notice`);
-      const resetBtn = document.getElementById(`${category}-reset-filters-btn`);
+      const resetBtnTop = document.getElementById(`${category}-reset-filters-btn-top`);
+      const resetBtnBottom = document.getElementById(`${category}-reset-filters-btn`);
       const grid = document.getElementById(`${category}-cards-grid`);
 
       if (!grid) return;
@@ -364,6 +441,14 @@ import MediaTV from '../components/MediaTV.astro';
       let currentGenre = 'ALL';
       let currentSearch = '';
 
+      function updateResetButtonsVisibility() {
+        const isFiltered =
+          currentPlatform !== 'ALL' || currentGenre !== 'ALL' || currentSearch.length > 0;
+        if (resetBtnTop) {
+          resetBtnTop.style.display = isFiltered ? 'inline-flex' : 'none';
+        }
+      }
+
       function applyFilters() {
         let visible = 0;
 
@@ -372,11 +457,16 @@ import MediaTV from '../components/MediaTV.astro';
           const directorOrCreator =
             card.getAttribute('data-director') || card.getAttribute('data-creator') || '';
           const cast = card.getAttribute('data-cast') || '';
-          const genres = (card.getAttribute('data-genres') || '').split(',');
-          const platforms = (card.getAttribute('data-platforms') || '').split(',');
+          const genres = (card.getAttribute('data-genres') || '')
+            .split(',')
+            .map((g) => g.trim().toLowerCase());
+          const platforms = (card.getAttribute('data-platforms') || '')
+            .split(',')
+            .map((p) => p.trim());
 
           const matchesPlatform = currentPlatform === 'ALL' || platforms.includes(currentPlatform);
-          const matchesGenre = currentGenre === 'ALL' || genres.includes(currentGenre);
+          const matchesGenre =
+            currentGenre === 'ALL' || genres.includes(currentGenre.toLowerCase());
 
           const matchesSearch =
             !currentSearch ||
@@ -392,7 +482,7 @@ import MediaTV from '../components/MediaTV.astro';
           }
         });
 
-        // Update count label
+        // Update count telemetry label
         if (countEl) {
           const entityLabel = category === 'cinema' ? 'FEATURE FILMS' : 'TELEVISION SERIES';
           countEl.textContent = `INDEX: ${visible} ${entityLabel} VISIBLE`;
@@ -402,9 +492,11 @@ import MediaTV from '../components/MediaTV.astro';
         if (emptyNotice) {
           emptyNotice.style.display = visible === 0 ? 'flex' : 'none';
         }
+
+        updateResetButtonsVisibility();
       }
 
-      // Search input handler
+      // Search input listener
       searchInput?.addEventListener('input', (e) => {
         currentSearch = (e.target as HTMLInputElement).value.trim().toLowerCase();
         if (clearBtn) {
@@ -422,54 +514,45 @@ import MediaTV from '../components/MediaTV.astro';
         }
       });
 
-      // Platform pills
-      platformPills.forEach((pill) => {
-        pill.addEventListener('click', () => {
-          platformPills.forEach((p) => {
-            p.classList.remove('active');
-            p.setAttribute('aria-selected', 'false');
+      // Genre select listener
+      genreSelect?.addEventListener('change', (e) => {
+        currentGenre = (e.target as HTMLSelectElement).value;
+        applyFilters();
+      });
+
+      // Platform chip clicks
+      platformChips.forEach((chip) => {
+        chip.addEventListener('click', () => {
+          platformChips.forEach((c) => {
+            c.classList.remove('active');
+            c.setAttribute('aria-selected', 'false');
           });
-          pill.classList.add('active');
-          pill.setAttribute('aria-selected', 'true');
-          currentPlatform = pill.getAttribute('data-filter-platform') || 'ALL';
+          chip.classList.add('active');
+          chip.setAttribute('aria-selected', 'true');
+          currentPlatform = chip.getAttribute('data-filter-platform') || 'ALL';
           applyFilters();
         });
       });
 
-      // Genre pills
-      genrePills.forEach((pill) => {
-        pill.addEventListener('click', () => {
-          genrePills.forEach((p) => {
-            p.classList.remove('active');
-            p.setAttribute('aria-selected', 'false');
-          });
-          pill.classList.add('active');
-          pill.setAttribute('aria-selected', 'true');
-          currentGenre = pill.getAttribute('data-filter-genre') || 'ALL';
-          applyFilters();
-        });
-      });
-
-      // Reset button
-      resetBtn?.addEventListener('click', () => {
+      function resetAll() {
         if (searchInput) searchInput.value = '';
         currentSearch = '';
         if (clearBtn) clearBtn.style.display = 'none';
 
-        platformPills.forEach((p, idx) => {
-          p.classList.toggle('active', idx === 0);
-          p.setAttribute('aria-selected', idx === 0 ? 'true' : 'false');
+        if (genreSelect) genreSelect.value = 'ALL';
+        currentGenre = 'ALL';
+
+        platformChips.forEach((c, idx) => {
+          c.classList.toggle('active', idx === 0);
+          c.setAttribute('aria-selected', idx === 0 ? 'true' : 'false');
         });
         currentPlatform = 'ALL';
 
-        genrePills.forEach((p, idx) => {
-          p.classList.toggle('active', idx === 0);
-          p.setAttribute('aria-selected', idx === 0 ? 'true' : 'false');
-        });
-        currentGenre = 'ALL';
-
         applyFilters();
-      });
+      }
+
+      resetBtnTop?.addEventListener('click', resetAll);
+      resetBtnBottom?.addEventListener('click', resetAll);
     }
 
     // Initialize when DOM ready

@@ -1,103 +1,158 @@
 ---
 /**
  * MediaTV.astro — Curated Television & Prestige Series Archive
- * Searchable, filterable catalogue by genre, creator, cast, and OTT streaming platforms.
+ * Minimalist tactical HUD filtering for Bernard's authorized OTT platforms:
+ * Apple TV, Netflix, Primevideo, JioHotstar, Mubi, A24 movies, HBO Max, Lionsgate.
  */
-import { CURATED_TV_SHOWS, type TVShowItem } from '../data/media-curation';
+import { CURATED_TV_SHOWS, USER_OTT_PLATFORMS, type TVShowItem } from '../data/media-curation';
 
-const allTVGenres = Array.from(new Set(CURATED_TV_SHOWS.flatMap((s) => s.genres))).sort();
-const allTVPlatforms = Array.from(new Set(CURATED_TV_SHOWS.flatMap((s) => s.ottPlatforms))).sort();
+const coreTVGenres = [
+  'ALL',
+  'Sci-Fi',
+  'Cyber-Thriller',
+  'Psychological',
+  'Mystery',
+  'Drama',
+  'Corporate Dystopia',
+  'Corporate Satire',
+  'Crime',
+  'History',
+  'Spy Thriller',
+  'Comedy',
+  'Epic',
+];
 ---
 
 <div class="media-catalogue-container" id="tv-catalogue-root">
-  <!-- Filter & Search Toolbar -->
-  <div class="media-toolbar">
-    <div class="media-search-wrap">
-      <span class="search-icon" aria-hidden="true">
-        ⌕
-      </span>
-      <input
-        type="search"
-        id="tv-search-input"
-        class="media-search-input"
-        placeholder="SEARCH TV SHOWS, CREATORS (SAM ESMAIL, BEN STILLER...), CAST, OR KEYWORDS..."
-        aria-label="Search curated TV series archive"
-      />
-      <button
-        type="button"
-        id="tv-search-clear"
-        class="search-clear-btn"
-        aria-label="Clear search"
-        style="display: none;"
-      >
-        ✕
-      </button>
-    </div>
-
-    <!-- Platform Filter Pills -->
-    <div class="media-filter-group">
-      <span class="filter-group-label">STREAMING PLATFORM:</span>
-      <div class="filter-pills-row" id="tv-platform-pills" role="tablist">
+  <!-- Minimalist Tactical HUD Control Bar -->
+  <div class="media-tactical-toolbar">
+    <div class="toolbar-primary-row">
+      <!-- Search Input with SVG crosshair icon -->
+      <div class="media-search-wrap">
+        <span class="search-icon-slot" aria-hidden="true">
+          <svg
+            class="search-svg"
+            viewBox="0 0 16 16"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.4"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <circle cx="7" cy="7" r="4.5"></circle>
+            <line x1="10.5" y1="10.5" x2="14" y2="14"></line>
+          </svg>
+        </span>
+        <input
+          type="search"
+          id="tv-search-input"
+          class="media-search-input"
+          placeholder="FILTER TV SERIES // TITLE, CREATOR, CAST..."
+          aria-label="Filter curated TV series archive"
+        />
         <button
           type="button"
-          class="filter-pill active"
-          data-filter-platform="ALL"
-          role="tab"
-          aria-selected="true"
+          id="tv-search-clear"
+          class="search-clear-btn"
+          aria-label="Clear TV search query"
+          style="display: none;"
+          title="Clear search"
         >
-          ALL ({CURATED_TV_SHOWS.length})
+          <svg
+            class="clear-svg"
+            viewBox="0 0 14 14"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.4"
+            stroke-linecap="round"
+          >
+            <line x1="3" y1="3" x2="11" y2="11"></line>
+            <line x1="11" y1="3" x2="3" y2="11"></line>
+          </svg>
         </button>
-        {allTVPlatforms.map((plat) => {
-          const count = CURATED_TV_SHOWS.filter((s) => s.ottPlatforms.includes(plat)).length;
-          return (
-            <button
-              type="button"
-              class="filter-pill"
-              data-filter-platform={plat}
-              role="tab"
-              aria-selected="false"
-            >
-              {plat} ({count})
-            </button>
-          );
-        })}
+      </div>
+
+      <!-- Tactical Dropdown Controls -->
+      <div class="toolbar-dropdown-controls">
+        <div class="hud-select-wrap">
+          <label for="tv-genre-select" class="hud-select-label">
+            GENRE
+          </label>
+          <select id="tv-genre-select" class="hud-select" aria-label="Filter TV shows by genre">
+            {coreTVGenres.map((g) => (
+              <option value={g}>{g === 'ALL' ? 'ALL GENRES' : g.toUpperCase()}</option>
+            ))}
+          </select>
+          <span class="select-chevron" aria-hidden="true">
+            ▾
+          </span>
+        </div>
+
+        <button
+          type="button"
+          id="tv-reset-filters-btn-top"
+          class="hud-reset-btn"
+          title="Reset active TV filters"
+          style="display: none;"
+        >
+          <svg
+            class="reset-svg"
+            viewBox="0 0 14 14"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.3"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <path d="M2 2v4h4"></path>
+            <path d="M3.5 9.5a5 5 0 1 0 1.2-5.4L2 6"></path>
+          </svg>
+          <span>RESET</span>
+        </button>
       </div>
     </div>
 
-    <!-- Genre Filter Pills -->
-    <div class="media-filter-group">
-      <span class="filter-group-label">GENRE FILTER:</span>
-      <div class="filter-pills-row" id="tv-genre-pills" role="tablist">
+    <!-- Bernard's Authorized OTT Platform Switcher Bar (Clean, uncrowded, no wordy counters) -->
+    <div
+      class="ott-platform-strip"
+      role="tablist"
+      aria-label="Filter by Bernard's Streaming Services"
+    >
+      <span class="strip-label">OTT NETWORK:</span>
+      <div class="ott-pills-row" id="tv-platform-pills">
         <button
           type="button"
-          class="filter-pill active"
-          data-filter-genre="ALL"
+          class="ott-filter-chip active"
+          data-filter-platform="ALL"
           role="tab"
           aria-selected="true"
         >
           ALL
         </button>
-        {allTVGenres.map((g) => (
+        {USER_OTT_PLATFORMS.map((plat) => (
           <button
             type="button"
-            class="filter-pill"
-            data-filter-genre={g}
+            class="ott-filter-chip"
+            data-filter-platform={plat}
             role="tab"
             aria-selected="false"
           >
-            {g}
+            {plat.toUpperCase()}
           </button>
         ))}
       </div>
     </div>
   </div>
 
-  <!-- Counter Status Row -->
+  <!-- Telemetry Counter Row -->
   <div class="catalogue-status-bar">
-    <span class="catalogue-count" id="tv-visible-count">
-      INDEX: {CURATED_TV_SHOWS.length} CURATED PRESTIGE SERIES
-    </span>
-    <span class="catalogue-telemetry">TRANSMISSION_FEED: OPTIMAL // LIVE ARCHIVE</span>
+    <div class="status-left">
+      <span class="status-pulse-dot" aria-hidden="true"></span>
+      <span class="catalogue-count" id="tv-visible-count">
+        INDEX: {CURATED_TV_SHOWS.length} CURATED PRESTIGE SERIES
+      </span>
+    </div>
+    <span class="catalogue-telemetry">AUTHORIZATION // BERNARD'S CURATION</span>
   </div>
 
   <!-- TV Shows Grid -->
@@ -105,7 +160,7 @@ const allTVPlatforms = Array.from(new Set(CURATED_TV_SHOWS.flatMap((s) => s.ottP
     {CURATED_TV_SHOWS.map((show: TVShowItem) => (
       <article
         class="media-item-card"
-        id={`show-${show.id}`}
+        id={`tv-${show.id}`}
         data-title={show.title.toLowerCase()}
         data-creator={show.creator.toLowerCase()}
         data-cast={show.cast.join(' ').toLowerCase()}
@@ -124,7 +179,15 @@ const allTVPlatforms = Array.from(new Set(CURATED_TV_SHOWS.flatMap((s) => s.ottP
             <span class="media-year">({show.years})</span>
           </div>
           <div class="media-rating-badge" title="Bernard's Curated Rating">
-            <span class="rating-star">★</span>
+            <svg
+              class="rating-reticle-star"
+              viewBox="0 0 14 14"
+              fill="currentColor"
+              stroke="none"
+              aria-hidden="true"
+            >
+              <polygon points="7,1 8.8,4.8 13,5.4 9.9,8.4 10.6,12.6 7,10.6 3.4,12.6 4.1,8.4 1,5.4 5.2,4.8" />
+            </svg>
             <span class="rating-num">{show.rating}</span>
           </div>
         </div>
@@ -132,15 +195,15 @@ const allTVPlatforms = Array.from(new Set(CURATED_TV_SHOWS.flatMap((s) => s.ottP
         <!-- Meta Specifications -->
         <div class="media-specs-grid">
           <div class="spec-item">
-            <span class="spec-k">SHOWRUNNER / CREATOR</span>
+            <span class="spec-k">CREATOR / SHOWRUNNER</span>
             <span class="spec-v highlight-director">{show.creator}</span>
           </div>
           <div class="spec-item">
-            <span class="spec-k">SEASONS / ARCHIVE</span>
+            <span class="spec-k">FORMAT</span>
             <span class="spec-v">{show.seasons}</span>
           </div>
           <div class="spec-item spec-span-2">
-            <span class="spec-k">PRIMARY ENSEMBLE</span>
+            <span class="spec-k">KEY ENSEMBLE</span>
             <span class="spec-v cast-list">{show.cast.join(' • ')}</span>
           </div>
         </div>
@@ -150,7 +213,7 @@ const allTVPlatforms = Array.from(new Set(CURATED_TV_SHOWS.flatMap((s) => s.ottP
 
         <!-- Bernard's Takeaway Note -->
         <div class="media-takeaway-box">
-          <span class="takeaway-label">CRITICAL REASONING &amp; FIELD NOTES:</span>
+          <span class="takeaway-label">CURATOR'S ANALYSIS:</span>
           <p class="takeaway-text">{show.takeaway}</p>
         </div>
 
@@ -177,12 +240,12 @@ const allTVPlatforms = Array.from(new Set(CURATED_TV_SHOWS.flatMap((s) => s.ottP
   <!-- Empty Search Results Notice -->
   <div class="media-empty-notice" id="tv-empty-notice" style="display: none;">
     <span class="status-dot status-warn"></span>
-    <span class="empty-title">NO MATCHING TELEVISION SERIES FOUND</span>
+    <span class="empty-title">NO MATCHING TV SERIES FOUND</span>
     <p class="empty-desc">
-      Adjust your genre, platform filter, or search query to match indexed television series.
+      Adjust your genre, platform filter, or search query to match indexed series.
     </p>
     <button type="button" id="tv-reset-filters-btn" class="dev-btn">
-      RESET SERIES FILTERS
+      RESET TV FILTERS
     </button>
   </div>
 </div>
