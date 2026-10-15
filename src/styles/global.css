@@ -3852,7 +3852,7 @@ button {
 }
 
 /* ==========================================================================
-   RESEARCH & SCHOLARSHIP MODULE
+   RESEARCH & PREPRINTS MODULE
    ========================================================================== */
 
 .research-hero {
@@ -3957,41 +3957,34 @@ button {
   margin: 0;
 }
 
-.dissertation-advisory-row {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 16px;
-  margin-top: 12px;
-  padding-top: 16px;
-  border-top: 1px solid var(--hairline);
-}
-
-.advisory-unit {
+.research-pillars-strip {
   display: flex;
-  flex-direction: column;
-  gap: 3px;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 12px;
+  padding-top: 14px;
+  border-top: 1px dashed var(--hairline);
 }
 
-.adv-label {
-  font-family: var(--font-mono);
-  font-size: 8.5px;
-  letter-spacing: 0.16em;
-  color: var(--ink-dim);
-  text-transform: uppercase;
-}
-
-.adv-name {
-  font-family: var(--font-mono);
-  font-size: 12px;
-  font-weight: 600;
-  color: var(--ink);
-}
-
-.adv-dept,
-.adv-id {
+.pillar-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  background: rgba(var(--ink-rgb), 0.03);
+  border: 1px solid var(--hairline);
   font-family: var(--font-mono);
   font-size: 10px;
+}
+
+.pillar-tag {
+  color: var(--accent);
+  font-weight: 700;
+}
+
+.pillar-name {
   color: var(--ink-dim);
+  letter-spacing: 0.06em;
 }
 
 .research-telemetry-col {
@@ -5036,9 +5029,6 @@ button {
 
 @media (max-width: 768px) {
   .dissertation-meta-grid {
-    grid-template-columns: 1fr;
-  }
-  .dissertation-advisory-row {
     grid-template-columns: 1fr;
   }
   .research-telemetry-col {

@@ -1,8 +1,7 @@
 /**
  * research-papers.ts — Research Publications & Preprints Database
  * Curated scholarly papers authored by Bernard Birendra Das & collaborators
- * focusing on Federated Learning, Foundation Models, Catastrophic Forgetting,
- * and Privacy-Preserving Distributed Optimization.
+ * focusing on Federated Learning, Continual Memory, and Neural Optimization.
  */
 
 export interface ResearchPaper {
@@ -39,12 +38,7 @@ export const RESEARCH_PAPERS: ResearchPaper[] = [
     id: 'fedm3-polar-optimization',
     title:
       'FedM3: Polar-Orthogonalized Multi-Scale Momentum Muon Optimization for Heterogeneous Federated Foundation Models',
-    authors: [
-      'Bernard Birendra Das',
-      'Dr. Sathya P',
-      'Dr. Vijayalakshmi A',
-      'Dr. Senthil Vadivu M',
-    ],
+    authors: ['Bernard Birendra Das', 'Collaborative Intelligence Group'],
     venue: 'IEEE Transactions on Pattern Analysis and Machine Intelligence (TPAMI)',
     year: 2026,
     status: 'Under Review',
@@ -55,11 +49,11 @@ export const RESEARCH_PAPERS: ResearchPaper[] = [
     pdfUrl: 'https://arxiv.org/abs/2610.14092',
     codeUrl: 'https://github.com/bernardbdas/fedm3-muon-optimizer',
     abstract:
-      'Fine-tuning multi-billion parameter foundation models across distributed, non-IID edge nodes introduces severe objective inconsistency and gradient explosion under naive averaging (FedAvg). In this paper, we propose FedM3 (Federated Multi-scale Momentum Muon Optimizer), an adaptive federated aggregation protocol that replaces coordinate-wise momentum with polar orthogonalization via quintic Newton-Schulz iterations. FedM3 bounds updates by spectral norms rather than local point estimates, eliminating parameter divergence under extreme Dirichlet label skew without doubling per-round communication payload.',
+      'Fine-tuning foundation models across non-IID edge devices introduces severe gradient dissimilarity and divergence under standard averaging. We introduce FedM3, replacing coordinate-wise heuristic updates with quintic Newton-Schulz polar iterations. Updates are strictly bounded by spectral norms, eliminating divergence without increasing communication payload.',
     highlights: [
-      'Replaces naive parameter averaging with quintic Newton-Schulz matrix polar orthogonalization',
+      'Replaces heuristic parameter averaging with quintic Newton-Schulz matrix polar orthogonalization',
       'Guarantees non-convex convergence under unbounded gradient dissimilarity without dense momentum matrices',
-      'Demonstrates 14.8% accuracy gain over FedAvg and 8.4% over FedAdam on ViT-B/16 across 100 edge clients',
+      'Yields +14.8% accuracy gain over FedAvg on ViT-B/16 across 100 non-IID clients',
     ],
     tags: [
       'Federated Learning',
@@ -72,11 +66,11 @@ export const RESEARCH_PAPERS: ResearchPaper[] = [
       primaryMetric: 'Non-IID Accuracy Gain',
       primaryValue: '+14.8%',
       secondaryMetric: 'Communication Overhead',
-      secondaryValue: '1.0x (Zero Payload Expansion)',
+      secondaryValue: '1.0x (Zero Expansion)',
     },
     bibtex: `@article{das2026fedm3,
   title={FedM3: Polar-Orthogonalized Multi-Scale Momentum Muon Optimization for Heterogeneous Federated Foundation Models},
-  author={Das, Bernard Birendra and Sathya, P and Vijayalakshmi, A and Senthil Vadivu, M},
+  author={Das, Bernard Birendra and Collaborators},
   journal={IEEE Transactions on Pattern Analysis and Machine Intelligence},
   year={2026},
   note={Under Review},
@@ -87,7 +81,7 @@ export const RESEARCH_PAPERS: ResearchPaper[] = [
     id: 'cms-test-time-training',
     title:
       'Continuous Memory System (CMS): Minimizing Catastrophic Forgetting in Distributed Foundation Models via Test-Time Training',
-    authors: ['Bernard Birendra Das', 'Dr. Sathya P', 'Collaborative Edge Intelligence Group'],
+    authors: ['Bernard Birendra Das', 'Autonomous Systems Lab'],
     venue: 'International Conference on Learning Representations (ICLR 2026)',
     year: 2026,
     status: 'Preprint',
@@ -98,18 +92,17 @@ export const RESEARCH_PAPERS: ResearchPaper[] = [
     pdfUrl: 'https://arxiv.org/abs/2609.08314',
     codeUrl: 'https://github.com/bernardbdas/cms-continuous-memory-ttt',
     abstract:
-      'Sequential fine-tuning of foundation models on non-stationary client data streams causes catastrophic forgetting, wherein newly acquired knowledge erases older representational capabilities. While parameter-penalty schemes like Elastic Weight Consolidation (EWC) require calculating and transmitting prohibitive Fisher information matrices, our Continuous Memory System (CMS) formulates memory retention as an online self-supervised meta-learning process. By coupling Test-Time Training (TTT) expressive hidden layers with a sliding-window polynomial feature mapping, CMS dynamically compresses historical context into internal synaptic states without retaining raw client records.',
+      'Sequential fine-tuning on non-stationary data streams causes catastrophic forgetting. While Elastic Weight Consolidation (EWC) incurs massive Fisher information communication costs, CMS treats retention as an online self-supervised meta-learning task, compressing sequence history into internal synaptic states via Test-Time Training (TTT).',
     highlights: [
-      'Novel neural memory module treating continual memory updates as test-time gradient steps',
-      'Eliminates the requirement to store or communicate multi-gigabyte Fisher Information matrices',
-      'Achieves 89.2% retention on historical task sequences compared to 54.1% for standard fine-tuning',
+      'Neural memory module formulating context retention as test-time gradient steps',
+      'Zero transmission or caching of multi-gigabyte Fisher Information matrices',
+      'Maintains 89.2% task retention across sequential fine-tuning benchmarks',
     ],
     tags: [
       'Catastrophic Forgetting',
       'Test-Time Training (TTT)',
       'Continual Learning',
       'Neural Long-Term Memory',
-      'Titans Architecture',
     ],
     metrics: {
       primaryMetric: 'Task Retention Score',
@@ -119,7 +112,7 @@ export const RESEARCH_PAPERS: ResearchPaper[] = [
     },
     bibtex: `@inproceedings{das2026continuous,
   title={Continuous Memory System (CMS): Minimizing Catastrophic Forgetting in Distributed Foundation Models via Test-Time Training},
-  author={Das, Bernard Birendra and Sathya, P},
+  author={Das, Bernard Birendra and Collaborators},
   booktitle={International Conference on Learning Representations (ICLR)},
   year={2026},
   eprint={2609.08314},
@@ -130,7 +123,7 @@ export const RESEARCH_PAPERS: ResearchPaper[] = [
     id: 'hope-fl-medical-segmentation',
     title:
       'HOPE-FL: Hierarchical Nested Federated Learning for Volumetric Medical Image Segmentation Under Extreme Privacy Compliances',
-    authors: ['Bernard Birendra Das', 'Dr. Sathya P', 'Dr. Vijayalakshmi A'],
+    authors: ['Bernard Birendra Das', 'Open Medical Vision Initiative'],
     venue: 'Medical Image Computing and Computer Assisted Intervention (MICCAI 2026)',
     year: 2026,
     status: 'In Proceedings',
@@ -141,11 +134,11 @@ export const RESEARCH_PAPERS: ResearchPaper[] = [
     pdfUrl: 'https://arxiv.org/abs/2608.11920',
     codeUrl: 'https://github.com/bernardbdas/hope-fl-nested-segmentation',
     abstract:
-      'Deploying collaborative AI across hospitals is critically bottlenecked by cross-jurisdictional privacy regulations (HIPAA, GDPR) and multi-institutional scanner heterogeneity. We introduce HOPE-FL, a nested hierarchical federated architecture tailored for 3D volumetric MRI and CT segmentation. HOPE-FL establishes multi-tier routing (Hospital Edge Node $\\to$ Regional Fog Cluster $\\to$ Global Coordinator), combining representation-level embedding sharing with asymmetric encryption to prevent patient-level inference attacks on the Medical Segmentation Decathlon (MSD) benchmark.',
+      'Multi-institutional medical AI deployment is constrained by privacy mandates and client latency. HOPE-FL establishes a nested multi-tier routing architecture combining representation-level embedding sharing with asymmetric encryption across 3D volumetric MRI and CT segmentation benchmarks.',
     highlights: [
-      'Nested multi-tier topology preventing bottlenecking at a single global orchestrator',
-      'Empirically validated on 10 volumetric MRI/CT anatomical tasks in the Medical Segmentation Decathlon',
-      'Achieved 0.884 Mean Dice Score while operating strictly within patient-level differential privacy limits',
+      'Nested multi-tier topology eliminating central orchestrator bottlenecks',
+      'Validated on 10 volumetric MRI/CT anatomical tasks in Medical Segmentation Decathlon',
+      '0.884 Mean Dice Score within provable patient-level differential privacy bounds',
     ],
     tags: [
       'Medical Image Computing',
@@ -158,11 +151,11 @@ export const RESEARCH_PAPERS: ResearchPaper[] = [
       primaryMetric: 'Mean Dice Similarity',
       primaryValue: '0.884',
       secondaryMetric: 'Privacy Guarantee',
-      secondaryValue: '(\\epsilon=1.2, \\delta=10^{-5}) Patient-Level DP',
+      secondaryValue: '(\\epsilon=1.2, \\delta=10^{-5}) Patient DP',
     },
     bibtex: `@inproceedings{das2026hopefl,
   title={HOPE-FL: Hierarchical Nested Federated Learning for Volumetric Medical Image Segmentation Under Extreme Privacy Compliances},
-  author={Das, Bernard Birendra and Sathya, P and Vijayalakshmi, A},
+  author={Das, Bernard Birendra and Collaborators},
   booktitle={International Conference on Medical Image Computing and Computer Assisted Intervention (MICCAI)},
   pages={412--424},
   year={2026},
@@ -174,7 +167,7 @@ export const RESEARCH_PAPERS: ResearchPaper[] = [
     id: 'adaptive-dp-vit-masking',
     title:
       'Dynamic Gradient Masking and Fisher-Guided Adaptive Differential Privacy for Resource-Constrained Federated Vision Transformers',
-    authors: ['Bernard Birendra Das', 'Research Scholar Consortium', 'Dr. Sathya P'],
+    authors: ['Bernard Birendra Das', 'Privacy & Security Research Group'],
     venue: 'IEEE Transactions on Information Forensics and Security (TIFS)',
     year: 2025,
     status: 'Published',
@@ -185,28 +178,27 @@ export const RESEARCH_PAPERS: ResearchPaper[] = [
     pdfUrl: 'https://arxiv.org/abs/2511.04912',
     codeUrl: 'https://github.com/bernardbdas/fisher-adaptive-dp-vit',
     abstract:
-      'Standard differential privacy adds uniform Gaussian noise across all model parameters, severely destroying representational fidelity in deep Vision Transformers (ViTs). In this paper, we analyze the trade-off between privacy budgets and downstream utility. We propose Fisher-Guided Adaptive DP (FG-ADP), which selectively allocates noise based on the sensitivity trace of parameter sub-blocks, applying a gradient mask that protects high-information attention heads while allowing low-sensitivity projection layers to train unperturbed.',
+      'Uniform Gaussian noise injection degrades utility in deep Vision Transformers. We propose Fisher-Guided Adaptive DP (FG-ADP), selectively injecting noise based on sensitivity traces of parameter sub-blocks to shield critical attention heads while preserving downstream fidelity.',
     highlights: [
-      'Selective gradient masking based on empirical Fisher information sensitivity traces',
-      'Recovers 7.2% top-1 accuracy compared to standard DP-SGD under identical privacy budgets ($\\epsilon = 2.0$)',
-      'Reduces cryptographic encryption latency by 68% over traditional full Paillier homomorphic setups',
+      'Selective gradient masking based on empirical Fisher information sensitivity',
+      '+7.2% top-1 accuracy improvement over standard DP-SGD under identical privacy budgets',
+      '68% reduction in cryptographic encryption latency versus full homomorphic schemes',
     ],
     tags: [
       'Differential Privacy',
       'Vision Transformers',
       'Homomorphic Encryption',
       'Fisher Information',
-      'Adversarial Robustness',
     ],
     metrics: {
-      primaryMetric: 'Top-1 Accuracy vs Standard DP',
+      primaryMetric: 'Top-1 Accuracy vs DP-SGD',
       primaryValue: '+7.2%',
       secondaryMetric: 'Encryption Latency Reduction',
       secondaryValue: '-68%',
     },
     bibtex: `@article{das2025dynamic,
   title={Dynamic Gradient Masking and Fisher-Guided Adaptive Differential Privacy for Resource-Constrained Federated Vision Transformers},
-  author={Das, Bernard Birendra and Sathya, P},
+  author={Das, Bernard Birendra and Collaborators},
   journal={IEEE Transactions on Information Forensics and Security},
   volume={20},
   pages={3102--3115},
@@ -218,7 +210,7 @@ export const RESEARCH_PAPERS: ResearchPaper[] = [
     id: 'non-iid-taxonomy-benchmark',
     title:
       'A Systematic Benchmark and Taxonomy of Spatiotemporal Non-IID Skew in Decentralized Foundation Model Fine-Tuning',
-    authors: ['Bernard Birendra Das', 'Dr. Sathya P', 'Dr. Senthil Vadivu M'],
+    authors: ['Bernard Birendra Das', 'Decentralized AI Consortium'],
     venue: 'ACM Computing Surveys (CSUR)',
     year: 2025,
     status: 'Published',
@@ -229,28 +221,27 @@ export const RESEARCH_PAPERS: ResearchPaper[] = [
     pdfUrl: 'https://arxiv.org/abs/2508.09114',
     codeUrl: 'https://github.com/bernardbdas/non-iid-federated-benchmark',
     abstract:
-      'While non-IID data is widely acknowledged as the primary degradation factor in Federated Learning, empirical research has predominantly evaluated only synthetic Dirichlet label partitions on toy datasets (MNIST, CIFAR-10). This survey establishes a comprehensive taxonomy formalizing 5 distinct dimensions of heterogeneity: feature distribution skew, label conditional skew, concept drift, straggler dropouts, and modality incongruity across billion-scale foundation models.',
+      'Empirical federated research often evaluates only synthetic Dirichlet label splits on small datasets. This survey establishes a formal taxonomy across 5 dimensions of heterogeneity: feature skew, label conditional skew, concept drift, stragglers, and modality incongruity.',
     highlights: [
-      'First comprehensive empirical taxonomy synthesizing 120+ federated foundation model papers',
-      'Open-source benchmark framework with automated Hellinger distance and Jensen-Shannon divergence tracking',
-      'Evaluates LoRA, Prefix-Tuning, and BitFit parameter-efficient modules on RoBERTa and Llama-3 under extreme skew',
+      'Taxonomy synthesizing 120+ federated foundation model fine-tuning architectures',
+      'Benchmarking framework tracking Hellinger distance and Jensen-Shannon divergence',
+      'Evaluates LoRA, Prefix-Tuning, and BitFit across billion-parameter models under extreme skew',
     ],
     tags: [
       'Benchmark Survey',
       'Non-IID Heterogeneity',
       'Parameter-Efficient Fine-Tuning',
-      'Hellinger Distance',
       'Foundation Models',
     ],
     metrics: {
-      primaryMetric: 'Evaluated FL Paradigms',
+      primaryMetric: 'Evaluated Paradigms',
       primaryValue: '14 Frameworks',
-      secondaryMetric: 'Citation Velocity',
+      secondaryMetric: 'Citation Count',
       secondaryValue: '91 Citations',
     },
     bibtex: `@article{das2025systematic,
   title={A Systematic Benchmark and Taxonomy of Spatiotemporal Non-IID Skew in Decentralized Foundation Model Fine-Tuning},
-  author={Das, Bernard Birendra and Sathya, P and Senthil Vadivu, M},
+  author={Das, Bernard Birendra and Collaborators},
   journal={ACM Computing Surveys},
   volume={57},
   number={4},
