@@ -33,7 +33,7 @@ import MediaTV from '../components/MediaTV.astro';
         </div>
 
         <div class="media-mode-buttons" role="tablist">
-          <!-- Mode 1: Radio Shack (SDR) -->
+          <!-- Mode 1: Radio -->
           <button
             type="button"
             class="media-mode-tab active"
@@ -60,14 +60,10 @@ import MediaTV from '../components/MediaTV.astro';
                 <circle cx="8.5" cy="2" r="0.75" fill="currentColor"></circle>
               </svg>
             </span>
-            <div class="tab-content">
-              <span class="tab-label">RADIO SHACK (SDR)</span>
-              <span class="tab-sublabel">20 LIVE STATIONS</span>
-            </div>
-            <span class="tab-count-tag">TUNED</span>
+            <span class="tab-label">RADIO</span>
           </button>
 
-          <!-- Mode 2: Curated Cinema -->
+          <!-- Mode 2: Movies -->
           <button
             type="button"
             class="media-mode-tab"
@@ -95,14 +91,10 @@ import MediaTV from '../components/MediaTV.astro';
                 <circle cx="14.8" cy="10" r="1.1" fill="currentColor" stroke="none"></circle>
               </svg>
             </span>
-            <div class="tab-content">
-              <span class="tab-label">CURATED CINEMA</span>
-              <span class="tab-sublabel">16 MASTER FILMS</span>
-            </div>
-            <span class="tab-count-tag">ARCHIVE</span>
+            <span class="tab-label">MOVIES</span>
           </button>
 
-          <!-- Mode 3: TV Series -->
+          <!-- Mode 3: TV Shows -->
           <button
             type="button"
             class="media-mode-tab"
@@ -129,11 +121,7 @@ import MediaTV from '../components/MediaTV.astro';
                 <path d="M7 5.5L4.5 2M13 5.5L15.5 2"></path>
               </svg>
             </span>
-            <div class="tab-content">
-              <span class="tab-label">TV SERIES</span>
-              <span class="tab-sublabel">10 PRESTIGE SHOWS</span>
-            </div>
-            <span class="tab-count-tag">ARCHIVE</span>
+            <span class="tab-label">TV SHOWS</span>
           </button>
         </div>
       </nav>
