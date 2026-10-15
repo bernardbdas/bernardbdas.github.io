@@ -1,7 +1,7 @@
 /**
  * SDR Radio Stations Database
- * Curated live YouTube streams across Rock & Vintage, Lo-Fi, Synthwave, Jazz, and Ambient,
- * including Lofi Girl's official 24/7 radio channels universe.
+ * Curated live YouTube streams across Rock & Vintage, Lo-Fi & Beats, Synth & Electronic,
+ * Jazz & Blues, and Ambient & Classical — with 30 wideband FM frequencies.
  */
 
 export interface FMStation {
@@ -17,8 +17,6 @@ export interface FMStation {
     | 'Synth & Electronic'
     | 'Jazz & Blues'
     | 'Ambient & Classical';
-  labelTag?: string;
-  labelSub?: string;
   origin?: string;
   bitrate?: string;
 }
@@ -114,7 +112,7 @@ export const RADIO_STATIONS: FMStation[] = [
     bitrate: '320 kbps WFM',
   },
 
-  // ── Lo-Fi & Beats (Featuring Lofi Girl Channels Universe) ────
+  // ── Lo-Fi & Beats ───────────────────────────────────────────
   {
     id: 'lofi-girl',
     ytId: '5qap5aO4i9A',
@@ -171,6 +169,17 @@ export const RADIO_STATIONS: FMStation[] = [
     bitrate: '256 kbps WFM',
   },
   {
+    id: 'boom-bap',
+    ytId: 'ZDh0gzkEyXc',
+    freq: '99.7 FM',
+    freqNum: 99.7,
+    name: 'BOOM BAP 90S',
+    desc: '90s Golden Era Hip Hop & Classic Vinyl Cuts',
+    genre: 'Lo-Fi & Beats',
+    origin: 'New York Underground',
+    bitrate: '320 kbps WFM',
+  },
+  {
     id: 'chillhop',
     ytId: '5yx6BWlEVcY',
     freq: '101.5 FM',
@@ -193,6 +202,17 @@ export const RADIO_STATIONS: FMStation[] = [
     genre: 'Synth & Electronic',
     origin: 'Lofi Girl Synthwave HQ',
     bitrate: '256 kbps WFM',
+  },
+  {
+    id: 'nightride-fm',
+    ytId: 'mNSTeO0Y_3M',
+    freq: '89.1 FM',
+    freqNum: 89.1,
+    name: 'NIGHTRIDE FM',
+    desc: 'Chillsynth, Retrowave & Neon Driving Beats',
+    genre: 'Synth & Electronic',
+    origin: 'Nightride Radio Network',
+    bitrate: '320 kbps WFM',
   },
   {
     id: 'cyberpunk',
@@ -228,6 +248,17 @@ export const RADIO_STATIONS: FMStation[] = [
     bitrate: '320 kbps WFM',
   },
   {
+    id: 'anjunadeep',
+    ytId: 'DXFdM_Vkq6A',
+    freq: '106.9 FM',
+    freqNum: 106.9,
+    name: 'ANJUNADEEP',
+    desc: '24/7 Melodic & Deep Progressive House Radio',
+    genre: 'Synth & Electronic',
+    origin: 'Anjuna HQ, London',
+    bitrate: '320 kbps WFM',
+  },
+  {
     id: 'one-world-radio',
     ytId: 'WpaGUf21KRo',
     freq: '107.5 FM',
@@ -249,6 +280,17 @@ export const RADIO_STATIONS: FMStation[] = [
     desc: 'Midnight Jazz Piano & Rainy Beats',
     genre: 'Jazz & Blues',
     origin: 'Tokyo, Japan',
+    bitrate: '256 kbps WFM',
+  },
+  {
+    id: 'bossa-nova',
+    ytId: '6440p7IILgs',
+    freq: '90.7 FM',
+    freqNum: 90.7,
+    name: 'BOSSA LOUNGE',
+    desc: 'Soft Brazilian Bossa Nova & Smooth Saxophone',
+    genre: 'Jazz & Blues',
+    origin: 'Rio de Janeiro / Cafe',
     bitrate: '256 kbps WFM',
   },
   {
@@ -296,6 +338,17 @@ export const RADIO_STATIONS: FMStation[] = [
     genre: 'Ambient & Classical',
     origin: 'Lofi Girl Piano Room',
     bitrate: '256 kbps WFM',
+  },
+  {
+    id: 'halidon-classical',
+    ytId: 'ZiN1iKklkJQ',
+    freq: '101.1 FM',
+    freqNum: 101.1,
+    name: 'HALIDON CLASSICAL',
+    desc: 'Symphony Masterpieces, Calming Piano & Orchestral Master Works',
+    genre: 'Ambient & Classical',
+    origin: 'Halidon Live Symphony',
+    bitrate: '320 kbps WFM',
   },
   {
     id: 'classical-radio',
