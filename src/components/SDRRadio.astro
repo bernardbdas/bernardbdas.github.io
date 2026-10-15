@@ -34,7 +34,7 @@ const defaultStation: FMStation = RADIO_STATIONS[0];
     <div>
       <p class="micro-label">
         <Loader />
-        RF TELEMETRY // 88.0 – 108.0 MHz // WFM DIRECT DRIVE
+        RF TELEMETRY // 88.0 – 108.0 MHz // WFM BROADBAND
       </p>
       <h1 id="sdr-heading" class="subpage-title">
         Radio Shack // SDR<span class="caret" aria-hidden="true"></span>
@@ -289,7 +289,6 @@ const defaultStation: FMStation = RADIO_STATIONS[0];
         <div class="station-card-top">
           <div class="station-freq-badge">
             <span class="freq-tag">{station.freq}</span>
-            <span class="direct-tag">{station.labelSub}</span>
           </div>
           <div class="station-live-eq" aria-hidden="true">
             <span class="eq-bar"></span>
