@@ -1,0 +1,172 @@
+---
+/**
+ * ResearchBenchmarkTable.astro — Lean, High-Density Aggregation Strategy Benchmark
+ * Replaces bloated multi-tab visualizer with an industrial matrix comparing
+ * core optimization protocols with KaTeX rendering and clickable formula inspectors.
+ */
+import { renderMath } from '../data/math-dictionary';
+
+const mathFedAvg = renderMath('w_{t+1} = \\sum_{k=1}^K \\frac{n_k}{n} w_{t+1}^k');
+const mathFedProx = renderMath(
+  '\\min_w \\left\\{ F_k(w) + \\frac{\\mu}{2} \\|w - w^t\\|^2 \\right\\}',
+);
+const mathFedAdam = renderMath('v_t = \\beta_2 v_{t-1} + (1-\\beta_2)\\Delta_t^2');
+const mathFedM3 = renderMath('\\Delta W_{\\text{orth}} = \\text{NS}_5(M_t) \\cdot \\eta');
+---
+
+<section class="section research-benchmark-section" aria-labelledby="benchmark-heading">
+  <div class="sdr-section-title-row">
+    <div>
+      <h2 id="benchmark-heading" class="sdr-section-title">
+        OPTIMIZATION BENCHMARK // AGGREGATION PROTOCOLS
+      </h2>
+      <p class="section-micro-desc">
+        Empirical comparison of convergence stability, computational complexity, and privacy
+        compatibility under non-IID skew
+      </p>
+    </div>
+    <span class="sdr-station-count-badge">4 PROTOCOLS INDEXED</span>
+  </div>
+
+  <div class="benchmark-table-card">
+    <div class="dev-card-corner-tl" aria-hidden="true"></div>
+    <div class="dev-card-corner-br" aria-hidden="true"></div>
+
+    <div class="benchmark-table-wrap">
+      <table class="benchmark-table">
+        <thead>
+          <tr>
+            <th scope="col" style="width: 140px;">
+              PARADIGM
+            </th>
+            <th scope="col" style="width: 150px;">
+              STRATEGY
+            </th>
+            <th scope="col" style="width: 270px;">
+              MATHEMATICAL UPDATE (CLICK TO DECODE)
+            </th>
+            <th scope="col">EMPIRICAL PROFILE &amp; COMPLEXITY</th>
+            <th scope="col" style="width: 170px;">
+              PRIVACY COMPATIBILITY
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- FedAvg -->
+          <tr>
+            <td>
+              <span class="paradigm-badge">Static Baseline</span>
+            </td>
+            <td class="strategy-col">
+              <strong>FedAvg</strong>
+            </td>
+            <td class="math-col">
+              <button
+                type="button"
+                class="clickable-table-math"
+                data-equation-id="eq-fedavg"
+                title="Click to inspect FedAvg equation and variable breakdown"
+                aria-label="Decode FedAvg equation"
+              >
+                <Fragment set:html={mathFedAvg} />
+                <span class="tbl-inspect-cue">⌕</span>
+              </button>
+            </td>
+            <td>
+              O(d) linear compute. Highly vulnerable to client drift under skewed non-IID data.
+            </td>
+            <td>
+              <span class="compat-pill good">Trivial</span> (native linear SMPC / additive Paillier)
+            </td>
+          </tr>
+
+          <!-- FedProx -->
+          <tr>
+            <td>
+              <span class="paradigm-badge">Proximal</span>
+            </td>
+            <td class="strategy-col">
+              <strong>FedProx</strong>
+            </td>
+            <td class="math-col">
+              <button
+                type="button"
+                class="clickable-table-math"
+                data-equation-id="eq-fedprox"
+                title="Click to inspect FedProx equation and variable breakdown"
+                aria-label="Decode FedProx equation"
+              >
+                <Fragment set:html={mathFedProx} />
+                <span class="tbl-inspect-cue">⌕</span>
+              </button>
+            </td>
+            <td>
+              Adds elastic regularization penalty to constrain local drift from server checkpoint.
+            </td>
+            <td>
+              <span class="compat-pill good">Trivial</span> (standard linear combination)
+            </td>
+          </tr>
+
+          <!-- FedAdam -->
+          <tr>
+            <td>
+              <span class="paradigm-badge">Adaptive Mom.</span>
+            </td>
+            <td class="strategy-col">
+              <strong>FedAdam</strong>
+            </td>
+            <td class="math-col">
+              <div class="table-math-static">
+                <Fragment set:html={mathFedAdam} />
+              </div>
+            </td>
+            <td>Coordinate-wise second-moment scaling. Accelerates escape from saddle points.</td>
+            <td>
+              <span class="compat-pill medium">Moderate</span> (element-wise server arithmetic)
+            </td>
+          </tr>
+
+          <!-- FedM3 (Proposed) -->
+          <tr class="highlight-row">
+            <td>
+              <span class="paradigm-badge proposed">Proposed Framework</span>
+            </td>
+            <td class="strategy-col">
+              <strong class="highlight-text">FedM3 (Muon)</strong>
+            </td>
+            <td class="math-col">
+              <button
+                type="button"
+                class="clickable-table-math highlight-math"
+                data-equation-id="eq-fedm3"
+                title="Click to inspect FedM3 Polar Muon equation and variable breakdown"
+                aria-label="Decode FedM3 Polar Muon equation"
+              >
+                <Fragment set:html={mathFedM3} />
+                <span class="tbl-inspect-cue">⌕</span>
+              </button>
+            </td>
+            <td>
+              <strong>Unit spectral norm bounded updates</strong> via quintic Newton-Schulz;
+              prevents gradient explosion under non-IID skew without sorting overhead.
+            </td>
+            <td>
+              <span class="compat-pill good">High Efficiency</span> (matrix-multiplication friendly
+              under HE)
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Table Caption / Hint -->
+    <div class="benchmark-caption-bar">
+      <span class="caption-hint">
+        <span class="accent-dot"></span>
+        Click any formula with <span class="cue-symbol">⌕</span> to reveal its plain-English
+        variable breakdown and interaction dynamics.
+      </span>
+    </div>
+  </div>
+</section>

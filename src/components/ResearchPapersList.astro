@@ -131,21 +131,29 @@ const categories = [
           </div>
         </div>
 
-        <!-- Abstract & Highlights -->
-        <div class="paper-abstract-wrap">
-          <p class="paper-abstract-text" id={`abstract-${paper.id}`}>
-            {paper.abstract}
-          </p>
+        <!-- Abstract & Highlights (Clean Collapsible Accordion) -->
+        <details class="paper-details-accordion">
+          <summary class="paper-summary-btn">
+            <span class="summary-arrow" aria-hidden="true">
+              ▶
+            </span>
+            <span>ABSTRACT &amp; KEY FINDINGS</span>
+          </summary>
+          <div class="paper-abstract-wrap">
+            <p class="paper-abstract-text" id={`abstract-${paper.id}`}>
+              {paper.abstract}
+            </p>
 
-          <div class="paper-highlights-box">
-            <span class="highlights-title">KEY MANUSCRIPT FINDINGS:</span>
-            <ul class="highlights-list">
-              {paper.highlights.map((item) => (
-                <li>{item}</li>
-              ))}
-            </ul>
+            <div class="paper-highlights-box">
+              <span class="highlights-title">KEY MANUSCRIPT FINDINGS:</span>
+              <ul class="highlights-list">
+                {paper.highlights.map((item) => (
+                  <li>{item}</li>
+                ))}
+              </ul>
+            </div>
           </div>
-        </div>
+        </details>
 
         <!-- Tags -->
         <div class="paper-tags-row">
