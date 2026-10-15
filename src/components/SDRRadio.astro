@@ -58,180 +58,212 @@ const defaultStation: FMStation = RADIO_STATIONS[0];
   <!-- ══════════════════════════════════════════════════════════
        SDR TUNER & WATERFALL INSTRUMENT DECK
        ══════════════════════════════════════════════════════════ -->
-  <div class="sdr-deck" role="region" aria-label="Software Defined Radio Tuning Console">
-    <div class="dev-card-corner-tl" aria-hidden="true"></div>
-    <div class="dev-card-corner-br" aria-hidden="true"></div>
-
-    <!-- Top Tuning VFD Display -->
-    <div class="sdr-vfd-display">
-      <div class="vfd-left">
-        <div class="vfd-freq-cluster">
-          <span class="vfd-freq-digits" id="vfd-freq-val">
-            {defaultStation.freqNum.toFixed(1)}
-          </span>
-          <div class="vfd-freq-units">
-            <span class="vfd-unit-mhz">MHz</span>
-            <span class="vfd-modulation">WFM / STEREO</span>
-          </div>
-        </div>
-
-        <div class="vfd-station-info">
-          <div class="vfd-station-name-row">
-            <span class="vfd-station-title" id="vfd-station-title">
-              {defaultStation.name}
-            </span>
-            <span class="vfd-genre-badge" id="vfd-genre-badge">
-              {defaultStation.genre}
-            </span>
-          </div>
-          <p class="vfd-station-desc" id="vfd-station-desc">
-            {defaultStation.desc}
-          </p>
-        </div>
-      </div>
-
-      <div class="vfd-right">
-        <div class="sdr-meter-row">
-          <span class="meter-label">RSSI SIGNAL</span>
-          <span class="meter-val" id="sdr-rssi-val">
-            -52 dBm
-          </span>
-          <div class="signal-bar-wrap" aria-hidden="true">
-            <div class="signal-bar-fill" id="signal-bar-fill" style="width: 82%;"></div>
-          </div>
-        </div>
-
-        <div class="sdr-telemetry-micro">
-          <div class="telemetry-micro-item">
-            <span class="tm-k">SNR</span>
-            <span class="tm-v" id="sdr-snr-val">
-              34.8 dB
-            </span>
-          </div>
-          <div class="telemetry-micro-item">
-            <span class="tm-k">CODEC</span>
-            <span class="tm-v" id="sdr-bitrate-val">
-              {defaultStation.bitrate}
-            </span>
-          </div>
-          <div class="telemetry-micro-item">
-            <span class="tm-k">RECEIVER</span>
-            <span class="tm-v" id="sdr-lock-val">
-              RTL-SDR v4
-            </span>
-          </div>
-        </div>
-      </div>
+  <div class="sdr-deck-wrap" id="sdr-deck-wrap">
+    <!-- Ambient Stage & Lightning Rig (Active exclusively for Deep House & Dance) -->
+    <div class="sdr-ambient-rig" id="sdr-ambient-rig" aria-hidden="true">
+      <div class="ambient-glow-aura"></div>
+      <div class="ambient-laser-beam ambient-laser-left"></div>
+      <div class="ambient-laser-beam ambient-laser-right"></div>
+      <div class="ambient-strobe-halo"></div>
     </div>
+    <div class="ambient-lightning-flash" id="ambient-lightning-flash" aria-hidden="true"></div>
 
-    <!-- SDR Interactive Waterfall & FFT Spectrum Canvas -->
-    <div class="sdr-waterfall-container">
-      <div class="waterfall-scale-header" aria-hidden="true">
-        <span>88.0 MHz</span>
-        <span>92.0</span>
-        <span>96.0</span>
-        <span>100.0</span>
-        <span>104.0</span>
-        <span>108.0 MHz</span>
-      </div>
-      <canvas
-        id="sdr-waterfall-canvas"
-        class="sdr-waterfall-canvas"
-        title="Interactive SDR Spectrum (Click anywhere to tune frequency)"
-        tabindex="0"
-        role="slider"
-        aria-label="SDR Waterfall Spectrum Frequency Tuner"
-        aria-valuemin="88.0"
-        aria-valuemax="108.0"
-        aria-valuenow={defaultStation.freqNum}
-      ></canvas>
-      <div class="waterfall-overlay-hint">
-        <span>[SPECTRUM FFT &amp; WATERFALL ANALYZER — CLICK OR DRAG TO TUNE]</span>
-      </div>
-    </div>
+    <div
+      class="sdr-deck"
+      id="sdr-main-deck"
+      role="region"
+      aria-label="Software Defined Radio Tuning Console"
+    >
+      <div class="dev-card-corner-tl" aria-hidden="true"></div>
+      <div class="dev-card-corner-br" aria-hidden="true"></div>
 
-    <!-- Master SDR Control Bar -->
-    <div class="sdr-controls-bar">
-      <div class="sdr-primary-controls">
-        <button
-          type="button"
-          class="sdr-btn sdr-power-btn"
-          id="sdr-power-btn"
-          aria-label="Initialize or Power SDR Receiver"
-          title="Initialize SDR Receiver / Play / Pause"
-        >
-          <span class="sdr-power-led" aria-hidden="true"></span>
-          <span class="sdr-power-label" id="sdr-power-label">
-            POWER ON
-          </span>
-        </button>
+      <!-- Top Tuning VFD Display -->
+      <div class="sdr-vfd-display">
+        <div class="vfd-left">
+          <div class="vfd-freq-cluster">
+            <span class="vfd-freq-digits" id="vfd-freq-val">
+              {defaultStation.freqNum.toFixed(1)}
+            </span>
+            <div class="vfd-freq-units">
+              <span class="vfd-unit-mhz">MHz</span>
+              <span class="vfd-modulation">WFM / STEREO</span>
+            </div>
+          </div>
 
-        <button
-          type="button"
-          class="sdr-btn sdr-nav-btn"
-          id="sdr-prev-btn"
-          aria-label="Previous Station"
-          title="Tune to Previous Station"
-        >
-          <span>◀◀ PREV</span>
-        </button>
-
-        <button
-          type="button"
-          class="sdr-btn sdr-step-btn"
-          id="sdr-step-down"
-          aria-label="Step down 0.1 MHz"
-          title="Fine Tune -0.1 MHz"
-        >
-          <span>-0.1</span>
-        </button>
-
-        <button
-          type="button"
-          class="sdr-btn sdr-step-btn"
-          id="sdr-step-up"
-          aria-label="Step up 0.1 MHz"
-          title="Fine Tune +0.1 MHz"
-        >
-          <span>+0.1</span>
-        </button>
-
-        <button
-          type="button"
-          class="sdr-btn sdr-nav-btn"
-          id="sdr-next-btn"
-          aria-label="Next Station"
-          title="Tune to Next Station"
-        >
-          <span>NEXT ▶▶</span>
-        </button>
-      </div>
-
-      <div class="sdr-volume-controls">
-        <div class="sdr-vol-wrap">
-          <span class="vol-label" id="vol-display-label">
-            VOL: 80%
-          </span>
-          <input
-            type="range"
-            id="sdr-volume-slider"
-            class="sdr-slider"
-            min="0"
-            max="100"
-            value="80"
-            aria-label="Radio Volume Control"
-          />
+          <div class="vfd-station-info">
+            <div class="vfd-station-name-row">
+              <span class="vfd-station-title" id="vfd-station-title">
+                {defaultStation.name}
+              </span>
+              <span class="vfd-genre-badge" id="vfd-genre-badge">
+                {defaultStation.genre}
+              </span>
+              <span class="vfd-club-sync-badge" id="vfd-club-sync" style="display: none;">
+                <span class="club-pulse-led" aria-hidden="true"></span>
+                <span>SYNC: 126 BPM // RAVE LIGHTING</span>
+              </span>
+            </div>
+            <p class="vfd-station-desc" id="vfd-station-desc">
+              {defaultStation.desc}
+            </p>
+          </div>
         </div>
 
-        <button
-          type="button"
-          class="sdr-btn sdr-btn-mini"
-          id="sdr-mute-btn"
-          aria-label="Mute or Unmute"
-          title="Toggle Mute"
-        >
-          <span id="sdr-mute-label">MUTE</span>
-        </button>
+        <div class="vfd-right">
+          <div class="sdr-meter-row">
+            <span class="meter-label">RSSI SIGNAL</span>
+            <span class="meter-val" id="sdr-rssi-val">
+              -52 dBm
+            </span>
+            <div class="signal-bar-wrap" aria-hidden="true">
+              <div class="signal-bar-fill" id="signal-bar-fill" style="width: 82%;"></div>
+            </div>
+          </div>
+
+          <div class="sdr-telemetry-micro">
+            <div class="telemetry-micro-item">
+              <span class="tm-k">SNR</span>
+              <span class="tm-v" id="sdr-snr-val">
+                34.8 dB
+              </span>
+            </div>
+            <div class="telemetry-micro-item">
+              <span class="tm-k">CODEC</span>
+              <span class="tm-v" id="sdr-bitrate-val">
+                {defaultStation.bitrate}
+              </span>
+            </div>
+            <div class="telemetry-micro-item">
+              <span class="tm-k">RECEIVER</span>
+              <span class="tm-v" id="sdr-lock-val">
+                RTL-SDR v4
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- SDR Interactive Waterfall & FFT Spectrum Canvas -->
+      <div class="sdr-waterfall-container">
+        <div class="waterfall-scale-header" aria-hidden="true">
+          <span>88.0 MHz</span>
+          <span>92.0</span>
+          <span>96.0</span>
+          <span>100.0</span>
+          <span>104.0</span>
+          <span>108.0 MHz</span>
+        </div>
+        <canvas
+          id="sdr-waterfall-canvas"
+          class="sdr-waterfall-canvas"
+          title="Interactive SDR Spectrum (Click anywhere to tune frequency)"
+          tabindex="0"
+          role="slider"
+          aria-label="SDR Waterfall Spectrum Frequency Tuner"
+          aria-valuemin="88.0"
+          aria-valuemax="108.0"
+          aria-valuenow={defaultStation.freqNum}
+        ></canvas>
+        <div class="waterfall-overlay-hint">
+          <span>[SPECTRUM FFT &amp; WATERFALL ANALYZER — CLICK OR DRAG TO TUNE]</span>
+        </div>
+      </div>
+
+      <!-- Master SDR Control Bar -->
+      <div class="sdr-controls-bar">
+        <div class="sdr-primary-controls">
+          <button
+            type="button"
+            class="sdr-btn sdr-power-btn"
+            id="sdr-power-btn"
+            aria-label="Initialize or Power SDR Receiver"
+            title="Initialize SDR Receiver / Play / Pause"
+          >
+            <span class="sdr-power-led" aria-hidden="true"></span>
+            <span class="sdr-power-label" id="sdr-power-label">
+              POWER ON
+            </span>
+          </button>
+
+          <button
+            type="button"
+            class="sdr-btn sdr-nav-btn"
+            id="sdr-prev-btn"
+            aria-label="Previous Station"
+            title="Tune to Previous Station"
+          >
+            <span>◀◀ PREV</span>
+          </button>
+
+          <button
+            type="button"
+            class="sdr-btn sdr-step-btn"
+            id="sdr-step-down"
+            aria-label="Step down 0.1 MHz"
+            title="Fine Tune -0.1 MHz"
+          >
+            <span>-0.1</span>
+          </button>
+
+          <button
+            type="button"
+            class="sdr-btn sdr-step-btn"
+            id="sdr-step-up"
+            aria-label="Step up 0.1 MHz"
+            title="Fine Tune +0.1 MHz"
+          >
+            <span>+0.1</span>
+          </button>
+
+          <button
+            type="button"
+            class="sdr-btn sdr-nav-btn"
+            id="sdr-next-btn"
+            aria-label="Next Station"
+            title="Tune to Next Station"
+          >
+            <span>NEXT ▶▶</span>
+          </button>
+        </div>
+
+        <div class="sdr-volume-controls">
+          <div class="sdr-vol-wrap">
+            <span class="vol-label" id="vol-display-label">
+              VOL: 80%
+            </span>
+            <input
+              type="range"
+              id="sdr-volume-slider"
+              class="sdr-slider"
+              min="0"
+              max="100"
+              value="80"
+              aria-label="Radio Volume Control"
+            />
+          </div>
+
+          <button
+            type="button"
+            class="sdr-btn sdr-btn-mini"
+            id="sdr-mute-btn"
+            aria-label="Mute or Unmute"
+            title="Toggle Mute"
+          >
+            <span id="sdr-mute-label">MUTE</span>
+          </button>
+
+          <button
+            type="button"
+            class="sdr-btn sdr-btn-mini sdr-light-rig-btn"
+            id="sdr-light-rig-btn"
+            style="display: none;"
+            aria-label="Toggle Ambient Lightning & Club Sync"
+            title="Toggle Ambient Lighting & Sync FX"
+          >
+            <span class="club-btn-led" id="sdr-light-rig-led" aria-hidden="true"></span>
+            <span id="sdr-light-rig-label">LIGHT RIG: ON</span>
+          </button>
+        </div>
       </div>
     </div>
   </div>
@@ -344,6 +376,11 @@ const defaultStation: FMStation = RADIO_STATIONS[0];
     private ytPlayer: any = null;
     private ytApiReady = false;
 
+    // Club Stage & Ambient Lightning FX
+    private isClubLighting = false;
+    private lightRigEnabled = true;
+    private lightningTimer: any = null;
+
     // Waterfall canvas state
     private canvas: HTMLCanvasElement | null = null;
     private ctx: CanvasRenderingContext2D | null = null;
@@ -433,6 +470,7 @@ const defaultStation: FMStation = RADIO_STATIONS[0];
         powerBtn?.classList.add('is-active');
         if (powerLabel) powerLabel.textContent = 'MUTE / PAUSE';
         this.updateActiveCard();
+        this.updateClubLightingState();
       } else if (state === 3) {
         // Buffering
         this.setStatusText('TUNING // ACQUIRING SIGNAL');
@@ -444,6 +482,7 @@ const defaultStation: FMStation = RADIO_STATIONS[0];
         powerBtn?.classList.remove('is-active');
         if (powerLabel) powerLabel.textContent = 'RESUME AUDIO';
         this.setStatusText('RECEIVER PAUSED');
+        this.updateClubLightingState();
       }
     }
 
@@ -451,6 +490,10 @@ const defaultStation: FMStation = RADIO_STATIONS[0];
       // Power / Play button
       const powerBtn = document.getElementById('sdr-power-btn');
       powerBtn?.addEventListener('click', () => this.togglePower());
+
+      // Club Stage & Ambient Lightning Rig Toggle Button
+      const lightBtn = document.getElementById('sdr-light-rig-btn');
+      lightBtn?.addEventListener('click', () => this.toggleLightRig());
 
       // Prev / Next station buttons
       const prevBtn = document.getElementById('sdr-prev-btn');
@@ -585,11 +628,13 @@ const defaultStation: FMStation = RADIO_STATIONS[0];
         }
       }
       this.updateDisplay();
+      this.updateClubLightingState();
     }
 
     private tuneToStation(station: FMStation) {
       this.currentStation = station;
       this.updateDisplay();
+      this.updateClubLightingState();
 
       if (this.ytPlayer && typeof this.ytPlayer.loadVideoById === 'function') {
         this.setStatusText('TUNING // ACQUIRING CARRIER...');
@@ -597,6 +642,7 @@ const defaultStation: FMStation = RADIO_STATIONS[0];
         if (this.isPoweredOn) {
           this.ytPlayer.playVideo();
           this.isPlaying = true;
+          this.updateClubLightingState();
         }
       } else {
         this.createPlayer();
@@ -769,6 +815,98 @@ const defaultStation: FMStation = RADIO_STATIONS[0];
       if (statusText) statusText.textContent = text;
     }
 
+    // ── Club Stage & Ambient Lightning FX (Deep House & Dance Only) ──
+    private updateClubLightingState() {
+      const isDeepHouse = this.currentStation.genre === 'Deep House & Dance';
+      const isRaving = isDeepHouse && this.isPlaying && this.isPoweredOn;
+      this.isClubLighting = isRaving && this.lightRigEnabled;
+
+      const deckWrap = document.getElementById('sdr-deck-wrap');
+      const mainDeck = document.getElementById('sdr-main-deck');
+      const syncBadge = document.getElementById('vfd-club-sync');
+      const lightBtn = document.getElementById('sdr-light-rig-btn');
+      const lightLed = document.getElementById('sdr-light-rig-led');
+      const lightLabel = document.getElementById('sdr-light-rig-label');
+
+      if (lightBtn) {
+        if (isRaving) {
+          lightBtn.style.display = 'inline-flex';
+          if (this.lightRigEnabled) {
+            lightBtn.classList.add('is-active');
+            if (lightLed) lightLed.style.background = '#00f2fe';
+            if (lightLabel) lightLabel.textContent = 'LIGHT RIG: ON';
+          } else {
+            lightBtn.classList.remove('is-active');
+            if (lightLed) lightLed.style.background = 'var(--ink-dim)';
+            if (lightLabel) lightLabel.textContent = 'LIGHT RIG: OFF';
+          }
+        } else {
+          lightBtn.style.display = 'none';
+        }
+      }
+
+      if (this.isClubLighting) {
+        deckWrap?.classList.add('club-lighting-active');
+        mainDeck?.classList.add('club-deck-active');
+        if (syncBadge) syncBadge.style.display = 'inline-flex';
+        this.startLightningScheduler();
+      } else {
+        deckWrap?.classList.remove('club-lighting-active');
+        mainDeck?.classList.remove('club-deck-active');
+        if (syncBadge) syncBadge.style.display = 'none';
+        this.stopLightningScheduler();
+      }
+    }
+
+    private toggleLightRig() {
+      this.lightRigEnabled = !this.lightRigEnabled;
+      this.updateClubLightingState();
+    }
+
+    private startLightningScheduler() {
+      if (this.lightningTimer) return;
+      const scheduleNext = () => {
+        // Trigger ambient lightning burst every 4 to 8 seconds
+        const delay = 4000 + Math.random() * 4000;
+        this.lightningTimer = setTimeout(() => {
+          if (this.isClubLighting) {
+            this.triggerLightningFlash();
+            scheduleNext();
+          }
+        }, delay);
+      };
+      scheduleNext();
+    }
+
+    private stopLightningScheduler() {
+      if (this.lightningTimer) {
+        clearTimeout(this.lightningTimer);
+        this.lightningTimer = null;
+      }
+      const flashEl = document.getElementById('ambient-lightning-flash');
+      flashEl?.classList.remove('is-striking', 'is-striking-after');
+    }
+
+    private triggerLightningFlash() {
+      if (!this.isClubLighting) return;
+      const flashEl = document.getElementById('ambient-lightning-flash');
+      if (!flashEl) return;
+
+      // Strobe strike
+      flashEl.classList.add('is-striking');
+      setTimeout(() => {
+        flashEl.classList.remove('is-striking');
+        // Secondary aftershock strike
+        setTimeout(() => {
+          if (!this.isClubLighting) return;
+          flashEl.classList.add('is-striking-after');
+          setTimeout(() => {
+            flashEl.classList.remove('is-striking-after');
+          }, 80);
+        }, 100);
+      }, 120);
+    }
+
     // ── Waterfall & Spectrum Canvas Rendering ──────────────────
     private initCanvas() {
       if (!this.canvas || !this.ctx) return;
@@ -801,6 +939,14 @@ const defaultStation: FMStation = RADIO_STATIONS[0];
       const waterfallH = h * 0.56;
       const waterfallY = spectrumH;
 
+      // Club mode parameters (126 BPM 4/4 rhythm: 476.19ms per beat)
+      const isClub = this.isClubLighting;
+      const now = performance.now();
+      const beatPeriod = 476.19;
+      const beatPhase = (now % beatPeriod) / beatPeriod;
+      // Exponential kick envelope: sharp downbeat attack, rapid decay
+      const kickEnvelope = isClub ? Math.pow(Math.max(0, 1 - beatPhase * 2.5), 2.5) : 0;
+
       // Extract accent color from computed style
       const computed = window.getComputedStyle(document.documentElement);
       const accent = computed.getPropertyValue('--accent').trim() || '#f29559';
@@ -822,7 +968,13 @@ const defaultStation: FMStation = RADIO_STATIONS[0];
         const freqRatio = (st.freqNum - minFreq) / (maxFreq - minFreq);
         const centerIdx = Math.floor(freqRatio * points);
         const isCurrent = st.id === this.currentStation.id;
-        const peakAmp = isCurrent ? (this.isPlaying ? 40 + Math.random() * 8 : 28) : 18;
+        const peakAmp = isCurrent
+          ? this.isPlaying
+            ? isClub
+              ? 42 + kickEnvelope * 36 + Math.random() * 6
+              : 40 + Math.random() * 8
+            : 28
+          : 18;
 
         for (let offset = -4; offset <= 4; offset++) {
           const idx = centerIdx + offset;
@@ -835,8 +987,18 @@ const defaultStation: FMStation = RADIO_STATIONS[0];
 
       // Draw FFT line
       this.ctx.beginPath();
-      this.ctx.strokeStyle = accent;
-      this.ctx.lineWidth = 1.5;
+      if (isClub) {
+        const lineGrad = this.ctx.createLinearGradient(0, 0, w, 0);
+        lineGrad.addColorStop(0, '#00f2fe');
+        lineGrad.addColorStop(0.35, '#8a2be2');
+        lineGrad.addColorStop(0.7, '#ff007f');
+        lineGrad.addColorStop(1, '#00f2fe');
+        this.ctx.strokeStyle = lineGrad;
+        this.ctx.lineWidth = 1.8 + kickEnvelope * 1.2;
+      } else {
+        this.ctx.strokeStyle = accent;
+        this.ctx.lineWidth = 1.5;
+      }
 
       for (let i = 0; i < points; i++) {
         const x = (i / (points - 1)) * w;
@@ -853,27 +1015,60 @@ const defaultStation: FMStation = RADIO_STATIONS[0];
       this.ctx.lineTo(w, spectrumH);
       this.ctx.lineTo(0, spectrumH);
       this.ctx.closePath();
-      const grad = this.ctx.createLinearGradient(0, 0, 0, spectrumH);
-      grad.addColorStop(0, `rgba(${accentRgb}, 0.28)`);
-      grad.addColorStop(1, `rgba(${accentRgb}, 0.02)`);
-      this.ctx.fillStyle = grad;
+      if (isClub) {
+        const grad = this.ctx.createLinearGradient(0, 0, 0, spectrumH);
+        grad.addColorStop(0, `rgba(0, 242, 254, ${0.35 + kickEnvelope * 0.25})`);
+        grad.addColorStop(0.6, `rgba(255, 0, 127, ${0.15 + kickEnvelope * 0.15})`);
+        grad.addColorStop(1, 'rgba(0, 0, 0, 0)');
+        this.ctx.fillStyle = grad;
+      } else {
+        const grad = this.ctx.createLinearGradient(0, 0, 0, spectrumH);
+        grad.addColorStop(0, `rgba(${accentRgb}, 0.28)`);
+        grad.addColorStop(1, `rgba(${accentRgb}, 0.02)`);
+        this.ctx.fillStyle = grad;
+      }
       this.ctx.fill();
 
       // Draw active tuning carrier cursor (vertical reticle line)
       const currentRatio = (this.currentStation.freqNum - minFreq) / (maxFreq - minFreq);
       const curX = currentRatio * w;
 
-      this.ctx.beginPath();
-      this.ctx.setLineDash([2, 2]);
-      this.ctx.strokeStyle = '#ffffff';
-      this.ctx.lineWidth = 1.2;
-      this.ctx.moveTo(curX, 0);
-      this.ctx.lineTo(curX, h);
-      this.ctx.stroke();
-      this.ctx.setLineDash([]);
+      if (isClub) {
+        // Laser beam shooting down carrier frequency
+        this.ctx.save();
+        this.ctx.shadowColor = '#00f2fe';
+        this.ctx.shadowBlur = 12 + kickEnvelope * 16;
+        this.ctx.beginPath();
+        this.ctx.strokeStyle = `rgba(0, 242, 254, ${0.85 + kickEnvelope * 0.15})`;
+        this.ctx.lineWidth = 2 + kickEnvelope * 2;
+        this.ctx.moveTo(curX, 0);
+        this.ctx.lineTo(curX, h);
+        this.ctx.stroke();
+
+        // Horizontal laser pulse on kick
+        if (kickEnvelope > 0.3) {
+          this.ctx.beginPath();
+          this.ctx.strokeStyle = `rgba(255, 0, 127, ${kickEnvelope * 0.4})`;
+          this.ctx.lineWidth = 1;
+          const laserY = spectrumH * (1 - kickEnvelope * 0.8);
+          this.ctx.moveTo(0, laserY);
+          this.ctx.lineTo(w, laserY);
+          this.ctx.stroke();
+        }
+        this.ctx.restore();
+      } else {
+        this.ctx.beginPath();
+        this.ctx.setLineDash([2, 2]);
+        this.ctx.strokeStyle = '#ffffff';
+        this.ctx.lineWidth = 1.2;
+        this.ctx.moveTo(curX, 0);
+        this.ctx.lineTo(curX, h);
+        this.ctx.stroke();
+        this.ctx.setLineDash([]);
+      }
 
       // Draw small carrier cursor arrow at top
-      this.ctx.fillStyle = accent;
+      this.ctx.fillStyle = isClub ? '#00f2fe' : accent;
       this.ctx.beginPath();
       this.ctx.moveTo(curX - 4, 0);
       this.ctx.lineTo(curX + 4, 0);
@@ -904,14 +1099,26 @@ const defaultStation: FMStation = RADIO_STATIONS[0];
           const intensity = Math.min(1, Math.max(0, val / 45));
 
           if (intensity > 0.12) {
-            this.ctx.fillStyle = `rgba(${accentRgb}, ${intensity * 0.9})`;
+            if (isClub) {
+              if (intensity > 0.8) {
+                this.ctx.fillStyle = `rgba(255, 255, 255, ${intensity})`;
+              } else if (intensity > 0.5) {
+                this.ctx.fillStyle = `rgba(255, 0, 127, ${intensity * 0.95})`;
+              } else if (intensity > 0.3) {
+                this.ctx.fillStyle = `rgba(138, 43, 226, ${intensity * 0.85})`;
+              } else {
+                this.ctx.fillStyle = `rgba(0, 242, 254, ${intensity * 0.8})`;
+              }
+            } else {
+              this.ctx.fillStyle = `rgba(${accentRgb}, ${intensity * 0.9})`;
+            }
             this.ctx.fillRect(x, y, w / points + 0.5, sliceH + 0.5);
           }
         }
       }
 
       // Divider line between spectrum and waterfall
-      this.ctx.strokeStyle = 'rgba(255, 255, 255, 0.12)';
+      this.ctx.strokeStyle = isClub ? 'rgba(0, 242, 254, 0.3)' : 'rgba(255, 255, 255, 0.12)';
       this.ctx.lineWidth = 1;
       this.ctx.beginPath();
       this.ctx.moveTo(0, waterfallY);
@@ -922,6 +1129,7 @@ const defaultStation: FMStation = RADIO_STATIONS[0];
     };
 
     public destroy() {
+      this.stopLightningScheduler();
       if (this.animFrameId) {
         cancelAnimationFrame(this.animFrameId);
       }

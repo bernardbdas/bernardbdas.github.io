@@ -2769,6 +2769,327 @@ button {
   }
 }
 
+/* ── Deep House & Dance Ambient Lightning & Music Sync Rig ───── */
+.sdr-deck-wrap {
+  position: relative;
+  width: 100%;
+}
+
+.sdr-ambient-rig {
+  position: absolute;
+  inset: -28px -36px;
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0;
+  visibility: hidden;
+  transition:
+    opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1),
+    visibility 0.6s;
+  overflow: visible;
+}
+
+.club-lighting-active .sdr-ambient-rig {
+  opacity: 1;
+  visibility: visible;
+}
+
+/* 1. Ambient Glow Aura (126 BPM 4-on-the-floor sub-bass pulse: 476.19ms) */
+.ambient-glow-aura {
+  position: absolute;
+  inset: 0;
+  border-radius: 12px;
+  background:
+    radial-gradient(ellipse 65% 55% at 50% 0%, rgba(0, 242, 254, 0.32), transparent 70%),
+    radial-gradient(ellipse 60% 45% at 50% 100%, rgba(255, 0, 127, 0.28), transparent 70%),
+    radial-gradient(circle at 20% 50%, rgba(138, 43, 226, 0.25), transparent 60%),
+    radial-gradient(circle at 80% 50%, rgba(0, 242, 254, 0.25), transparent 60%);
+  filter: blur(28px);
+  animation: clubBassAura 0.476s cubic-bezier(0.2, 0.8, 0.2, 1) infinite;
+  will-change: opacity, transform;
+}
+
+@keyframes clubBassAura {
+  0% {
+    opacity: 0.95;
+    transform: scale(1.02);
+    filter: blur(24px);
+  }
+  45% {
+    opacity: 0.45;
+    transform: scale(0.995);
+    filter: blur(34px);
+  }
+  100% {
+    opacity: 0.95;
+    transform: scale(1.02);
+    filter: blur(24px);
+  }
+}
+
+/* 2. Sweeping Stage Laser Beams */
+.ambient-laser-beam {
+  position: absolute;
+  top: -15px;
+  width: 2px;
+  height: 220px;
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.9) 0%,
+    rgba(0, 242, 254, 0.8) 25%,
+    rgba(255, 0, 127, 0.4) 65%,
+    transparent 100%
+  );
+  filter: blur(2px) drop-shadow(0 0 10px #00f2fe);
+  transform-origin: top center;
+  opacity: 0.75;
+}
+
+.ambient-laser-left {
+  left: 15%;
+  animation: laserSweepLeft 3.81s ease-in-out infinite alternate;
+}
+
+.ambient-laser-right {
+  right: 15%;
+  animation: laserSweepRight 3.81s ease-in-out infinite alternate;
+}
+
+@keyframes laserSweepLeft {
+  0% {
+    transform: rotate(-35deg) scaleY(1);
+    opacity: 0.5;
+  }
+  50% {
+    transform: rotate(5deg) scaleY(1.2);
+    opacity: 0.9;
+  }
+  100% {
+    transform: rotate(-25deg) scaleY(0.9);
+    opacity: 0.6;
+  }
+}
+
+@keyframes laserSweepRight {
+  0% {
+    transform: rotate(35deg) scaleY(1);
+    opacity: 0.5;
+  }
+  50% {
+    transform: rotate(-5deg) scaleY(1.2);
+    opacity: 0.9;
+  }
+  100% {
+    transform: rotate(25deg) scaleY(0.9);
+    opacity: 0.6;
+  }
+}
+
+/* 3. Perimeter Rave Edge & Strobe Runner */
+.ambient-strobe-halo {
+  position: absolute;
+  inset: 12px 18px;
+  border: 1px solid rgba(0, 242, 254, 0.45);
+  box-shadow:
+    0 0 25px rgba(0, 242, 254, 0.35),
+    inset 0 0 20px rgba(255, 0, 127, 0.2);
+  pointer-events: none;
+  animation: strobeHaloPulse 0.952s ease-in-out infinite;
+}
+
+@keyframes strobeHaloPulse {
+  0%,
+  100% {
+    border-color: rgba(0, 242, 254, 0.6);
+    box-shadow:
+      0 0 35px rgba(0, 242, 254, 0.4),
+      inset 0 0 25px rgba(255, 0, 127, 0.25);
+  }
+  50% {
+    border-color: rgba(255, 0, 127, 0.5);
+    box-shadow:
+      0 0 25px rgba(255, 0, 127, 0.35),
+      inset 0 0 15px rgba(0, 242, 254, 0.2);
+  }
+}
+
+/* 4. Ambient Lightning Discharge Flash */
+.ambient-lightning-flash {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 999;
+  background: radial-gradient(
+    circle at 50% 30%,
+    rgba(200, 245, 255, 0.32),
+    rgba(0, 242, 254, 0.12) 50%,
+    transparent 80%
+  );
+  opacity: 0;
+  transition: opacity 0.05s ease-out;
+}
+
+.ambient-lightning-flash.is-striking {
+  opacity: 1;
+  background: radial-gradient(
+    circle at 50% 30%,
+    rgba(255, 255, 255, 0.5),
+    rgba(0, 242, 254, 0.25) 50%,
+    rgba(255, 0, 127, 0.12) 80%
+  );
+}
+
+.ambient-lightning-flash.is-striking-after {
+  opacity: 0.75;
+  background: radial-gradient(
+    circle at 50% 30%,
+    rgba(255, 255, 255, 0.35),
+    rgba(138, 43, 226, 0.2) 60%,
+    transparent 85%
+  );
+}
+
+/* 5. Main Deck Reactivity in Club Mode */
+.sdr-deck.club-deck-active {
+  border-color: rgba(0, 242, 254, 0.8) !important;
+  box-shadow:
+    0 0 45px -8px rgba(0, 242, 254, 0.4),
+    0 0 80px -15px rgba(255, 0, 127, 0.25),
+    inset 0 0 20px -5px rgba(0, 242, 254, 0.2) !important;
+  animation: clubDeckBorderBeat 0.476s cubic-bezier(0.2, 0.8, 0.2, 1) infinite;
+}
+
+@keyframes clubDeckBorderBeat {
+  0% {
+    border-color: rgba(0, 242, 254, 0.85);
+    box-shadow:
+      0 0 55px -6px rgba(0, 242, 254, 0.55),
+      0 0 90px -10px rgba(255, 0, 127, 0.35),
+      inset 0 0 25px -4px rgba(0, 242, 254, 0.3);
+  }
+  30% {
+    border-color: rgba(0, 242, 254, 0.55);
+    box-shadow:
+      0 0 35px -8px rgba(0, 242, 254, 0.3),
+      0 0 60px -15px rgba(255, 0, 127, 0.18),
+      inset 0 0 15px -6px rgba(0, 242, 254, 0.15);
+  }
+  100% {
+    border-color: rgba(0, 242, 254, 0.85);
+    box-shadow:
+      0 0 55px -6px rgba(0, 242, 254, 0.55),
+      0 0 90px -10px rgba(255, 0, 127, 0.35),
+      inset 0 0 25px -4px rgba(0, 242, 254, 0.3);
+  }
+}
+
+.sdr-deck.club-deck-active .dev-card-corner-tl,
+.sdr-deck.club-deck-active .dev-card-corner-br {
+  border-color: #00f2fe;
+  box-shadow: 0 0 10px #00f2fe;
+}
+
+/* 6. VFD Club Sync Badge */
+.vfd-club-sync-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--font-mono);
+  font-size: 8.5px;
+  letter-spacing: 0.14em;
+  padding: 2px 7px;
+  background: rgba(0, 242, 254, 0.15);
+  border: 1px solid rgba(0, 242, 254, 0.55);
+  color: #00f2fe;
+  text-shadow: 0 0 8px rgba(0, 242, 254, 0.6);
+  animation: clubBadgePulse 0.476s infinite alternate;
+}
+
+.club-pulse-led {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: #00f2fe;
+  box-shadow: 0 0 8px #00f2fe;
+  animation: clubLedFlash 0.476s infinite;
+}
+
+@keyframes clubBadgePulse {
+  0% {
+    opacity: 0.8;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+@keyframes clubLedFlash {
+  0% {
+    transform: scale(1.4);
+    background: #ffffff;
+    box-shadow: 0 0 12px #ffffff;
+  }
+  40% {
+    transform: scale(1);
+    background: #00f2fe;
+    box-shadow: 0 0 6px #00f2fe;
+  }
+  100% {
+    transform: scale(1.4);
+    background: #ffffff;
+    box-shadow: 0 0 12px #ffffff;
+  }
+}
+
+/* 7. Light Rig Toggle Button in Controls Bar */
+.sdr-light-rig-btn {
+  border-color: rgba(0, 242, 254, 0.5);
+  color: #00f2fe;
+}
+
+.sdr-light-rig-btn.is-active {
+  background: rgba(0, 242, 254, 0.15);
+  border-color: #00f2fe;
+  box-shadow: 0 0 10px rgba(0, 242, 254, 0.35);
+}
+
+.club-btn-led {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #00f2fe;
+  box-shadow: 0 0 6px #00f2fe;
+  transition: all 0.2s ease;
+}
+
+/* 8. Active Station Card Club Enhancement */
+.sdr-deck.club-deck-active ~ .sdr-stations-grid .sdr-station-card.is-active,
+.club-lighting-active ~ .sdr-stations-grid .sdr-station-card.is-active {
+  border-color: #00f2fe !important;
+  box-shadow:
+    0 0 20px rgba(0, 242, 254, 0.35),
+    inset 0 0 10px rgba(255, 0, 127, 0.15) !important;
+}
+
+.sdr-deck.club-deck-active ~ .sdr-stations-grid .sdr-station-card.is-active .eq-bar,
+.club-lighting-active ~ .sdr-stations-grid .sdr-station-card.is-active .eq-bar {
+  background: #00f2fe !important;
+  box-shadow: 0 0 8px #00f2fe;
+  animation-duration: 0.476s !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ambient-glow-aura,
+  .ambient-laser-beam,
+  .ambient-strobe-halo,
+  .sdr-deck.club-deck-active,
+  .ambient-lightning-flash {
+    animation: none !important;
+  }
+  .ambient-lightning-flash {
+    display: none !important;
+  }
+}
+
 /* ==========================================================================
    MEDIA DECK — MULTI-MODE SWITCHER, CINEMA & TV CATALOGUES
    ========================================================================== */
