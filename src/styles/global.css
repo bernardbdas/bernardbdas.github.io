@@ -2116,3 +2116,655 @@ button {
     padding: 10px 12px;
   }
 }
+
+/* ══════════════════════════════════════════════════════════════
+   SOFTWARE DEFINED RADIO (SDR) & RADIO SHACK
+   ══════════════════════════════════════════════════════════════ */
+.sdr-header-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-bottom: var(--gap-inner);
+}
+
+.sdr-header-status-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 10px;
+  background: rgba(var(--bg-rgb), 0.75);
+  border: 1px solid var(--hairline);
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink-dim);
+}
+
+.sdr-live-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--ink-dim);
+  transition: all 0.2s ease;
+}
+
+.sdr-live-dot.is-transmitting {
+  background: var(--accent);
+  box-shadow: 0 0 8px var(--accent);
+  animation: pulse 1.5s infinite;
+}
+
+/* ── Main Tuning Instrument Deck ────────────────────────────── */
+.sdr-deck {
+  position: relative;
+  background: rgba(var(--bg-rgb), 0.85);
+  border: 1px solid var(--hairline);
+  padding: 24px;
+  margin-top: 16px;
+  margin-bottom: 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.sdr-deck:hover {
+  border-color: rgba(var(--accent-rgb), 0.55);
+}
+
+.sdr-vfd-display {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 24px;
+  padding-bottom: 20px;
+  border-bottom: 1px dashed var(--hairline);
+}
+
+.vfd-left {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  flex: 1;
+}
+
+.vfd-freq-cluster {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.vfd-freq-digits {
+  font-family: var(--font-mono);
+  font-size: 52px;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: -0.03em;
+  color: var(--accent);
+  font-variant-numeric: tabular-nums;
+  text-shadow: 0 0 16px rgba(var(--accent-rgb), 0.35);
+}
+
+.vfd-freq-units {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.vfd-unit-mhz {
+  font-family: var(--font-mono);
+  font-size: 16px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  color: var(--ink);
+}
+
+.vfd-modulation {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: 0.14em;
+  color: var(--ink-dim);
+  text-transform: uppercase;
+}
+
+.vfd-station-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.vfd-station-name-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.vfd-station-title {
+  font-family: var(--font-mono);
+  font-size: 20px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: var(--ink);
+  text-transform: uppercase;
+}
+
+.vfd-genre-badge {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  padding: 2px 7px;
+  background: rgba(var(--accent-rgb), 0.12);
+  border: 1px solid rgba(var(--accent-rgb), 0.35);
+  color: var(--accent);
+}
+
+.vfd-station-desc {
+  font-family: var(--serif);
+  font-size: 15px;
+  color: var(--ink-dim);
+  margin: 0;
+}
+
+.vfd-right {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  align-items: flex-end;
+  min-width: 220px;
+}
+
+.sdr-meter-row {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  width: 100%;
+}
+
+.sdr-meter-row .meter-label {
+  font-family: var(--font-mono);
+  font-size: 8.5px;
+  letter-spacing: 0.16em;
+  color: var(--ink-dim);
+  text-transform: uppercase;
+}
+
+.sdr-meter-row .meter-val {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+}
+
+.signal-bar-wrap {
+  width: 100%;
+  height: 6px;
+  background: rgba(var(--bg-rgb), 0.8);
+  border: 1px solid var(--hairline);
+  overflow: hidden;
+  margin-top: 2px;
+}
+
+.signal-bar-fill {
+  height: 100%;
+  background: var(--accent);
+  box-shadow: 0 0 8px rgba(var(--accent-rgb), 0.6);
+  transition: width 0.3s ease;
+}
+
+.sdr-telemetry-micro {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  width: 100%;
+  padding-top: 8px;
+  border-top: 1px solid var(--hairline);
+}
+
+.telemetry-micro-item {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.tm-k {
+  font-family: var(--font-mono);
+  font-size: 8px;
+  letter-spacing: 0.14em;
+  color: var(--ink-dim);
+}
+
+.tm-v {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--ink);
+  font-weight: 500;
+}
+
+/* ── Waterfall Canvas Container ──────────────────────────────── */
+.sdr-waterfall-container {
+  position: relative;
+  background: #000000;
+  border: 1px solid var(--hairline);
+  padding: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.waterfall-scale-header {
+  display: flex;
+  justify-content: space-between;
+  font-family: var(--font-mono);
+  font-size: 8.5px;
+  letter-spacing: 0.12em;
+  color: var(--ink-dim);
+  padding: 0 4px;
+  user-select: none;
+}
+
+.sdr-waterfall-canvas {
+  width: 100%;
+  height: 130px;
+  display: block;
+  cursor: crosshair;
+  background: rgba(0, 0, 0, 0.95);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.waterfall-overlay-hint {
+  position: absolute;
+  bottom: 12px;
+  right: 14px;
+  font-family: var(--font-mono);
+  font-size: 8px;
+  letter-spacing: 0.14em;
+  color: rgba(255, 255, 255, 0.35);
+  pointer-events: none;
+}
+
+/* ── Controls Deck ───────────────────────────────────────────── */
+.sdr-controls-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  padding-top: 8px;
+}
+
+.sdr-primary-controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.sdr-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  padding: 8px 12px;
+  background: rgba(var(--bg-rgb), 0.75);
+  border: 1px solid var(--hairline);
+  color: var(--ink);
+  cursor: pointer;
+  transition: all 0.15s ease;
+  user-select: none;
+}
+
+.sdr-btn:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+  background: rgba(var(--accent-rgb), 0.1);
+}
+
+.sdr-btn:active {
+  transform: translateY(1px);
+}
+
+.sdr-power-btn {
+  border-color: rgba(var(--accent-rgb), 0.6);
+  font-weight: 600;
+  padding: 8px 16px;
+}
+
+.sdr-power-btn .sdr-power-led {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--ink-dim);
+  transition: all 0.2s ease;
+}
+
+.sdr-power-btn.is-active {
+  border-color: var(--accent);
+  background: rgba(var(--accent-rgb), 0.18);
+  color: var(--accent);
+}
+
+.sdr-power-btn.is-active .sdr-power-led {
+  background: var(--accent);
+  box-shadow: 0 0 8px var(--accent);
+}
+
+.sdr-volume-controls {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.sdr-vol-wrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.vol-label {
+  font-family: var(--font-mono);
+  font-size: 9.5px;
+  letter-spacing: 0.12em;
+  color: var(--ink-dim);
+  font-variant-numeric: tabular-nums;
+  min-width: 60px;
+}
+
+.sdr-slider {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 90px;
+  height: 4px;
+  background: var(--hairline);
+  border-radius: 2px;
+  outline: none;
+  cursor: pointer;
+}
+
+.sdr-slider::-webkit-slider-thumb {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 12px;
+  height: 12px;
+  border-radius: 2px;
+  background: var(--accent);
+  cursor: pointer;
+  box-shadow: 0 0 6px rgba(var(--accent-rgb), 0.6);
+}
+
+/* ── Genre Filter Section ────────────────────────────────────── */
+.sdr-genre-section {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.sdr-section-title-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.sdr-section-title {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--ink-dim);
+  margin: 0;
+}
+
+.sdr-station-count-badge {
+  font-family: var(--font-mono);
+  font-size: 9.5px;
+  letter-spacing: 0.12em;
+  color: var(--accent);
+}
+
+.sdr-genre-pills {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.sdr-genre-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  padding: 5px 10px;
+  background: rgba(var(--bg-rgb), 0.7);
+  border: 1px solid var(--hairline);
+  color: var(--ink-dim);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.sdr-genre-pill .genre-count {
+  font-size: 9px;
+  opacity: 0.7;
+}
+
+.sdr-genre-pill:hover {
+  border-color: rgba(var(--accent-rgb), 0.5);
+  color: var(--ink);
+}
+
+.sdr-genre-pill.active {
+  border-color: var(--accent);
+  color: var(--accent);
+  background: rgba(var(--accent-rgb), 0.12);
+}
+
+/* ── Stations Grid Rack ──────────────────────────────────────── */
+.sdr-stations-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 14px;
+  margin-bottom: 40px;
+}
+
+.sdr-station-card {
+  position: relative;
+  background: rgba(var(--bg-rgb), 0.75);
+  border: 1px solid var(--hairline);
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  user-select: none;
+}
+
+.sdr-station-card:hover {
+  border-color: rgba(var(--accent-rgb), 0.6);
+  background: rgba(var(--bg-rgb), 0.95);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
+}
+
+.sdr-station-card.is-active {
+  border-color: var(--accent);
+  background: rgba(var(--accent-rgb), 0.08);
+}
+
+.station-card-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.station-freq-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.freq-tag {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: var(--accent);
+}
+
+.direct-tag {
+  font-family: var(--font-mono);
+  font-size: 8px;
+  letter-spacing: 0.14em;
+  padding: 1px 4px;
+  border: 1px solid var(--hairline);
+  color: var(--ink-dim);
+}
+
+/* Live Equalizer Animation Bars */
+.station-live-eq {
+  display: none;
+  align-items: flex-end;
+  gap: 2px;
+  height: 12px;
+}
+
+.sdr-station-card.is-playing .station-live-eq {
+  display: inline-flex;
+}
+
+.eq-bar {
+  width: 2.5px;
+  height: 100%;
+  background: var(--accent);
+  animation: eqBounce 1.2s ease-in-out infinite alternate;
+}
+
+.eq-bar:nth-child(2) {
+  animation-delay: 0.2s;
+  animation-duration: 0.9s;
+}
+
+.eq-bar:nth-child(3) {
+  animation-delay: 0.4s;
+  animation-duration: 1.1s;
+}
+
+@keyframes eqBounce {
+  0% {
+    height: 3px;
+  }
+  100% {
+    height: 12px;
+  }
+}
+
+.station-card-body {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.station-name {
+  font-family: var(--font-mono);
+  font-size: 13.5px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  color: var(--ink);
+  margin: 0;
+  text-transform: uppercase;
+}
+
+.station-desc {
+  font-family: var(--serif);
+  font-size: 13.5px;
+  line-height: 1.4;
+  color: var(--ink-dim);
+  margin: 0;
+}
+
+.station-card-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 8px;
+  border-top: 1px dashed var(--hairline);
+}
+
+.station-genre-tag {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: 0.12em;
+  color: var(--ink-dim);
+  text-transform: uppercase;
+}
+
+.station-tune-label {
+  font-family: var(--font-mono);
+  font-size: 9.5px;
+  letter-spacing: 0.12em;
+  color: var(--ink-dim);
+  transition: color 0.15s ease;
+}
+
+.sdr-station-card:hover .station-tune-label,
+.sdr-station-card.is-active .station-tune-label {
+  color: var(--accent);
+}
+
+.sdr-hidden-player {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  opacity: 0.001;
+  pointer-events: none;
+}
+
+@media (max-width: 768px) {
+  .sdr-vfd-display {
+    flex-direction: column;
+    gap: 16px;
+  }
+  .vfd-right {
+    align-items: flex-start;
+    width: 100%;
+  }
+  .vfd-freq-digits {
+    font-size: 42px;
+  }
+  .sdr-controls-bar {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 14px;
+  }
+  .sdr-primary-controls {
+    justify-content: space-between;
+  }
+  .sdr-volume-controls {
+    justify-content: space-between;
+  }
+  .sdr-vol-wrap {
+    flex: 1;
+  }
+  .sdr-slider {
+    flex: 1;
+  }
+  .sdr-stations-grid {
+    grid-template-columns: 1fr;
+  }
+}

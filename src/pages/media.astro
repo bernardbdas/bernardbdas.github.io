@@ -6,12 +6,12 @@
 import BaseLayout from '../layouts/BaseLayout.astro';
 import ChromeNav from '../components/ChromeNav.astro';
 import ChromeFooter from '../components/ChromeFooter.astro';
-import UnderDevelopment from '../components/UnderDevelopment.astro';
+import SDRRadio from '../components/SDRRadio.astro';
 ---
 
 <BaseLayout
-  title="Media — Bernard Birendra Das"
-  description="Curated selection of music, movies, television series, and cultural inputs by Bernard Birendra Das."
+  title="Media // Radio Shack (SDR) — Bernard Birendra Das"
+  description="Tactical Software Defined Radio (SDR) and Radio Shack featuring 24/7 curated live streams across Rock, Lo-Fi, Synthwave, Jazz, and Ambient music."
 >
   <canvas id="scene" aria-hidden="true"></canvas>
 
@@ -20,21 +20,7 @@ import UnderDevelopment from '../components/UnderDevelopment.astro';
   <div class="page-grid">
     <!-- ─── LEFT: CONTENT COLUMN ─────────────────────────────── -->
     <main class="content-col" id="top">
-      <UnderDevelopment
-        moduleIndex="03"
-        moduleKey="MEDIA"
-        title="Curated Media & Signals"
-        subtitle="Curated Music • Cinema & Films • Television Series • Cultural Artifacts"
-        category="CURATED MEDIA"
-        scopeSummary="A curated catalog of music playlists, cinema masterpieces, television series, and artistic signals that inspire Bernard's engineering and life is being assembled."
-        tags={[
-          'Curated Music',
-          'Cinema & Feature Films',
-          'Television Series',
-          'Original Soundtracks',
-          'Aesthetics & Design',
-        ]}
-      />
+      <SDRRadio />
     </main>
 
     <!-- ─── RIGHT: NEGATIVE SPACE SHOWING 3D TERRAIN ─────────── -->
