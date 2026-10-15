@@ -1,17 +1,21 @@
 ---
 /**
- * media.astro — Curated Media & Cultural Signals
- * Curated cinema, music, television series, and inspirations.
+ * media.astro — Media Deck & Cultural Artifacts
+ * Multi-mode deck: Radio Shack (SDR), Curated Cinema, and Prestige TV Series.
+ * Includes interactive mode switcher, persistent background audio playback,
+ * and real-time faceted search by genre, cast, director, and OTT platform.
  */
 import BaseLayout from '../layouts/BaseLayout.astro';
 import ChromeNav from '../components/ChromeNav.astro';
 import ChromeFooter from '../components/ChromeFooter.astro';
 import SDRRadio from '../components/SDRRadio.astro';
+import MediaCinema from '../components/MediaCinema.astro';
+import MediaTV from '../components/MediaTV.astro';
 ---
 
 <BaseLayout
-  title="Media // Radio Shack (SDR) — Bernard Birendra Das"
-  description="Tactical Software Defined Radio (SDR) and Radio Shack featuring 24/7 curated live streams across Rock, Lo-Fi, Synthwave, Jazz, and Ambient music."
+  title="Media // Deck — Bernard Birendra Das"
+  description="Curated media dashboard by Bernard Birendra Das: Software Defined Radio (SDR), Curated Cinema, and Prestige Television Series."
 >
   <canvas id="scene" aria-hidden="true"></canvas>
 
@@ -20,7 +24,193 @@ import SDRRadio from '../components/SDRRadio.astro';
   <div class="page-grid">
     <!-- ─── LEFT: CONTENT COLUMN ─────────────────────────────── -->
     <main class="content-col" id="top">
-      <SDRRadio />
+      <!-- Media Multi-Mode Switcher Deck -->
+      <nav class="media-mode-switcher-wrap" aria-label="Media deck mode selector">
+        <div class="mode-switch-title">
+          <span class="switch-marker">::</span>
+          <span>SELECT MEDIA CHANNEL / DECK MODE</span>
+        </div>
+
+        <div class="media-mode-buttons" role="tablist">
+          <button
+            type="button"
+            class="media-mode-tab active"
+            id="tab-mode-radio"
+            data-mode="radio"
+            role="tab"
+            aria-selected="true"
+            aria-controls="view-radio"
+          >
+            <span class="tab-icon">📻</span>
+            <span class="tab-label">RADIO SHACK (SDR)</span>
+            <span class="tab-count-tag">20 STATIONS</span>
+          </button>
+
+          <button
+            type="button"
+            class="media-mode-tab"
+            id="tab-mode-cinema"
+            data-mode="cinema"
+            role="tab"
+            aria-selected="false"
+            aria-controls="view-cinema"
+          >
+            <span class="tab-icon">🎬</span>
+            <span class="tab-label">CURATED CINEMA</span>
+            <span class="tab-count-tag">12 FILMS</span>
+          </button>
+
+          <button
+            type="button"
+            class="media-mode-tab"
+            id="tab-mode-tv"
+            data-mode="tv"
+            role="tab"
+            aria-selected="false"
+            aria-controls="view-tv"
+          >
+            <span class="tab-icon">📺</span>
+            <span class="tab-label">TV SERIES</span>
+            <span class="tab-count-tag">8 SHOWS</span>
+          </button>
+        </div>
+      </nav>
+
+      <!-- Persistent Background Audio Ticker (visible when radio is playing while in cinema/tv mode) -->
+      <aside
+        class="sdr-mini-audio-ticker"
+        id="sdr-mini-audio-ticker"
+        style="display: none;"
+        aria-label="Active Radio Broadcast Status"
+      >
+        <div class="ticker-left">
+          <span class="status-dot is-transmitting"></span>
+          <span class="ticker-prefix">BROADCASTING:</span>
+          <span class="ticker-station-val" id="mini-ticker-station-name">
+            CHILLHOP (101.5 FM)
+          </span>
+        </div>
+        <div class="ticker-right">
+          <button type="button" class="ticker-action-btn" id="mini-ticker-pause-btn">
+            PAUSE AUDIO
+          </button>
+          <button
+            type="button"
+            class="ticker-action-btn ticker-action-primary"
+            id="mini-ticker-switch-btn"
+          >
+            OPEN SDR 📻
+          </button>
+        </div>
+      </aside>
+
+      <!-- ── MODE 01: RADIO SHACK (SDR) ────────────────────────── -->
+      <section
+        id="view-radio"
+        class="media-mode-view active"
+        role="tabpanel"
+        aria-labelledby="tab-mode-radio"
+      >
+        <SDRRadio />
+      </section>
+
+      <!-- ── MODE 02: CURATED CINEMA ───────────────────────────── -->
+      <section
+        id="view-cinema"
+        class="media-mode-view"
+        role="tabpanel"
+        aria-labelledby="tab-mode-cinema"
+        style="display: none;"
+      >
+        <div class="subpage-breadcrumb">
+          <a href="/" class="breadcrumb-link" aria-label="Return to homepage">
+            <span class="breadcrumb-arrow">←</span>
+            <span>INDEX // CORE SYSTEMS</span>
+          </a>
+          <span class="breadcrumb-sep">//</span>
+          <span class="breadcrumb-current">MODULE: CURATED CINEMA</span>
+        </div>
+
+        <div class="section-title-wrap">
+          <p class="micro-label">
+            <span class="tensor-reticle" aria-hidden="true">
+              <svg
+                class="reticle-svg"
+                viewBox="0 0 14 14"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <circle cx="7" cy="7" r="2.2" class="reticle-core"></circle>
+                <path d="M7 0.5V2.5M7 11.5V13.5M0.5 7H2.5M11.5 7H13.5" class="reticle-axes"></path>
+                <circle
+                  cx="7"
+                  cy="7"
+                  r="5.2"
+                  class="reticle-orbit"
+                  stroke-dasharray="2.5 2.5"
+                ></circle>
+              </svg>
+            </span>
+            CINEMATIC ARCHIVE // MASTER DIRECTORS &amp; FILMOGRAPHY
+          </p>
+          <h1 class="subpage-title">Curated Cinema</h1>
+          <p class="focus-strip">
+            Feature Films • Philosophical Sci-Fi • Cyberpunk • Psychological Realism • OTT
+            Availability
+          </p>
+        </div>
+
+        <MediaCinema />
+      </section>
+
+      <!-- ── MODE 03: PRESTIGE TELEVISION SERIES ────────────────── -->
+      <section
+        id="view-tv"
+        class="media-mode-view"
+        role="tabpanel"
+        aria-labelledby="tab-mode-tv"
+        style="display: none;"
+      >
+        <div class="subpage-breadcrumb">
+          <a href="/" class="breadcrumb-link" aria-label="Return to homepage">
+            <span class="breadcrumb-arrow">←</span>
+            <span>INDEX // CORE SYSTEMS</span>
+          </a>
+          <span class="breadcrumb-sep">//</span>
+          <span class="breadcrumb-current">MODULE: TELEVISION SERIES</span>
+        </div>
+
+        <div class="section-title-wrap">
+          <p class="micro-label">
+            <span class="tensor-reticle" aria-hidden="true">
+              <svg
+                class="reticle-svg"
+                viewBox="0 0 14 14"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <circle cx="7" cy="7" r="2.2" class="reticle-core"></circle>
+                <path d="M7 0.5V2.5M7 11.5V13.5M0.5 7H2.5M11.5 7H13.5" class="reticle-axes"></path>
+                <circle
+                  cx="7"
+                  cy="7"
+                  r="5.2"
+                  class="reticle-orbit"
+                  stroke-dasharray="2.5 2.5"
+                ></circle>
+              </svg>
+            </span>
+            TRANSMISSION ARCHIVES // PRESTIGE SHOWRUNNERS &amp; SERIES
+          </p>
+          <h1 class="subpage-title">Television Series</h1>
+          <p class="focus-strip">
+            Deterministic Time Travel • Cybernetic Espionage • Corporate Satire • Narrative
+            Architecture
+          </p>
+        </div>
+
+        <MediaTV />
+      </section>
     </main>
 
     <!-- ─── RIGHT: NEGATIVE SPACE SHOWING 3D TERRAIN ─────────── -->
@@ -40,6 +230,253 @@ import SDRRadio from '../components/SDRRadio.astro';
       } else {
         setTimeout(loadTerrain, 100);
       }
+    }
+  </script>
+  <!-- Interactive Client Controller for Multi-Mode Media Switcher and Filters -->
+  <script>
+    function setupMediaDeck() {
+      const tabs = document.querySelectorAll<HTMLButtonElement>('.media-mode-tab');
+      const views = {
+        radio: document.getElementById('view-radio'),
+        cinema: document.getElementById('view-cinema'),
+        tv: document.getElementById('view-tv'),
+      };
+      const miniTicker = document.getElementById('sdr-mini-audio-ticker');
+      const miniStationName = document.getElementById('mini-ticker-station-name');
+      const miniPauseBtn = document.getElementById('mini-ticker-pause-btn');
+      const miniSwitchBtn = document.getElementById('mini-ticker-switch-btn');
+
+      let activeMode = 'radio';
+
+      function switchMode(targetMode: 'radio' | 'cinema' | 'tv', updateHash = true) {
+        activeMode = targetMode;
+
+        // Update tabs
+        tabs.forEach((tab) => {
+          const mode = tab.getAttribute('data-mode');
+          if (mode === targetMode) {
+            tab.classList.add('active');
+            tab.setAttribute('aria-selected', 'true');
+          } else {
+            tab.classList.remove('active');
+            tab.setAttribute('aria-selected', 'false');
+          }
+        });
+
+        // Update views
+        Object.entries(views).forEach(([modeKey, el]) => {
+          if (!el) return;
+          if (modeKey === targetMode) {
+            el.style.display = 'block';
+            el.classList.add('active');
+          } else {
+            el.style.display = 'none';
+            el.classList.remove('active');
+          }
+        });
+
+        if (updateHash) {
+          history.replaceState(null, '', `#${targetMode}`);
+        }
+
+        // Check if radio is playing to show persistent mini ticker
+        updateMiniTicker();
+
+        // Scroll content to top
+        const contentCol = document.querySelector('.content-col');
+        if (contentCol) {
+          contentCol.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+      }
+
+      function updateMiniTicker() {
+        if (!miniTicker) return;
+        const mainDot = document.getElementById('sdr-main-dot');
+        const isPlaying = mainDot?.classList.contains('is-transmitting');
+        const stationTitle = document.getElementById('vfd-station-title')?.textContent || 'RADIO';
+        const freqVal = document.getElementById('vfd-freq-val')?.textContent || '';
+
+        if (isPlaying && activeMode !== 'radio') {
+          miniTicker.style.display = 'flex';
+          if (miniStationName) {
+            miniStationName.textContent = `${stationTitle} (${freqVal} MHz)`;
+          }
+        } else {
+          miniTicker.style.display = 'none';
+        }
+      }
+
+      // Tab clicks
+      tabs.forEach((tab) => {
+        tab.addEventListener('click', () => {
+          const mode = tab.getAttribute('data-mode') as 'radio' | 'cinema' | 'tv';
+          if (mode) switchMode(mode);
+        });
+      });
+
+      // Mini ticker actions
+      miniPauseBtn?.addEventListener('click', () => {
+        const powerBtn = document.getElementById('sdr-power-btn');
+        powerBtn?.click();
+        setTimeout(updateMiniTicker, 150);
+      });
+
+      miniSwitchBtn?.addEventListener('click', () => {
+        switchMode('radio');
+      });
+
+      // Handle URL hash on initial load
+      const initialHash = window.location.hash.replace('#', '').toLowerCase();
+      if (initialHash === 'cinema' || initialHash === 'tv' || initialHash === 'radio') {
+        switchMode(initialHash as 'radio' | 'cinema' | 'tv', false);
+      }
+
+      // Check audio status periodically for mini ticker
+      setInterval(updateMiniTicker, 800);
+
+      // ── Search & Filter Logic for Cinema ─────────────────────
+      setupFilterMatrix('cinema');
+
+      // ── Search & Filter Logic for TV Shows ───────────────────
+      setupFilterMatrix('tv');
+    }
+
+    function setupFilterMatrix(category: 'cinema' | 'tv') {
+      const searchInput = document.getElementById(
+        `${category}-search-input`,
+      ) as HTMLInputElement | null;
+      const clearBtn = document.getElementById(`${category}-search-clear`);
+      const platformPills = document.querySelectorAll<HTMLButtonElement>(
+        `#${category}-platform-pills .filter-pill`,
+      );
+      const genrePills = document.querySelectorAll<HTMLButtonElement>(
+        `#${category}-genre-pills .filter-pill`,
+      );
+      const countEl = document.getElementById(`${category}-visible-count`);
+      const emptyNotice = document.getElementById(`${category}-empty-notice`);
+      const resetBtn = document.getElementById(`${category}-reset-filters-btn`);
+      const grid = document.getElementById(`${category}-cards-grid`);
+
+      if (!grid) return;
+      const cards = grid.querySelectorAll<HTMLElement>('.media-item-card');
+
+      let currentPlatform = 'ALL';
+      let currentGenre = 'ALL';
+      let currentSearch = '';
+
+      function applyFilters() {
+        let visible = 0;
+
+        cards.forEach((card) => {
+          const title = card.getAttribute('data-title') || '';
+          const directorOrCreator =
+            card.getAttribute('data-director') || card.getAttribute('data-creator') || '';
+          const cast = card.getAttribute('data-cast') || '';
+          const genres = (card.getAttribute('data-genres') || '').split(',');
+          const platforms = (card.getAttribute('data-platforms') || '').split(',');
+
+          const matchesPlatform = currentPlatform === 'ALL' || platforms.includes(currentPlatform);
+          const matchesGenre = currentGenre === 'ALL' || genres.includes(currentGenre);
+
+          const matchesSearch =
+            !currentSearch ||
+            title.includes(currentSearch) ||
+            directorOrCreator.includes(currentSearch) ||
+            cast.includes(currentSearch);
+
+          if (matchesPlatform && matchesGenre && matchesSearch) {
+            card.style.display = 'flex';
+            visible++;
+          } else {
+            card.style.display = 'none';
+          }
+        });
+
+        // Update count label
+        if (countEl) {
+          const entityLabel = category === 'cinema' ? 'FEATURE FILMS' : 'TELEVISION SERIES';
+          countEl.textContent = `INDEX: ${visible} ${entityLabel} VISIBLE`;
+        }
+
+        // Show/hide empty notice
+        if (emptyNotice) {
+          emptyNotice.style.display = visible === 0 ? 'flex' : 'none';
+        }
+      }
+
+      // Search input handler
+      searchInput?.addEventListener('input', (e) => {
+        currentSearch = (e.target as HTMLInputElement).value.trim().toLowerCase();
+        if (clearBtn) {
+          clearBtn.style.display = currentSearch ? 'inline-flex' : 'none';
+        }
+        applyFilters();
+      });
+
+      clearBtn?.addEventListener('click', () => {
+        if (searchInput) {
+          searchInput.value = '';
+          currentSearch = '';
+          clearBtn.style.display = 'none';
+          applyFilters();
+        }
+      });
+
+      // Platform pills
+      platformPills.forEach((pill) => {
+        pill.addEventListener('click', () => {
+          platformPills.forEach((p) => {
+            p.classList.remove('active');
+            p.setAttribute('aria-selected', 'false');
+          });
+          pill.classList.add('active');
+          pill.setAttribute('aria-selected', 'true');
+          currentPlatform = pill.getAttribute('data-filter-platform') || 'ALL';
+          applyFilters();
+        });
+      });
+
+      // Genre pills
+      genrePills.forEach((pill) => {
+        pill.addEventListener('click', () => {
+          genrePills.forEach((p) => {
+            p.classList.remove('active');
+            p.setAttribute('aria-selected', 'false');
+          });
+          pill.classList.add('active');
+          pill.setAttribute('aria-selected', 'true');
+          currentGenre = pill.getAttribute('data-filter-genre') || 'ALL';
+          applyFilters();
+        });
+      });
+
+      // Reset button
+      resetBtn?.addEventListener('click', () => {
+        if (searchInput) searchInput.value = '';
+        currentSearch = '';
+        if (clearBtn) clearBtn.style.display = 'none';
+
+        platformPills.forEach((p, idx) => {
+          p.classList.toggle('active', idx === 0);
+          p.setAttribute('aria-selected', idx === 0 ? 'true' : 'false');
+        });
+        currentPlatform = 'ALL';
+
+        genrePills.forEach((p, idx) => {
+          p.classList.toggle('active', idx === 0);
+          p.setAttribute('aria-selected', idx === 0 ? 'true' : 'false');
+        });
+        currentGenre = 'ALL';
+
+        applyFilters();
+      });
+    }
+
+    // Initialize when DOM ready
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', setupMediaDeck);
+    } else {
+      setupMediaDeck();
     }
   </script>
 </BaseLayout>
