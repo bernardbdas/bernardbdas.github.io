@@ -11,6 +11,9 @@ import ResearchHero from '../components/ResearchHero.astro';
 import ResearchVisualizer from '../components/ResearchVisualizer.astro';
 import ResearchArchitecture from '../components/ResearchArchitecture.astro';
 import ResearchPapersList from '../components/ResearchPapersList.astro';
+import ResearchDictionary from '../components/ResearchDictionary.astro';
+import MathInspectorModal from '../components/MathInspectorModal.astro';
+import 'katex/dist/katex.min.css';
 ---
 
 <BaseLayout
@@ -28,11 +31,14 @@ import ResearchPapersList from '../components/ResearchPapersList.astro';
       <ResearchVisualizer />
       <ResearchArchitecture />
       <ResearchPapersList />
+      <ResearchDictionary />
     </main>
 
     <!-- ─── RIGHT: NEGATIVE SPACE SHOWING 3D TERRAIN ─────────── -->
     <div class="bg-col" aria-hidden="true"></div>
   </div>
+
+  <MathInspectorModal />
 
   <ChromeFooter />
 

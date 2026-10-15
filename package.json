@@ -18,9 +18,11 @@
   },
   "dependencies": {
     "astro": "^7.3.8",
+    "katex": "^0.19.0",
     "three": "^0.186.1"
   },
   "devDependencies": {
+    "@types/katex": "^0.16.8",
     "@types/three": "^0.186.0",
     "@typescript-eslint/eslint-plugin": "^8.71.2",
     "@typescript-eslint/parser": "^8.71.2",

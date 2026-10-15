@@ -2,7 +2,17 @@
 /**
  * ResearchArchitecture.astro — Core Theoretical & System Modules
  * Minimalist brutalist specifications for FedM3, Continuous Memory (CMS-TTT), and HOPE-FL.
+ * Renders mathematical expressions with KaTeX and provides click-to-decode triggers.
  */
+import { renderMath } from '../data/math-dictionary';
+
+const mathFedM3 = renderMath('\\Delta W_{\\text{orth}} = \\text{NS}_5(M_t) \\cdot \\eta', true);
+const mathCMS = renderMath(
+  'W_t^{(\\text{mem})} = W_{t-1}^{(\\text{mem})} - \\eta_{\\text{inner}} \\nabla L_{\\text{self}}(x_t; W_{t-1}^{(\\text{mem})})',
+  true,
+);
+const mathNorm = renderMath('\\|\\Delta W\\|_2 \\le 1');
+const mathDP = renderMath('(\\epsilon = 1.2, \\; \\delta = 10^{-5})');
 ---
 
 <section class="section research-architecture-section" aria-labelledby="arch-heading">
@@ -45,11 +55,25 @@
             communication cost. FedM3 bounds updates directly by their spectral norm using a 5-step
             quintic polynomial:
           </p>
-          <div class="module-formula-box">
-            <code>&Delta;W_orth = NS_5(M_t) &middot; &eta;</code>
-            <span class="formula-caption">
-              Quintic Newton-Schulz iteration computing the matrix sign function.
-            </span>
+          <div class="module-formula-wrap">
+            <button
+              type="button"
+              class="clickable-math-box"
+              data-equation-id="eq-fedm3"
+              title="Click to inspect FedM3 formula, variables, and plain-English breakdown"
+              aria-label="Inspect FedM3 Polar-Orthogonalized Muon Update equation"
+            >
+              <div class="cm-cue-bar">
+                <span class="cm-cue-tag">[ CLICK TO DECODE FORMULA ]</span>
+                <span class="cm-cue-icon">⌕</span>
+              </div>
+              <div class="cm-math-render">
+                <Fragment set:html={mathFedM3} />
+              </div>
+              <span class="formula-caption">
+                Quintic Newton-Schulz iteration computing the matrix sign function. Click to decode.
+              </span>
+            </button>
           </div>
         </div>
 
@@ -57,7 +81,7 @@
           <h4 class="feature-title">SYSTEM PROPERTIES</h4>
           <ul class="module-bullet-list">
             <li>
-              <strong>Bounded Spectral Updates:</strong> Enforces $(||\Delta W||_2 \le 1)$,
+              <strong>Bounded Spectral Updates:</strong> Enforces <Fragment set:html={mathNorm} />,
               preventing gradient explosion under extreme distribution skew.
             </li>
             <li>
@@ -97,14 +121,26 @@
             Eliminates multi-gigabyte Fisher Information matrices by formulating retention as an
             internal online gradient loop:
           </p>
-          <div class="module-formula-box">
-            <code>
-              W_t^(mem) = W_&#123;t - 1&#125;^(mem) - &eta;_inner &nabla; L_self(x_t; W_&#123;t -
-              1&#125;^(mem))
-            </code>
-            <span class="formula-caption">
-              Compresses streaming context into synaptic states without storing raw past data.
-            </span>
+          <div class="module-formula-wrap">
+            <button
+              type="button"
+              class="clickable-math-box"
+              data-equation-id="eq-cms-ttt"
+              title="Click to inspect CMS-TTT formula, variables, and plain-English breakdown"
+              aria-label="Inspect Continuous Memory System test-time update equation"
+            >
+              <div class="cm-cue-bar">
+                <span class="cm-cue-tag">[ CLICK TO DECODE FORMULA ]</span>
+                <span class="cm-cue-icon">⌕</span>
+              </div>
+              <div class="cm-math-render">
+                <Fragment set:html={mathCMS} />
+              </div>
+              <span class="formula-caption">
+                Compresses streaming context into synaptic states without storing raw past data.
+                Click to decode.
+              </span>
+            </button>
           </div>
         </div>
 
@@ -182,8 +218,17 @@
               tasks with 0.884 Mean Dice.
             </li>
             <li>
-              <strong>Differential Privacy:</strong> Guaranteed bound at $(\epsilon=1.2,
-              \delta=10^&#123;-5&#125;)$ with zero-knowledge accounting.
+              <strong>Differential Privacy:</strong>
+              <button
+                type="button"
+                class="clickable-inline-math"
+                data-equation-id="eq-dp-guarantee"
+                title="Click to inspect Differential Privacy guarantee"
+              >
+                Guaranteed bound at <Fragment set:html={mathDP} />
+                <span class="inline-inspect-cue">⌕</span>
+              </button>
+              with zero-knowledge accounting.
             </li>
           </ul>
         </div>

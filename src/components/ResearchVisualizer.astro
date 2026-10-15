@@ -2,8 +2,19 @@
 /**
  * ResearchVisualizer.astro — Interactive Empirical Visualizer & Synthesis Engine
  * Recreates the experimental trajectories, aggregation strategy matrix,
- * and non-IID classification analysis from Bernard's PhD research presentation.
+ * and non-IID classification analysis from research presentation.
  */
+import { renderMath } from '../data/math-dictionary';
+
+const mathFedAvg = renderMath('w_{t+1} = \\sum_{k=1}^K \\frac{n_k}{n} w_{t+1}^k');
+const mathFedProx = renderMath(
+  '\\min_w \\left\\{ F_k(w) + \\frac{\\mu}{2} \\|w - w^t\\|^2 \\right\\}',
+);
+const mathFedMedian = renderMath('\\Delta w^{(j)} = \\text{med}(\\{\\Delta w_k^{(j)}\\})');
+const mathFedTrim = renderMath('\\Delta w^{(j)} = \\text{trim}_{\\beta}(\\{\\Delta w_k^{(j)}\\})');
+const mathFedAdam = renderMath('v_t = \\beta_2 v_{t-1} + (1-\\beta_2)\\Delta_t^2');
+const mathFedM3 = renderMath('\\Delta W_{\\text{orth}} = \\text{NS}_5(M_t) \\cdot \\eta');
+const mathDirichlet = renderMath('p_k \\sim \\text{Dir}(\\alpha = 0.1)');
 ---
 
 <div class="research-visualizer-section">
@@ -508,7 +519,15 @@
                 <strong>FedAvg</strong>
               </td>
               <td class="math-col">
-                <code>&Delta;w = &sum; p_k &Delta;w_k</code>
+                <button
+                  type="button"
+                  class="clickable-table-math"
+                  data-equation-id="eq-fedavg"
+                  title="Click to inspect FedAvg equation and variable breakdown"
+                >
+                  <Fragment set:html={mathFedAvg} />
+                  <span class="tbl-inspect-cue">⌕</span>
+                </button>
               </td>
               <td>O(d) linear compute. Vulnerable to client drift under non-IID data.</td>
               <td>
@@ -524,7 +543,15 @@
                 <strong>FedProx</strong>
               </td>
               <td class="math-col">
-                <code>min_w F_k(w) + &mu;/2 ||w - w^t||&sup2;</code>
+                <button
+                  type="button"
+                  class="clickable-table-math"
+                  data-equation-id="eq-fedprox"
+                  title="Click to inspect FedProx equation and variable breakdown"
+                >
+                  <Fragment set:html={mathFedProx} />
+                  <span class="tbl-inspect-cue">⌕</span>
+                </button>
               </td>
               <td>Limits local update divergence. O(d) server step.</td>
               <td>
@@ -539,7 +566,9 @@
                 <strong>FedMedian</strong>
               </td>
               <td class="math-col">
-                <code>&Delta;w^(j) = median(&#123;&Delta;w_k^(j)&#125;)</code>
+                <div class="table-math-static">
+                  <Fragment set:html={mathFedMedian} />
+                </div>
               </td>
               <td>Rejects extreme skewed / poisoned client updates.</td>
               <td>
@@ -555,7 +584,9 @@
                 <strong>FedTrimmedMean</strong>
               </td>
               <td class="math-col">
-                <code>&Delta;w^(j) = 1/(K-2&beta;K) &sum; trimmed(&Delta;w_k)</code>
+                <div class="table-math-static">
+                  <Fragment set:html={mathFedTrim} />
+                </div>
               </td>
               <td>Robust interpolation between mean and median.</td>
               <td>
@@ -571,7 +602,9 @@
                 <strong>FedAdam</strong>
               </td>
               <td class="math-col">
-                <code>v_t = &beta;_2 v_&#123;t-1&#125; + (1-&beta;_2)&Delta;_t&sup2;</code>
+                <div class="table-math-static">
+                  <Fragment set:html={mathFedAdam} />
+                </div>
               </td>
               <td>
                 Second-moment adaptive scaling per coordinate; accelerates escape from saddle
@@ -590,7 +623,15 @@
                 <strong class="highlight-text">FedM3 / FedMuon</strong>
               </td>
               <td class="math-col">
-                <code class="highlight-code">&Delta;w_orth = NS_5(M_t) &middot; &eta;</code>
+                <button
+                  type="button"
+                  class="clickable-table-math highlight-math"
+                  data-equation-id="eq-fedm3"
+                  title="Click to inspect FedM3 Polar Muon equation and variable breakdown"
+                >
+                  <Fragment set:html={mathFedM3} />
+                  <span class="tbl-inspect-cue">⌕</span>
+                </button>
               </td>
               <td>
                 <strong>Spectral norm bounded updates</strong> via quintic Newton-Schulz; prevents
@@ -635,7 +676,17 @@
 
         <div class="regime-card">
           <div class="regime-tag">REGIME 02 // DIRICHLET SKEW</div>
-          <h4 class="regime-title">Dirichlet Distribution (&alpha; = 0.1)</h4>
+          <h4 class="regime-title">
+            <button
+              type="button"
+              class="clickable-inline-math"
+              data-equation-id="eq-dirichlet"
+              title="Click to inspect Dirichlet distribution and concentration parameter"
+            >
+              Dirichlet Partition <Fragment set:html={mathDirichlet} />
+              <span class="inline-inspect-cue">⌕</span>
+            </button>
+          </h4>
           <p class="regime-desc">
             Severe partition skew where client class proportions are drawn from a sparse Dirichlet
             prior. Clients receive only 2-3 dominant classes, causing immediate weight divergence
