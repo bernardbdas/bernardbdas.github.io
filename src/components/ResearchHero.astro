@@ -1,0 +1,102 @@
+---
+/**
+ * ResearchHero.astro — Doctoral Research & Academic Identity Header
+ * Displays Bernard's PhD research profile, supervisor, RAC members,
+ * dissertation title, and high-impact scholarship metrics.
+ */
+import Loader from './Loader.astro';
+---
+
+<div class="subpage-breadcrumb">
+  <a href="/" class="breadcrumb-link" aria-label="Return to homepage">
+    <span class="breadcrumb-arrow">←</span>
+    <span>INDEX // CORE SYSTEMS</span>
+  </a>
+  <span class="breadcrumb-sep">//</span>
+  <span class="breadcrumb-current">MODULE: RESEARCH &amp; SCHOLARSHIP</span>
+</div>
+
+<section class="section research-hero anim-hero" aria-labelledby="research-heading">
+  <div class="research-header-top">
+    <div>
+      <p class="micro-label">
+        <Loader />
+        DOCTORAL RESEARCH // DEPT. OF STATISTICS &amp; DATA SCIENCE // CHRIST UNIVERSITY
+      </p>
+      <h1 id="research-heading" class="subpage-title">
+        Research &amp; Scholarship<span class="caret" aria-hidden="true"></span>
+      </h1>
+      <p class="focus-strip">
+        Nested Federated Learning • Multi-Scale Continuum Memory • Foundation Model Continual
+        Fine-Tuning
+      </p>
+    </div>
+
+    <div class="rac-badge-wrap">
+      <div class="rac-pill">
+        <span class="status-dot is-transmitting"></span>
+        <span class="rac-label">RAC-3 REVIEW ACTIVE</span>
+      </div>
+      <span class="rac-date">OCTOBER 27, 2026</span>
+    </div>
+  </div>
+
+  <!-- Doctoral Candidature & Dissertation HUD Card -->
+  <div class="research-dissertation-card">
+    <div class="dev-card-corner-tl" aria-hidden="true"></div>
+    <div class="dev-card-corner-br" aria-hidden="true"></div>
+
+    <div class="dissertation-meta-grid">
+      <div class="dissertation-main-info">
+        <span class="dissertation-kicker">DOCTORAL DISSERTATION THEME</span>
+        <h2 class="dissertation-title">
+          Nested Federated Learning: A Multi-Scale Continuum Memory Framework to Minimize
+          Catastrophic Forgetting in Foundation Models
+        </h2>
+        <p class="dissertation-summary">
+          Addressing the fundamental trade-offs between parameter retention, non-IID client drift,
+          and cryptographic communication overhead in decentralized edge networks through
+          Newton-Schulz polar orthogonalization and test-time training memory systems.
+        </p>
+
+        <div class="dissertation-advisory-row">
+          <div class="advisory-unit">
+            <span class="adv-label">RESEARCH SCHOLAR</span>
+            <span class="adv-name">Bernard Birendra Das</span>
+            <span class="adv-id">REG: 2490031</span>
+          </div>
+          <div class="advisory-unit">
+            <span class="adv-label">SUPERVISOR</span>
+            <span class="adv-name">Dr. Sathya P</span>
+            <span class="adv-dept">Dept. of Statistics &amp; Data Science</span>
+          </div>
+          <div class="advisory-unit">
+            <span class="adv-label">RAC COMMITTEE</span>
+            <span class="adv-name">Dr. Vijayalakshmi A</span>
+            <span class="adv-name">Dr. Senthil Vadivu M</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Quick Research Telemetry Numbers -->
+      <div class="research-telemetry-col">
+        <div class="telemetry-stat-box">
+          <span class="stat-num">388+</span>
+          <span class="stat-lbl">TOTAL CITATIONS</span>
+        </div>
+        <div class="telemetry-stat-box">
+          <span class="stat-num">5</span>
+          <span class="stat-lbl">KEY PAPERS &amp; PREPRINTS</span>
+        </div>
+        <div class="telemetry-stat-box">
+          <span class="stat-num">14.8%</span>
+          <span class="stat-lbl">NON-IID GAIN (FedM3)</span>
+        </div>
+        <div class="telemetry-stat-box">
+          <span class="stat-num">0.884</span>
+          <span class="stat-lbl">DICE SCORE (HOPE-FL)</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

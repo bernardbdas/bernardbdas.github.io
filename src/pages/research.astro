@@ -1,17 +1,21 @@
 ---
 /**
- * research.astro — Research & Publications Module
- * Announcements & upcoming scholarly literature, preprints, and system architectures.
+ * research.astro — Doctoral Research, Preprints & Literature
+ * Focused on Bernard Birendra Das's PhD research in Federated Learning,
+ * Foundation Models, Catastrophic Forgetting, and Test-Time Training.
  */
 import BaseLayout from '../layouts/BaseLayout.astro';
 import ChromeNav from '../components/ChromeNav.astro';
 import ChromeFooter from '../components/ChromeFooter.astro';
-import UnderDevelopment from '../components/UnderDevelopment.astro';
+import ResearchHero from '../components/ResearchHero.astro';
+import ResearchVisualizer from '../components/ResearchVisualizer.astro';
+import ResearchArchitecture from '../components/ResearchArchitecture.astro';
+import ResearchPapersList from '../components/ResearchPapersList.astro';
 ---
 
 <BaseLayout
-  title="Research — Bernard Birendra Das"
-  description="Research publications, machine learning preprints, foundational AI architectures, and academic work by Bernard Birendra Das."
+  title="Research // Nested Federated Learning & Foundation Models — Bernard Birendra Das"
+  description="Doctoral research portfolio of Bernard Birendra Das: Nested Federated Learning, Continuous Memory Systems (CMS-TTT), and FedM3 polar optimization at CHRIST (Deemed to be University)."
 >
   <canvas id="scene" aria-hidden="true"></canvas>
 
@@ -20,21 +24,10 @@ import UnderDevelopment from '../components/UnderDevelopment.astro';
   <div class="page-grid">
     <!-- ─── LEFT: CONTENT COLUMN ─────────────────────────────── -->
     <main class="content-col" id="top">
-      <UnderDevelopment
-        moduleIndex="01"
-        moduleKey="RESEARCH"
-        title="Research & Literature"
-        subtitle="Peer-Reviewed Publications • Foundation Models • PhD Research in Data Science"
-        category="SCHOLARLY PUBLICATIONS"
-        scopeSummary="Peer-reviewed papers, foundational model evaluations, preprints, and doctoral research findings are being compiled into this archive."
-        tags={[
-          'Federated Learning',
-          'Distributed PEFT/LoRA',
-          'Healthcare AI',
-          'Deep Learning',
-          'Doctoral Research',
-        ]}
-      />
+      <ResearchHero />
+      <ResearchVisualizer />
+      <ResearchArchitecture />
+      <ResearchPapersList />
     </main>
 
     <!-- ─── RIGHT: NEGATIVE SPACE SHOWING 3D TERRAIN ─────────── -->

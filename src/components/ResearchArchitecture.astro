@@ -1,0 +1,200 @@
+---
+/**
+ * ResearchArchitecture.astro — 3 Core Theoretical Modules from Bernard's PhD Dissertation
+ * Synthesizes FedM3 Optimizer, Continuous Memory System (CMS-TTT), and HOPE-FL Architecture.
+ */
+---
+
+<section class="section research-architecture-section" aria-labelledby="arch-heading">
+  <div class="sdr-section-title-row">
+    <div>
+      <h2 id="arch-heading" class="sdr-section-title">
+        PROPOSED ARCHITECTURAL MODULES // NOVEL CONTRIBUTIONS
+      </h2>
+      <p class="section-micro-desc">
+        Three-tier framework engineered to resolve catastrophic forgetting, gradient explosion, and
+        edge privacy bottlenecks
+      </p>
+    </div>
+    <span class="sdr-station-count-badge">3 SYSTEM MODULES</span>
+  </div>
+
+  <div class="modules-stack">
+    <!-- ── MODULE 01 ─────────────────────────────────────────── -->
+    <div class="module-card">
+      <div class="dev-card-corner-tl" aria-hidden="true"></div>
+      <div class="dev-card-corner-br" aria-hidden="true"></div>
+
+      <div class="module-header">
+        <div class="module-meta">
+          <span class="module-number">MODULE #01</span>
+          <span class="module-badge">ADAPTIVE AGGREGATION</span>
+        </div>
+        <h3 class="module-name">FedM3: Federated Multi-Scale Momentum Muon Optimizer</h3>
+        <p class="module-lead">
+          Dynamic parameter orthogonalization replacing coordinate-wise heuristic updates with
+          quintic Newton-Schulz polar iterations.
+        </p>
+      </div>
+
+      <div class="module-body-grid">
+        <div class="module-feature-col">
+          <h4 class="feature-title">THEORETICAL MECHANISM</h4>
+          <p class="feature-text">
+            Standard adaptive optimizers (Adam, RMSprop) require storing and transmitting full
+            momentum matrices, which doubles client communication payload. FedM3 implements a
+            matrix-valued optimizer that directly updates 2D parameter weights via their polar
+            factor:
+          </p>
+          <div class="module-formula-box">
+            <code>&Delta;W_orth = NS_5(M_t) &middot; &eta;</code>
+            <span class="formula-caption">
+              where NS_5 is a 5-step quintic Newton-Schulz iteration computing the matrix sign
+              function.
+            </span>
+          </div>
+        </div>
+
+        <div class="module-feature-col">
+          <h4 class="feature-title">ENGINEERING ADVANTAGES</h4>
+          <ul class="module-bullet-list">
+            <li>
+              <strong>Bounded Spectral Updates:</strong> Enforces unit spectral norm updates
+              ($||\Delta W||_2 \le 1$), inherently preventing gradient explosion under non-IID
+              conditions.
+            </li>
+            <li>
+              <strong>No Communication Doubling:</strong> Operates entirely on the client gradient
+              buffer without requiring second-moment accumulator transmission.
+            </li>
+            <li>
+              <strong>Zero Client Sorting:</strong> Outperforms FedMedian and FedTrimmedMean without
+              introducing cryptographic sorting overhead under SMPC.
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── MODULE 02 ─────────────────────────────────────────── -->
+    <div class="module-card">
+      <div class="dev-card-corner-tl" aria-hidden="true"></div>
+      <div class="dev-card-corner-br" aria-hidden="true"></div>
+
+      <div class="module-header">
+        <div class="module-meta">
+          <span class="module-number">MODULE #02</span>
+          <span class="module-badge">CONTINUAL MEMORY</span>
+        </div>
+        <h3 class="module-name">Continuous Memory System (CMS) for Test-Time Training (TTT)</h3>
+        <p class="module-lead">
+          Treating historical context retention as an online self-supervised meta-learning task
+          rather than rigid parameter freezing.
+        </p>
+      </div>
+
+      <div class="module-body-grid">
+        <div class="module-feature-col">
+          <h4 class="feature-title">CATASTROPHIC FORGETTING MITIGATION</h4>
+          <p class="feature-text">
+            Elastic Weight Consolidation (EWC) and memory-replay methods fail in decentralized
+            networks due to privacy policies (cannot store past patient data) and bandwidth limits
+            (Fisher Information matrices exceed model weights). CMS equips the foundation model with
+            an internal meta-memory loop:
+          </p>
+          <div class="module-formula-box">
+            <code>
+              W_t^(mem) = W_&#123;t - 1&#125;^(mem) - &eta;_inner &nabla; L_self(x_t; W_&#123;t -
+              1&#125;^(mem))
+            </code>
+            <span class="formula-caption">
+              Online gradient descent compressing sequential context directly into expressive hidden
+              state weights.
+            </span>
+          </div>
+        </div>
+
+        <div class="module-feature-col">
+          <h4 class="feature-title">NEURAL ARCHITECTURAL SYNERGY</h4>
+          <ul class="module-bullet-list">
+            <li>
+              <strong>Sliding-Window Polynomial Mapping:</strong> Prevents overwriting of older
+              synaptic representations during long-horizon fine-tuning.
+            </li>
+            <li>
+              <strong>Zero Raw Data Caching:</strong> Purely functional synaptic memory that
+              conforms to GDPR/HIPAA "Right to be Forgotten" mandates.
+            </li>
+            <li>
+              <strong>Seamless Dynamic Onboarding:</strong> New hospital edge clients can integrate
+              into the federation without retraining historical checkpoints.
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── MODULE 03 ─────────────────────────────────────────── -->
+    <div class="module-card">
+      <div class="dev-card-corner-tl" aria-hidden="true"></div>
+      <div class="dev-card-corner-br" aria-hidden="true"></div>
+
+      <div class="module-header">
+        <div class="module-meta">
+          <span class="module-number">MODULE #03</span>
+          <span class="module-badge">NESTED TOPOLOGY</span>
+        </div>
+        <h3 class="module-name">HOPE-FL: Nested Hierarchical Edge-to-Cloud Routing</h3>
+        <p class="module-lead">
+          Multi-tier federated hierarchy routing model updates through decentralized cluster
+          centroids to eliminate coordinator bottlenecks.
+        </p>
+      </div>
+
+      <div class="module-body-grid">
+        <div class="module-feature-col">
+          <h4 class="feature-title">MULTI-TIER NESTED ROUTING</h4>
+          <p class="feature-text">
+            In flat federated networks, hundreds of hospitals communicating simultaneously with a
+            single central parameter server incur severe latency and straggler delays. HOPE-FL
+            arranges edge participants into geographic and structural clusters:
+          </p>
+          <div class="topology-diagram-box">
+            <div class="tier-level">
+              <span class="tier-tag">TIER 1</span>
+              <span class="tier-name">HOSPITAL EDGE NODES (Local CMS-TTT Adaptation)</span>
+            </div>
+            <div class="tier-arrow">&darr; Local representation-level embedding sharing</div>
+            <div class="tier-level">
+              <span class="tier-tag">TIER 2</span>
+              <span class="tier-name">REGIONAL FOG CENTROIDS (FedM3 Cluster Aggregation)</span>
+            </div>
+            <div class="tier-arrow">&darr; Asymmetric encrypted momentum synchronization</div>
+            <div class="tier-level">
+              <span class="tier-tag">TIER 3</span>
+              <span class="tier-name">GLOBAL COORDINATOR (Zero-Knowledge Consensus)</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="module-feature-col">
+          <h4 class="feature-title">HEALTHCARE &amp; SIGNAL COMPLIANCE</h4>
+          <ul class="module-bullet-list">
+            <li>
+              <strong>Straggler Immunity:</strong> Asynchronous cluster updates allow high-bandwidth
+              nodes to proceed without waiting for dropped devices.
+            </li>
+            <li>
+              <strong>Medical Segmentation Decathlon (MSD):</strong> Validated across 3D brain
+              tumors, liver, and cardiac MRI tasks with 0.884 Mean Dice.
+            </li>
+            <li>
+              <strong>Provable Differential Privacy:</strong> Integrates sample-level R&eacute;nyi
+              DP accounting with $(\epsilon=1.2, \delta=10^&#123;-5&#125;)$ privacy guarantees.
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

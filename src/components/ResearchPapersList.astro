@@ -1,0 +1,314 @@
+---
+/**
+ * ResearchPapersList.astro — Highlighted Scholarly Literature & Publications
+ * High-tech brutalist publication cards with metric badges, citation counters,
+ * DOI links, abstract toggles, and interactive one-click BibTeX drawer.
+ */
+import { RESEARCH_PAPERS, type ResearchPaper } from '../data/research-papers';
+
+const categories = [
+  'ALL',
+  'Federated Foundation Models',
+  'Continual Learning & Memory',
+  'Privacy & Encryption',
+  'Healthcare AI & Imaging',
+];
+---
+
+<section class="section research-papers-section" id="publications" aria-labelledby="pubs-heading">
+  <div class="sdr-section-title-row">
+    <div>
+      <h2 id="pubs-heading" class="sdr-section-title">
+        FEATURED PUBLICATIONS &amp; PREPRINTS
+      </h2>
+      <p class="section-micro-desc">
+        Peer-reviewed journal manuscripts, conference proceedings, and foundational preprints
+      </p>
+    </div>
+    <span class="sdr-station-count-badge" id="papers-count-badge">
+      {RESEARCH_PAPERS.length} MANUSCRIPTS INDEXED
+    </span>
+  </div>
+
+  <!-- Filter & Search Toolbar -->
+  <div class="pubs-toolbar">
+    <div class="pubs-filter-pills" role="tablist" aria-label="Filter papers by category">
+      {categories.map((cat) => (
+        <button
+          type="button"
+          class:list={['pubs-pill', { active: cat === 'ALL' }]}
+          data-cat={cat}
+          role="tab"
+          aria-selected={cat === 'ALL' ? 'true' : 'false'}
+        >
+          <span>{cat}</span>
+          <span class="cat-count">
+            (
+            {cat === 'ALL'
+              ? RESEARCH_PAPERS.length
+              : RESEARCH_PAPERS.filter((p) => p.category === cat).length}
+            )
+          </span>
+        </button>
+      ))}
+    </div>
+
+    <div class="pubs-search-wrap">
+      <input
+        type="text"
+        id="pubs-search-input"
+        class="pubs-search-input"
+        placeholder="Filter by keyword, title, tag, or DOI..."
+        aria-label="Filter research papers"
+      />
+    </div>
+  </div>
+
+  <!-- Publications Stack -->
+  <div class="pubs-stack" id="pubs-container" role="list">
+    {RESEARCH_PAPERS.map((paper: ResearchPaper) => (
+      <article
+        class="paper-card"
+        data-id={paper.id}
+        data-cat={paper.category}
+        data-keywords={`${paper.title} ${paper.venue} ${paper.tags.join(' ')} ${paper.doi || ''} ${paper.arxivId || ''}`}
+        role="listitem"
+      >
+        <div class="dev-card-corner-tl" aria-hidden="true"></div>
+        <div class="dev-card-corner-br" aria-hidden="true"></div>
+
+        <!-- Card Header: Venue, Year & Status -->
+        <div class="paper-top-meta">
+          <div class="paper-venue-cluster">
+            <span class="paper-venue-badge">{paper.venue}</span>
+            <span class="paper-year">{paper.year}</span>
+          </div>
+
+          <div class="paper-status-wrap">
+            <span
+              class:list={['paper-status-pill', paper.status.toLowerCase().replace(/\s+/g, '-')]}
+            >
+              {paper.status}
+            </span>
+            <span class="paper-citations-pill" title="Field Citation Counter">
+              <svg class="citation-icon" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
+                <path d="M3.5 4.5A2.5 2.5 0 0 1 6 2h1a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-.5.5H6a1 1 0 0 0-1 1v1.5a.5.5 0 0 0 .5.5h1.5a1.5 1.5 0 0 1 1.5 1.5V11A2.5 2.5 0 0 1 6 13.5H5A2.5 2.5 0 0 1 2.5 11V6a2.5 2.5 0 0 1 1-2.5zm7 0A2.5 2.5 0 0 1 13 2h1a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-.5.5h-1a1 1 0 0 0-1 1v1.5a.5.5 0 0 0 .5.5H14a1.5 1.5 0 0 1 1.5 1.5V11a2.5 2.5 0 0 1-2.5 2.5h-1a2.5 2.5 0 0 1-2.5-2.5V6a2.5 2.5 0 0 1 1-2.5z"></path>
+              </svg>
+              <span>{paper.citations} CITATIONS</span>
+            </span>
+          </div>
+        </div>
+
+        <!-- Title -->
+        <h3 class="paper-title">
+          <a href={paper.pdfUrl} target="_blank" rel="noopener noreferrer" class="paper-title-link">
+            {paper.title}
+          </a>
+        </h3>
+
+        <!-- Authors -->
+        <p class="paper-authors">
+          {paper.authors.map((author, idx) => (
+            <span class:list={['author-name', { 'is-bernard': author.includes('Bernard') }]}>
+              {author}
+              {idx < paper.authors.length - 1 ? ', ' : ''}
+            </span>
+          ))}
+        </p>
+
+        <!-- Metric Badges Row -->
+        <div class="paper-metrics-strip">
+          <div class="paper-metric-unit">
+            <span class="pmu-k">{paper.metrics.primaryMetric}:</span>
+            <span class="pmu-v highlight">{paper.metrics.primaryValue}</span>
+          </div>
+          <div class="paper-metric-sep" aria-hidden="true">
+            //
+          </div>
+          <div class="paper-metric-unit">
+            <span class="pmu-k">{paper.metrics.secondaryMetric}:</span>
+            <span class="pmu-v">{paper.metrics.secondaryValue}</span>
+          </div>
+        </div>
+
+        <!-- Abstract & Highlights -->
+        <div class="paper-abstract-wrap">
+          <p class="paper-abstract-text" id={`abstract-${paper.id}`}>
+            {paper.abstract}
+          </p>
+
+          <div class="paper-highlights-box">
+            <span class="highlights-title">KEY MANUSCRIPT FINDINGS:</span>
+            <ul class="highlights-list">
+              {paper.highlights.map((item) => (
+                <li>{item}</li>
+              ))}
+            </ul>
+          </div>
+        </div>
+
+        <!-- Tags -->
+        <div class="paper-tags-row">
+          {paper.tags.map((tag) => (
+            <span class="paper-tag-chip">#{tag}</span>
+          ))}
+        </div>
+
+        <!-- Action Bar: Links & BibTeX Toggle -->
+        <div class="paper-actions-bar">
+          <div class="action-links-left">
+            <a
+              href={paper.pdfUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              class="paper-action-btn primary"
+            >
+              <span>PDF PREPRINT</span>
+              <span class="arrow-up-right">&nearr;</span>
+            </a>
+
+            {paper.doi && (
+              <a
+                href={`https://doi.org/${paper.doi}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                class="paper-action-btn"
+              >
+                <span>DOI: {paper.doi}</span>
+                <span class="arrow-up-right">&nearr;</span>
+              </a>
+            )}
+
+            {paper.codeUrl && (
+              <a
+                href={paper.codeUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                class="paper-action-btn code"
+              >
+                <span>GITHUB REPO</span>
+                <span class="arrow-up-right">&nearr;</span>
+              </a>
+            )}
+          </div>
+
+          <button
+            type="button"
+            class="paper-action-btn bibtex-toggle-btn"
+            data-target={`bibtex-${paper.id}`}
+            aria-expanded="false"
+          >
+            <span>[CITE / BIBTEX]</span>
+          </button>
+        </div>
+
+        <!-- Expandable BibTeX Drawer -->
+        <div class="bibtex-drawer" id={`bibtex-${paper.id}`} style="display: none;">
+          <div class="bibtex-drawer-inner">
+            <div class="bibtex-top-bar">
+              <span class="bibtex-label">BIBTEX CITATION ENTRY</span>
+              <button type="button" class="copy-bibtex-btn" data-clipboard={paper.bibtex}>
+                <span>COPY BIBTEX</span>
+              </button>
+            </div>
+            <pre class="bibtex-code"><code>{paper.bibtex}</code></pre>
+          </div>
+        </div>
+      </article>
+    ))}
+  </div>
+</section>
+
+<script>
+  // Client interactions for research papers
+  function initResearchPapers() {
+    const searchInput = document.getElementById('pubs-search-input') as HTMLInputElement | null;
+    const filterPills = document.querySelectorAll<HTMLButtonElement>('.pubs-pill');
+    const countBadge = document.getElementById('papers-count-badge');
+    const cards = document.querySelectorAll<HTMLElement>('.paper-card');
+
+    let currentCategory = 'ALL';
+    let searchQuery = '';
+
+    function filterCards() {
+      let visible = 0;
+      cards.forEach((card) => {
+        const cat = card.getAttribute('data-cat') || '';
+        const kw = (card.getAttribute('data-keywords') || '').toLowerCase();
+
+        const matchCat = currentCategory === 'ALL' || cat === currentCategory;
+        const matchSearch = !searchQuery || kw.includes(searchQuery.toLowerCase());
+
+        if (matchCat && matchSearch) {
+          card.style.display = 'flex';
+          visible++;
+        } else {
+          card.style.display = 'none';
+        }
+      });
+
+      if (countBadge) {
+        countBadge.textContent = `${visible} MANUSCRIPTS VISIBLE`;
+      }
+    }
+
+    // Category pills
+    filterPills.forEach((pill) => {
+      pill.addEventListener('click', () => {
+        filterPills.forEach((p) => {
+          p.classList.remove('active');
+          p.setAttribute('aria-selected', 'false');
+        });
+        pill.classList.add('active');
+        pill.setAttribute('aria-selected', 'true');
+        currentCategory = pill.getAttribute('data-cat') || 'ALL';
+        filterCards();
+      });
+    });
+
+    // Search input
+    searchInput?.addEventListener('input', (e) => {
+      searchQuery = (e.target as HTMLInputElement).value.trim();
+      filterCards();
+    });
+
+    // BibTeX toggles
+    document.querySelectorAll('.bibtex-toggle-btn').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const targetId = btn.getAttribute('data-target');
+        const drawer = document.getElementById(targetId || '');
+        if (drawer) {
+          const isOpen = drawer.style.display === 'block';
+          drawer.style.display = isOpen ? 'none' : 'block';
+          btn.setAttribute('aria-expanded', isOpen ? 'false' : 'true');
+          btn.classList.toggle('active', !isOpen);
+        }
+      });
+    });
+
+    // Copy BibTeX clipboard
+    document.querySelectorAll('.copy-bibtex-btn').forEach((btn) => {
+      btn.addEventListener('click', async () => {
+        const text = btn.getAttribute('data-clipboard') || '';
+        try {
+          await navigator.clipboard.writeText(text);
+          const originalText = btn.innerHTML;
+          btn.innerHTML = '<span>COPIED TO CLIPBOARD ✓</span>';
+          btn.classList.add('copied');
+          setTimeout(() => {
+            btn.innerHTML = originalText;
+            btn.classList.remove('copied');
+          }, 2000);
+        } catch {
+          // fallback
+        }
+      });
+    });
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initResearchPapers);
+  } else {
+    initResearchPapers();
+  }
+</script>
