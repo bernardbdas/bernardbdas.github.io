@@ -1455,6 +1455,11 @@ button {
   border-top-color: var(--hairline-hover);
 }
 
+.project-row:has(+ .project-row:hover),
+.project-row:has(+ .project-row:focus-within) {
+  border-bottom-color: var(--hairline-hover);
+}
+
 .project-top-line {
   display: flex;
   align-items: center;
