@@ -1,23 +1,17 @@
 ---
 /**
- * research.astro — Doctoral Research, Preprints & Literature
- * Focused on Bernard Birendra Das's PhD research in Federated Learning,
- * Foundation Models, Catastrophic Forgetting, and Test-Time Training.
+ * research.astro — Doctoral Research & Publications
+ * Under active development.
  */
 import BaseLayout from '../layouts/BaseLayout.astro';
 import ChromeNav from '../components/ChromeNav.astro';
 import ChromeFooter from '../components/ChromeFooter.astro';
-import ResearchHero from '../components/ResearchHero.astro';
-import ResearchBenchmarkTable from '../components/ResearchBenchmarkTable.astro';
-import ResearchPapersList from '../components/ResearchPapersList.astro';
-import ResearchDictionary from '../components/ResearchDictionary.astro';
-import MathInspectorModal from '../components/MathInspectorModal.astro';
-import 'katex/dist/katex.min.css';
+import UnderDevelopment from '../components/UnderDevelopment.astro';
 ---
 
 <BaseLayout
-  title="Research // Distributed Systems & Optimization — Bernard Birendra Das"
-  description="Research publications, preprints, and empirical benchmarks in distributed optimization, continual memory systems, and decentralized foundation models."
+  title="Research — Bernard Birendra Das"
+  description="Research publications, preprints, and empirical investigations in distributed machine learning, continual memory systems, and neural optimization by Bernard Birendra Das."
 >
   <canvas id="scene" aria-hidden="true"></canvas>
 
@@ -26,17 +20,26 @@ import 'katex/dist/katex.min.css';
   <div class="page-grid">
     <!-- ─── LEFT: CONTENT COLUMN ─────────────────────────────── -->
     <main class="content-col" id="top">
-      <ResearchHero />
-      <ResearchBenchmarkTable />
-      <ResearchPapersList />
-      <ResearchDictionary />
+      <UnderDevelopment
+        moduleIndex="01"
+        moduleKey="RESEARCH"
+        title="Research & Publications"
+        subtitle="Distributed Systems • Foundation Models • Continual Learning • Neural Optimization"
+        category="RESEARCH & PREPRINTS"
+        scopeSummary="Research manuscripts, preprints, empirical benchmarks, and open-source models are currently being prepared for release."
+        tags={[
+          'Distributed Optimization',
+          'Foundation Models',
+          'Continual Learning',
+          'Muon Optimizer',
+          'Privacy-Preserving AI',
+        ]}
+      />
     </main>
 
     <!-- ─── RIGHT: NEGATIVE SPACE SHOWING 3D TERRAIN ─────────── -->
     <div class="bg-col" aria-hidden="true"></div>
   </div>
-
-  <MathInspectorModal />
 
   <ChromeFooter />
 
