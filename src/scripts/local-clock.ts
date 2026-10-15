@@ -126,11 +126,11 @@ export function initLocalClock(): void {
         tzStr = 'IST';
       }
 
-      if (badgeEl) badgeEl.textContent = "BERNARD'S TIME";
+      if (badgeEl) badgeEl.textContent = "BERNARD'S CLOCK";
       container!.classList.add('mode-bernard');
       container!.title =
-        "Bernard's Time — Asia/Kolkata (IST) (Double-click for Your Local Time, click to copy)";
-      currentString = `Bernard's Time (Asia/Kolkata): ${weekdayStr}, ${dateStr} ${timeStr} ${tzStr}`;
+        "Bernard's Clock — Asia/Kolkata (IST) (Double-click for Your Local Time, click to copy)";
+      currentString = `Bernard's Clock (Asia/Kolkata): ${weekdayStr}, ${dateStr} ${timeStr} ${tzStr}`;
     } else {
       weekdayStr = now.toLocaleString('en-US', { weekday: 'short' }).toUpperCase();
       const day = String(now.getDate()).padStart(2, '0');
@@ -148,7 +148,7 @@ export function initLocalClock(): void {
       if (badgeEl) badgeEl.textContent = 'LOCAL';
       container!.classList.remove('mode-bernard');
       container!.title =
-        "Your Local Time (Double-click for Bernard's Time [Asia/Kolkata], click to copy)";
+        "Your Local Time (Double-click for Bernard's Clock [Asia/Kolkata], click to copy)";
       currentString = `Local Time: ${weekdayStr}, ${dateStr} ${timeStr} ${tzStr}`;
     }
 
