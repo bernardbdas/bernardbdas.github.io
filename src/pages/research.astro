@@ -1,0 +1,59 @@
+---
+/**
+ * research.astro — Research & Publications Module
+ * Announcements & upcoming scholarly literature, preprints, and system architectures.
+ */
+import BaseLayout from '../layouts/BaseLayout.astro';
+import ChromeNav from '../components/ChromeNav.astro';
+import ChromeFooter from '../components/ChromeFooter.astro';
+import UnderDevelopment from '../components/UnderDevelopment.astro';
+---
+
+<BaseLayout
+  title="Research — Bernard Birendra Das"
+  description="Research publications, machine learning preprints, foundational AI architectures, and academic work by Bernard Birendra Das."
+>
+  <canvas id="scene" aria-hidden="true"></canvas>
+
+  <ChromeNav />
+
+  <div class="page-grid">
+    <!-- ─── LEFT: CONTENT COLUMN ─────────────────────────────── -->
+    <main class="content-col" id="top">
+      <UnderDevelopment
+        moduleIndex="01"
+        moduleKey="RESEARCH"
+        title="Research & Literature"
+        subtitle="Peer-Reviewed Publications • Foundation Models • PhD Research in Data Science"
+        category="SCHOLARLY PUBLICATIONS"
+        scopeSummary="Peer-reviewed papers, foundational model evaluations, preprints, and doctoral research findings are being compiled into this archive."
+        tags={[
+          'Federated Learning',
+          'Distributed PEFT/LoRA',
+          'Healthcare AI',
+          'Deep Learning',
+          'Doctoral Research',
+        ]}
+      />
+    </main>
+
+    <!-- ─── RIGHT: NEGATIVE SPACE SHOWING 3D TERRAIN ─────────── -->
+    <div class="bg-col" aria-hidden="true"></div>
+  </div>
+
+  <ChromeFooter />
+
+  <script>
+    // Defer 3D terrain canvas
+    const loadTerrain = () => {
+      import('../scripts/terrain.ts');
+    };
+    if (typeof window !== 'undefined') {
+      if ('requestIdleCallback' in window) {
+        window.requestIdleCallback(loadTerrain, { timeout: 1000 });
+      } else {
+        setTimeout(loadTerrain, 100);
+      }
+    }
+  </script>
+</BaseLayout>

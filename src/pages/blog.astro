@@ -1,0 +1,59 @@
+---
+/**
+ * blog.astro — Technical Blog & Engineering Essays
+ * Systems engineering notes, distributed ML infrastructure, and production insights.
+ */
+import BaseLayout from '../layouts/BaseLayout.astro';
+import ChromeNav from '../components/ChromeNav.astro';
+import ChromeFooter from '../components/ChromeFooter.astro';
+import UnderDevelopment from '../components/UnderDevelopment.astro';
+---
+
+<BaseLayout
+  title="Blog — Bernard Birendra Das"
+  description="Technical essays, distributed systems engineering, deep learning infrastructure, and production architecture insights by Bernard Birendra Das."
+>
+  <canvas id="scene" aria-hidden="true"></canvas>
+
+  <ChromeNav />
+
+  <div class="page-grid">
+    <!-- ─── LEFT: CONTENT COLUMN ─────────────────────────────── -->
+    <main class="content-col" id="top">
+      <UnderDevelopment
+        moduleIndex="02"
+        moduleKey="BLOG"
+        title="Technical Journal & Essays"
+        subtitle="Distributed Systems • MLOps • Production Deep Learning • System Design"
+        category="TECHNICAL WRITING"
+        scopeSummary="In-depth technical articles, post-mortems, engineering design docs, and deep-dives into LLM infrastructure are currently being authored."
+        tags={[
+          'MLOps Infrastructure',
+          'Distributed Systems',
+          'GPU Acceleration',
+          'LLM Fine-Tuning',
+          'High-Throughput Backends',
+        ]}
+      />
+    </main>
+
+    <!-- ─── RIGHT: NEGATIVE SPACE SHOWING 3D TERRAIN ─────────── -->
+    <div class="bg-col" aria-hidden="true"></div>
+  </div>
+
+  <ChromeFooter />
+
+  <script>
+    // Defer 3D terrain canvas
+    const loadTerrain = () => {
+      import('../scripts/terrain.ts');
+    };
+    if (typeof window !== 'undefined') {
+      if ('requestIdleCallback' in window) {
+        window.requestIdleCallback(loadTerrain, { timeout: 1000 });
+      } else {
+        setTimeout(loadTerrain, 100);
+      }
+    }
+  </script>
+</BaseLayout>

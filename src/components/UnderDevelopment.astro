@@ -1,0 +1,97 @@
+---
+/**
+ * UnderDevelopment — Terminal HUD Module Announcement Component
+ * Displays an active development instrument panel for upcoming portfolio modules.
+ */
+import Loader from './Loader.astro';
+
+export interface Props {
+  moduleIndex: string;
+  moduleKey: string;
+  title: string;
+  subtitle: string;
+  category: string;
+  scopeSummary: string;
+  tags?: string[];
+}
+
+const { moduleIndex, moduleKey, title, subtitle, category, scopeSummary, tags = [] } = Astro.props;
+---
+
+<div class="subpage-breadcrumb">
+  <a href="/" class="breadcrumb-link" aria-label="Return to homepage">
+    <span class="breadcrumb-arrow">←</span>
+    <span>INDEX // CORE SYSTEMS</span>
+  </a>
+  <span class="breadcrumb-sep">//</span>
+  <span class="breadcrumb-current">MODULE: {moduleKey}</span>
+</div>
+
+<section class="section subpage-hero anim-hero" aria-labelledby="module-heading">
+  <p class="micro-label">
+    <Loader />
+    MODULE // {moduleIndex} // {category}
+  </p>
+
+  <h1 id="module-heading" class="subpage-title">
+    {title}
+    <span class="caret" aria-hidden="true"></span>
+  </h1>
+
+  <p class="focus-strip">{subtitle}</p>
+
+  <div class="dev-card" role="region" aria-label="System Module Status">
+    <div class="dev-card-corner-tl" aria-hidden="true"></div>
+    <div class="dev-card-corner-br" aria-hidden="true"></div>
+
+    <div class="dev-status-header">
+      <div class="dev-badge">
+        <span class="status-dot"></span>
+        <span>STATUS: UNDER ACTIVE DEVELOPMENT</span>
+      </div>
+      <span class="dev-meta-tag">PHASE // PRE-PRODUCTION</span>
+    </div>
+
+    <div class="dev-content">
+      <h2 class="dev-title">Deployment in Progress</h2>
+      <p class="dev-desc">This section is currently under active development. {scopeSummary}</p>
+    </div>
+
+    <div class="dev-telemetry-grid">
+      <div class="dev-telemetry-item">
+        <span class="dev-telemetry-k">SYS_MODULE</span>
+        <span class="dev-telemetry-v">{moduleKey}</span>
+      </div>
+      <div class="dev-telemetry-item">
+        <span class="dev-telemetry-k">PIPELINE_STATUS</span>
+        <span class="dev-telemetry-v">INDEXING &amp; DRAFTING</span>
+      </div>
+      <div class="dev-telemetry-item">
+        <span class="dev-telemetry-k">CURATION_MODE</span>
+        <span class="dev-telemetry-v">BERNARD BIRENDRA DAS</span>
+      </div>
+      <div class="dev-telemetry-item">
+        <span class="dev-telemetry-k">ACCESS_LEVEL</span>
+        <span class="dev-telemetry-v">PUBLIC_STANDBY</span>
+      </div>
+    </div>
+
+    {tags.length > 0 && (
+      <div class="chips" aria-label="Module subjects">
+        {tags.map((tag) => (
+          <span class="chip">{tag}</span>
+        ))}
+      </div>
+    )}
+
+    <div class="dev-action-row">
+      <a href="/" class="dev-btn">
+        <span aria-hidden="true">←</span>
+        <span>Return to Core Systems (Home)</span>
+      </a>
+      <a href="#top" class="dev-btn dev-btn-secondary">
+        <span>Refresh Diagnostics</span>
+      </a>
+    </div>
+  </div>
+</section>

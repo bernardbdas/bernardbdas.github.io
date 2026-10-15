@@ -1,0 +1,59 @@
+---
+/**
+ * media.astro — Curated Media & Cultural Signals
+ * Curated cinema, music, television series, and inspirations.
+ */
+import BaseLayout from '../layouts/BaseLayout.astro';
+import ChromeNav from '../components/ChromeNav.astro';
+import ChromeFooter from '../components/ChromeFooter.astro';
+import UnderDevelopment from '../components/UnderDevelopment.astro';
+---
+
+<BaseLayout
+  title="Media — Bernard Birendra Das"
+  description="Curated selection of music, movies, television series, and cultural inputs by Bernard Birendra Das."
+>
+  <canvas id="scene" aria-hidden="true"></canvas>
+
+  <ChromeNav />
+
+  <div class="page-grid">
+    <!-- ─── LEFT: CONTENT COLUMN ─────────────────────────────── -->
+    <main class="content-col" id="top">
+      <UnderDevelopment
+        moduleIndex="03"
+        moduleKey="MEDIA"
+        title="Curated Media & Signals"
+        subtitle="Curated Music • Cinema & Films • Television Series • Cultural Artifacts"
+        category="CURATED MEDIA"
+        scopeSummary="A curated catalog of music playlists, cinema masterpieces, television series, and artistic signals that inspire Bernard's engineering and life is being assembled."
+        tags={[
+          'Curated Music',
+          'Cinema & Feature Films',
+          'Television Series',
+          'Original Soundtracks',
+          'Aesthetics & Design',
+        ]}
+      />
+    </main>
+
+    <!-- ─── RIGHT: NEGATIVE SPACE SHOWING 3D TERRAIN ─────────── -->
+    <div class="bg-col" aria-hidden="true"></div>
+  </div>
+
+  <ChromeFooter />
+
+  <script>
+    // Defer 3D terrain canvas
+    const loadTerrain = () => {
+      import('../scripts/terrain.ts');
+    };
+    if (typeof window !== 'undefined') {
+      if ('requestIdleCallback' in window) {
+        window.requestIdleCallback(loadTerrain, { timeout: 1000 });
+      } else {
+        setTimeout(loadTerrain, 100);
+      }
+    }
+  </script>
+</BaseLayout>

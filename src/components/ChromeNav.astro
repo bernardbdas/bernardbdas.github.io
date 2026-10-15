@@ -10,10 +10,21 @@ interface NavLink {
   external?: boolean;
 }
 
+const currentPath = Astro.url.pathname;
+
+const isActive = (href: string) => {
+  if (href.startsWith('http')) return false;
+  if (href.startsWith('/#') || href.startsWith('#')) return false;
+  return currentPath === href || currentPath === `${href}/`;
+};
+
 const links: NavLink[] = [
-  { label: 'About', href: '#about' },
-  { label: 'Work', href: '#work' },
-  { label: 'Skills', href: '#skills' },
+  { label: 'About', href: '/#about' },
+  { label: 'Work', href: '/#work' },
+  { label: 'Skills', href: '/#skills' },
+  { label: 'Research', href: '/research' },
+  { label: 'Blog', href: '/blog' },
+  { label: 'Media', href: '/media' },
   { label: 'GitHub', href: 'https://github.com/bernardbdas', external: true },
   { label: 'LinkedIn', href: 'https://linkedin.com/in/bernardbdas', external: true },
 ];
@@ -93,6 +104,7 @@ const links: NavLink[] = [
         {i > 0 && <span class="nav-sep" aria-hidden="true" />}
         <a
           href={link.href}
+          class:list={['nav-link-item', { active: isActive(link.href) }]}
           {...(link.external ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
         >
           {link.label}
@@ -194,10 +206,10 @@ const links: NavLink[] = [
       {links.map((link, i) => (
         <a
           href={link.href}
-          class="mobile-nav-item"
+          class:list={['mobile-nav-item', { active: isActive(link.href) }]}
           {...(link.external ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
         >
-          <span class="mobile-item-index">0{i + 1}</span>
+          <span class="mobile-item-index">{String(i + 1).padStart(2, '0')}</span>
           <span class="mobile-item-label">{link.label}</span>
           <span class="mobile-item-arrow">{link.external ? '↗' : '→'}</span>
         </a>
@@ -208,7 +220,7 @@ const links: NavLink[] = [
         rel="noopener noreferrer"
         class="mobile-nav-item"
       >
-        <span class="mobile-item-index">06</span>
+        <span class="mobile-item-index">{String(links.length + 1).padStart(2, '0')}</span>
         <span class="mobile-item-label">Resume</span>
         <span class="mobile-item-arrow">↗</span>
       </a>
@@ -398,10 +410,12 @@ const links: NavLink[] = [
     mobileLinks.forEach((link) => {
       link.addEventListener('click', (e: MouseEvent) => {
         const href = link.getAttribute('href');
-        if (href && href.startsWith('#')) {
+        if (!href) return;
+        if (href.startsWith('#') || (href.startsWith('/#') && window.location.pathname === '/')) {
+          const hash = href.startsWith('/#') ? href.substring(1) : href;
           e.preventDefault();
           closeMenu();
-          const target = document.querySelector(href);
+          const target = document.querySelector(hash);
           if (target) {
             const topBarOffset = 44;
             const y = target.getBoundingClientRect().top + window.scrollY - topBarOffset;
@@ -418,10 +432,36 @@ const links: NavLink[] = [
     });
   }
 
+  function setupDesktopNav(): void {
+    const desktopLinks = document.querySelectorAll<HTMLAnchorElement>('.nav-links a');
+    desktopLinks.forEach((link) => {
+      link.addEventListener('click', (e: MouseEvent) => {
+        if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0) return;
+        const href = link.getAttribute('href');
+        if (!href) return;
+        if (href.startsWith('#') || (href.startsWith('/#') && window.location.pathname === '/')) {
+          const hash = href.startsWith('/#') ? href.substring(1) : href;
+          const target = document.querySelector(hash);
+          if (target) {
+            e.preventDefault();
+            const contentCol = document.querySelector('.content-col');
+            if (contentCol) {
+              const targetTop = (target as HTMLElement).offsetTop - 60;
+              contentCol.scrollTo({ top: Math.max(0, targetTop), behavior: 'smooth' });
+            }
+            window.scrollTo({ top: (target as HTMLElement).offsetTop - 60, behavior: 'smooth' });
+            history.pushState(null, '', hash);
+          }
+        }
+      });
+    });
+  }
+
   function initNav(): void {
     setupThemeToggle();
     setupBrandNavigation();
     setupMobileMenu();
+    setupDesktopNav();
   }
 
   if (document.readyState === 'loading') {
