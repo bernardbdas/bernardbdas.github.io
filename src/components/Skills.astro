@@ -1,49 +1,194 @@
 ---
 /**
- * Skills — Core Competencies grid with four skill groups.
+ * Skills — Comprehensive AI/ML & Systems Engineering Core Competencies.
+ * Covers Foundations, Generative AI, Distributed Systems, Inference, MLOps, Data & Low-Level Craft.
  */
 import Loader from './Loader.astro';
 
 interface SkillGroup {
+  id: string;
   label: string;
+  category: string;
+  highlightItems: string[];
   items: string[];
 }
 
 const groups: SkillGroup[] = [
   {
-    label: 'ML & GenAI',
-    items: ['PyTorch', 'TensorFlow', 'Hugging Face', 'LangChain', 'JAX', 'Computer Vision'],
+    id: '01',
+    label: 'Deep Learning & Neural Foundations',
+    category: 'CORE DL',
+    highlightItems: ['PyTorch', 'JAX / Flax', 'FlashAttention-2/3', 'Transformer Internals'],
+    items: [
+      'TensorFlow / Keras 3',
+      'Mixture of Experts (MoE)',
+      'State-Space Models (Mamba)',
+      'Autograd & Gradient Dynamics',
+      'Contrastive & Self-Supervised Learning',
+      'Reinforcement Learning (PPO, DPO, GRPO)',
+      'NumPy & SciPy',
+    ],
   },
   {
-    label: 'Inference & Systems',
-    items: ['TensorRT', 'Triton', 'vLLM', 'Spark', 'Kafka', 'PostgreSQL'],
+    id: '02',
+    label: 'Generative AI, LLMs & Alignment',
+    category: 'GEN AI',
+    highlightItems: [
+      'LLM Pre-training & SFT',
+      'PEFT (LoRA, QLoRA, DoRA)',
+      'Direct Preference Optimization (DPO)',
+    ],
+    items: [
+      'Hugging Face (Transformers, PEFT, TRL)',
+      'Vision-Language Models (VLMs / Multimodal)',
+      'Diffusion Models & Stable Diffusion',
+      'RLHF & Reward Modeling',
+      'Tokenization & Vocabulary Curation',
+      'Model Merging (MergeKit)',
+    ],
   },
   {
-    label: 'MLOps & Cloud',
-    items: ['Vertex AI', 'SageMaker', 'Kubernetes', 'Docker', 'MLflow', 'CI/CD'],
+    id: '03',
+    label: 'Agentic Frameworks, Reasoning & RAG',
+    category: 'AGENTS & RAG',
+    highlightItems: ['LangGraph', 'LlamaIndex', 'DSPy', 'GraphRAG (Neo4j)'],
+    items: [
+      'AutoGen & Multi-Agent Teams',
+      'Hybrid Dense-Sparse RAG (ColBERT, SPLADE, BM25)',
+      'Cross-Encoder Contextual Reranking',
+      'Structured Outputs (Outlines, Instructor, SGLang)',
+      'Self-Correcting Query Decomposition',
+      'Tool Use & Function Calling',
+    ],
   },
   {
-    label: 'Languages',
-    items: ['Python', 'TypeScript', 'Java', 'C++', 'Rust', 'SQL'],
+    id: '04',
+    label: 'Distributed Training & High-Performance Compute',
+    category: 'DISTRIBUTED HPC',
+    highlightItems: ['PyTorch FSDP', 'DeepSpeed (ZeRO-1/2/3)', 'Megatron-LM', '3D Parallelism'],
+    items: [
+      'Tensor & Pipeline Parallelism (TP/PP/SP)',
+      'Ray Train & Ray Core',
+      'NCCL & InfiniBand Tuning',
+      'Slurm Cluster Scheduling',
+      'GPUDirect RDMA & RoCE',
+      'Activation Checkpointing & Memory Profiling',
+    ],
+  },
+  {
+    id: '05',
+    label: 'Inference Acceleration & Custom Kernels',
+    category: 'SERVING & ACCEL',
+    highlightItems: [
+      'vLLM (PagedAttention)',
+      'TensorRT-LLM',
+      'OpenAI Triton Kernels',
+      'Speculative Decoding',
+    ],
+    items: [
+      'Triton Inference Server',
+      'SGLang Runtime Engine',
+      'Quantization (AWQ, GPTQ, FP8, INT4)',
+      'Continuous Batching & Chunked Prefill',
+      'TorchInductor / TorchDynamo (PyTorch 2.x)',
+      'ONNX Runtime & TensorRT',
+    ],
+  },
+  {
+    id: '06',
+    label: 'Production MLOps, Orchestration & Cloud',
+    category: 'MLOPS & CLOUD',
+    highlightItems: [
+      'Kubernetes (K8s, KServe, KubeRay)',
+      'AWS (SageMaker, Trn1/Inf2/p5)',
+      'GCP (Vertex AI, Cloud TPU)',
+    ],
+    items: [
+      'Docker & Containerized Microservices',
+      'MLflow & Weights & Biases (W&B)',
+      'Argo Workflows & Airflow',
+      'Drift & Data Quality Monitoring (Evidently AI)',
+      'LLM Observability (Langfuse, TruLens)',
+      'Prometheus, Grafana & OpenTelemetry',
+    ],
+  },
+  {
+    id: '07',
+    label: 'Vector Search, Streaming & Data Infrastructure',
+    category: 'DATA & STORAGE',
+    highlightItems: ['Qdrant', 'Milvus', 'pgvector', 'Apache Kafka', 'Apache Spark'],
+    items: [
+      'Pinecone & Weaviate',
+      'Apache Flink & Real-Time Streams',
+      'Ray Data & Distributed Ingestion',
+      'DuckDB & Embedded Analytics',
+      'Apache Iceberg & Delta Lake',
+      'Redis (Semantic Caching & Feature Buffers)',
+    ],
+  },
+  {
+    id: '08',
+    label: 'Languages, Systems & Software Engineering',
+    category: 'LANGUAGES & SYS',
+    highlightItems: [
+      'Python (Async, CPython Internals)',
+      'Modern C++ (C++17/20)',
+      'CUDA C/C++',
+      'Rust',
+    ],
+    items: [
+      'SQL (Advanced Analytical & Window Functions)',
+      'Linux Kernel & POSIX Systems Internals',
+      'Bash & Automated Infrastructure Scripting',
+      'Git, GitHub Actions & Enterprise CI/CD',
+      'TypeScript & Modern Systems APIs',
+      'High-Performance Multi-Threading',
+    ],
   },
 ];
 ---
 
 <section class="section anim-s4" id="skills" aria-labelledby="skills-heading">
-  <p class="micro-label">
-    <Loader />
-    Skills
-  </p>
-
-  <h2 class="section-heading" id="skills-heading">
-    My Utils
-  </h2>
+  <div class="skills-header-row">
+    <div>
+      <p class="micro-label">
+        <Loader />
+        Core Competencies // Technical Stack
+      </p>
+      <h2 class="section-heading" id="skills-heading">
+        Engineered Arsenal
+      </h2>
+    </div>
+    <div class="skills-meta-badge" title="Full Stack AI & Systems Competency Index">
+      <span class="badge-accent">8 DOMAINS</span>
+      <span class="badge-sep">//</span>
+      <span>70+ PRODUCTION SKILLS</span>
+    </div>
+  </div>
 
   <div class="skills-grid">
     {groups.map((group) => (
-      <div>
-        <div class="skill-group-label">{group.label}</div>
-        <div class="skill-group-items">{group.items.join(', ')}</div>
+      <div class="skill-card">
+        <div class="skill-group-header">
+          <span class="skill-idx">{group.id}</span>
+          <span class="skill-cat-tag">{group.category}</span>
+          <h3 class="skill-group-name">{group.label}</h3>
+        </div>
+
+        <div class="skill-badges-wrap">
+          {/* Flagship Skills Highlighted */}
+          {group.highlightItems.map((hItem) => (
+            <span class="skill-pill highlight" title="Flagship Production Skill">
+              <span class="skill-dot"></span>
+              {hItem}
+            </span>
+          ))}
+
+          {/* Standard Items */}
+          {group.items.map((item) => (
+            <span class="skill-pill">{item}</span>
+          ))}
+        </div>
       </div>
     ))}
   </div>
