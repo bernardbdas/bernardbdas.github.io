@@ -273,44 +273,46 @@ const defaultStation: FMStation = RADIO_STATIONS[0];
        RADIO SHACK STATION RACK
        ══════════════════════════════════════════════════════════ -->
   <div class="sdr-stations-grid" id="sdr-stations-grid" role="list">
-    {RADIO_STATIONS.map((station) => (
-      <div
-        class:list={['sdr-station-card', { 'is-active': station.id === defaultStation.id }]}
-        id={`station-card-${station.id}`}
-        data-station-id={station.id}
-        data-yt-id={station.ytId}
-        data-freq-num={station.freqNum}
-        data-freq-str={station.freq}
-        data-name={station.name}
-        data-desc={station.desc}
-        data-genre={station.genre}
-        data-bitrate={station.bitrate || '256 kbps WFM'}
-        data-origin={station.origin || 'Broadcast'}
-        role="listitem"
-        tabindex="0"
-      >
-        <div class="station-card-top">
-          <div class="station-freq-badge">
-            <span class="freq-tag">{station.freq}</span>
+    {RADIO_STATIONS.slice()
+      .sort((a, b) => a.freqNum - b.freqNum)
+      .map((station) => (
+        <div
+          class:list={['sdr-station-card', { 'is-active': station.id === defaultStation.id }]}
+          id={`station-card-${station.id}`}
+          data-station-id={station.id}
+          data-yt-id={station.ytId}
+          data-freq-num={station.freqNum}
+          data-freq-str={station.freq}
+          data-name={station.name}
+          data-desc={station.desc}
+          data-genre={station.genre}
+          data-bitrate={station.bitrate || '256 kbps WFM'}
+          data-origin={station.origin || 'Broadcast'}
+          role="listitem"
+          tabindex="0"
+        >
+          <div class="station-card-top">
+            <div class="station-freq-badge">
+              <span class="freq-tag">{station.freq}</span>
+            </div>
+            <div class="station-live-eq" aria-hidden="true">
+              <span class="eq-bar"></span>
+              <span class="eq-bar"></span>
+              <span class="eq-bar"></span>
+            </div>
           </div>
-          <div class="station-live-eq" aria-hidden="true">
-            <span class="eq-bar"></span>
-            <span class="eq-bar"></span>
-            <span class="eq-bar"></span>
+
+          <div class="station-card-body">
+            <h3 class="station-name">{station.name}</h3>
+            <p class="station-desc">{station.desc}</p>
+          </div>
+
+          <div class="station-card-meta">
+            <span class="station-genre-tag">{station.genre}</span>
+            <span class="station-tune-label">TUNE IN →</span>
           </div>
         </div>
-
-        <div class="station-card-body">
-          <h3 class="station-name">{station.name}</h3>
-          <p class="station-desc">{station.desc}</p>
-        </div>
-
-        <div class="station-card-meta">
-          <span class="station-genre-tag">{station.genre}</span>
-          <span class="station-tune-label">TUNE IN →</span>
-        </div>
-      </div>
-    ))}
+      ))}
   </div>
 
   <!-- Headless YouTube Audio Player -->
@@ -331,7 +333,7 @@ const defaultStation: FMStation = RADIO_STATIONS[0];
   }
 
   class SDRController {
-    private stations: FMStation[] = RADIO_STATIONS;
+    private stations: FMStation[] = RADIO_STATIONS.slice().sort((a, b) => a.freqNum - b.freqNum);
     private currentStation: FMStation = RADIO_STATIONS[0];
     private isPoweredOn = false;
     private isPlaying = false;
