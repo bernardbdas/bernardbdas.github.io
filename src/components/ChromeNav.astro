@@ -22,6 +22,7 @@ const links: NavLink[] = [
   { label: 'About', href: '/#about' },
   { label: 'Work', href: '/#work' },
   { label: 'Skills', href: '/#skills' },
+  { label: 'Resume', href: '/resume' },
   { label: 'Research', href: '/research' },
   { label: 'Blog', href: '/blog' },
   { label: 'Media', href: '/media' },
@@ -218,16 +219,6 @@ const links: NavLink[] = [
           <span class="mobile-item-arrow">{link.external ? '↗' : '→'}</span>
         </a>
       ))}
-      <a
-        href="/bernard-resume-sourceserifpro.pdf"
-        target="_blank"
-        rel="noopener noreferrer"
-        class="mobile-nav-item"
-      >
-        <span class="mobile-item-index">{String(links.length + 1).padStart(2, '0')}</span>
-        <span class="mobile-item-label">Resume</span>
-        <span class="mobile-item-arrow">↗</span>
-      </a>
     </div>
 
     <div class="mobile-theme-palette">
