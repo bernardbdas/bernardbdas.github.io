@@ -315,6 +315,111 @@ export const CURATED_MOVIES: MovieItem[] = [
     takeaway:
       'Architectural subconscious recursion engineered like nested, multi-threaded execution runtimes.',
   },
+  {
+    id: 'f1-movie',
+    title: 'F1',
+    year: 2025,
+    director: 'Joseph Kosinski',
+    cast: ['Brad Pitt', 'Damson Idris', 'Kerry Condon', 'Javier Bardem'],
+    genres: ['Action', 'Sports', 'Drama'],
+    ottPlatforms: ['Apple TV'],
+    rating: '9.2',
+    runtime: '145 min',
+    synopsis:
+      'A veteran Formula 1 driver is coaxed out of retirement to mentor a promising rookie phenom for the struggling APXGP racing team amidst the high-velocity drama of the Grand Prix circuit.',
+    takeaway:
+      'Top Gun: Maverick director Joseph Kosinski deploying custom lightweight 6K cockpit cameras inside real racecars to redefine kinetic open-wheel racing physics on film.',
+  },
+  {
+    id: 'the-family-plan',
+    title: 'The Family Plan',
+    year: 2023,
+    director: 'Simon Cellan Jones',
+    cast: ['Mark Wahlberg', 'Michelle Monaghan', 'Zoe Colletti', 'Van Crosby', 'Ciarán Hinds'],
+    genres: ['Action', 'Comedy', 'Thriller'],
+    ottPlatforms: ['Apple TV'],
+    rating: '7.8',
+    runtime: '118 min',
+    synopsis:
+      'A quiet suburban car salesman and devoted family man who was once a premier government assassin must take his unsuspecting family on a cross-country road trip to Vegas when his past catches up with him.',
+    takeaway:
+      'High-energy vehicular choreography and tactical close-quarters combat disguised inside minivan family dysfunction and suburban domesticity.',
+  },
+  {
+    id: 'the-family-plan-2',
+    title: 'The Family Plan 2',
+    year: 2025,
+    director: 'Simon Cellan Jones',
+    cast: ['Mark Wahlberg', 'Michelle Monaghan', 'Kit Harington', 'Zoe Colletti'],
+    genres: ['Action', 'Comedy', 'Thriller'],
+    ottPlatforms: ['Apple TV'],
+    rating: '8.0',
+    runtime: '115 min',
+    synopsis:
+      'Dan Morgan takes his family on an idyllic European holiday, only for an international syndicate to target them once again, pulling Dan, his wife, and children into high-stakes espionage across iconic cities.',
+    takeaway:
+      'Continental European architecture meeting hyper-kinetic tactical set pieces, with Mark Wahlberg and Kit Harington balancing assassin tradecraft and festive chaos.',
+  },
+  {
+    id: 'the-lost-bus',
+    title: 'The Lost Bus',
+    year: 2025,
+    director: 'Paul Greengrass',
+    cast: ['Matthew McConaughey', 'America Ferrera', 'Yul Vazquez', 'Ashlie Atkinson'],
+    genres: ['Drama', 'Thriller', 'Disaster'],
+    ottPlatforms: ['Apple TV'],
+    rating: '9.1',
+    runtime: '128 min',
+    synopsis:
+      'During the catastrophic 2018 Camp Fire in Paradise, California, a school bus driver and a dedicated teacher steer a bus full of terrified children through a blazing inferno with all exit routes cut off.',
+    takeaway:
+      'Paul Greengrass’s signature visceral documentary realism and handheld kinetic pacing applied to human heroism amidst apocalyptic climate disaster.',
+  },
+  {
+    id: 'mayday',
+    title: 'Mayday',
+    year: 2026,
+    director: 'Jonathan Goldstein & John Francis Daley',
+    cast: ['Ryan Reynolds', 'Kenneth Branagh', 'Maria Bakalova', 'Marcin Dorociński'],
+    genres: ['Action', 'Comedy', 'Adventure'],
+    ottPlatforms: ['Apple TV'],
+    rating: '8.9',
+    runtime: '122 min',
+    synopsis:
+      'When an American naval pilot is shot down behind enemy lines, he must form an absurd, reluctant alliance with an eccentric ex-KGB operative to survive hostile terrain and prevent global catastrophe.',
+    takeaway:
+      'Ryan Reynolds’ sharp-witted situational improvisation bouncing off Kenneth Branagh’s classical theatrical gravitas in a globe-trotting Cold War action-comedy.',
+  },
+  {
+    id: 'ghosted',
+    title: 'Ghosted',
+    year: 2023,
+    director: 'Dexter Fletcher',
+    cast: ['Chris Evans', 'Ana de Armas', 'Adrien Brody', 'Mike Moh'],
+    genres: ['Action', 'Romantic Comedy', 'Spy Thriller'],
+    ottPlatforms: ['Apple TV'],
+    rating: '7.6',
+    runtime: '116 min',
+    synopsis:
+      'Salt-of-the-earth Cole falls head-over-heels for enigmatic Sadie, only to make the shocking discovery that she is a covert CIA operative when he is swept into an international mission to save the world.',
+    takeaway:
+      'A subversion of spy-romance tropes pairing Ana de Armas as the lethal tactical operative with Chris Evans as the civilian fish out of water.',
+  },
+  {
+    id: 'swan-song',
+    title: 'Swan Song',
+    year: 2021,
+    director: 'Benjamin Cleary',
+    cast: ['Mahershala Ali', 'Naomie Harris', 'Glenn Close', 'Awkwafina'],
+    genres: ['Sci-Fi', 'Drama', 'Psychological'],
+    ottPlatforms: ['Apple TV'],
+    rating: '8.9',
+    runtime: '112 min',
+    synopsis:
+      'Diagnosed with a terminal illness, a loving husband and father is presented with a secret, radical solution: replacing himself with a healthy carbon-copy clone to spare his family the grief of his death.',
+    takeaway:
+      'Mahershala Ali’s dual tour-de-force performance in a minimalist near-future bioethical chamber piece exploring love, selflessness, and the sanctity of mortality.',
+  },
 ];
 
 export const CURATED_TV_SHOWS: TVShowItem[] = [
@@ -467,5 +572,155 @@ export const CURATED_TV_SHOWS: TVShowItem[] = [
       'In the late 1970s, two FBI agents expand criminal science by delving into the psychology of murder and interviewing incarcerated serial killers.',
     takeaway:
       'Fincher’s clinical precision, analytical tape-recorder interrogations, and the harrowing inception of criminal behavioral profiling.',
+  },
+  {
+    id: 'pluribus',
+    title: 'Pluribus',
+    years: '2025 – Present',
+    creator: 'Vince Gilligan',
+    cast: ['Rhea Seehorn', 'Karolina Wydra', 'Carlos-Manuel Vesga'],
+    genres: ['Sci-Fi', 'Psychological', 'Dystopian'],
+    ottPlatforms: ['Apple TV'],
+    rating: '9.3',
+    seasons: 'Season 1',
+    synopsis:
+      'After an alien biological event fuses almost all of humanity into a contented, telepathically unified collective consciousness, an immune author fights to retain individual human will against the peaceful hive mind.',
+    takeaway:
+      'Vince Gilligan’s masterwork on identity and consensus reality, exploring whether sovereign individuality is worth suffering when collective unity offers total peace.',
+  },
+  {
+    id: 'dark-matter',
+    title: 'Dark Matter',
+    years: '2024 – Present',
+    creator: 'Blake Crouch',
+    cast: ['Joel Edgerton', 'Jennifer Connelly', 'Alice Braga', 'Jimmi Simpson'],
+    genres: ['Sci-Fi', 'Multiverse', 'Thriller'],
+    ottPlatforms: ['Apple TV'],
+    rating: '9.1',
+    seasons: 'Season 1 & 2',
+    synopsis:
+      'Physicist Jason Dessen is abducted into an alternate version of his life where his groundbreaking quantum superposition box was completed, sparking a desperate race across infinite realities to return to his true family.',
+    takeaway:
+      'A visceral quantum mechanics thriller stripping Schrödinger’s wave function down to raw regret, divergent life paths, and the mathematics of human choice.',
+  },
+  {
+    id: 'silo',
+    title: 'Silo',
+    years: '2023 – Present',
+    creator: 'Graham Yost (Based on Hugh Howey)',
+    cast: ['Rebecca Ferguson', 'Common', 'Tim Robbins', 'Harriet Walter'],
+    genres: ['Sci-Fi', 'Dystopian', 'Mystery'],
+    ottPlatforms: ['Apple TV'],
+    rating: '9.2',
+    seasons: 'Season 1 & 2',
+    synopsis:
+      'In a ruined, toxic future, thousands of survivors live in a giant 144-floor subterranean silo governed by strict regulations, until an engineer uncovers dangerous truths about its true history.',
+    takeaway:
+      'Monumental subterranean brutalist architecture serving as a physical hierarchy of information suppression, class control, and engineered amnesia.',
+  },
+  {
+    id: 'star-city',
+    title: 'Star City',
+    years: '2025 – Present',
+    creator: 'Matt Wolpert, Ben Nedivi, Ronald D. Moore',
+    cast: ['Rhys Ifans', 'Anna Maxwell Martin', "Agnes O'Casey", 'Alice Englert'],
+    genres: ['Sci-Fi', 'Alternate History', 'Cold War Thriller'],
+    ottPlatforms: ['Apple TV'],
+    rating: '9.2',
+    seasons: 'Season 1',
+    synopsis:
+      'A paranoid espionage exploration of the Cold War space race from behind the Iron Curtain, tracking Soviet engineers, cosmonauts, and KGB handlers inside the secluded Star City complex.',
+    takeaway:
+      'The technical peril and suffocating ideological tension of Soviet aerospace engineering running parallel to state surveillance and human expendability.',
+  },
+  {
+    id: 'widows-bay',
+    title: "Widow's Bay",
+    years: '2025 – Present',
+    creator: 'Katie Dippold (Dir: Hiro Murai)',
+    cast: ['Matthew Rhys', 'Amy Landecker', 'Stephen Root'],
+    genres: ['Supernatural', 'Horror Comedy', 'Mystery'],
+    ottPlatforms: ['Apple TV'],
+    rating: '8.9',
+    seasons: 'Season 1',
+    synopsis:
+      'The newly appointed mayor of an isolated, superstitious New England island town attempts to spearhead tourism, only to realize the town’s ancient maritime curses and macabre lore are horrifyingly real.',
+    takeaway:
+      'Hiro Murai’s atmospheric cinematography juxtaposing bureaucratic denial against dread-soaked coastal folklore and black comedy.',
+  },
+  {
+    id: 'shrinking',
+    title: 'Shrinking',
+    years: '2023 – Present',
+    creator: 'Brett Goldstein, Bill Lawrence, Jason Segel',
+    cast: ['Jason Segel', 'Harrison Ford', 'Jessica Williams', 'Christa Miller'],
+    genres: ['Comedy', 'Drama', 'Psychology'],
+    ottPlatforms: ['Apple TV'],
+    rating: '9.0',
+    seasons: 'Season 1 & 2',
+    synopsis:
+      'A grieving cognitive behavioral therapist begins breaking ethical rules by telling his clients exactly what he thinks, triggering turbulent upheavals in their lives and his own.',
+    takeaway:
+      'Harrison Ford’s sardonic, razor-sharp mentorship anchoring an emotionally candid examination of grief, cognitive restructuring, and radical candor.',
+  },
+  {
+    id: 'the-studio',
+    title: 'The Studio',
+    years: '2025 – Present',
+    creator: 'Seth Rogen & Evan Goldberg',
+    cast: ['Seth Rogen', 'Bryan Cranston', "Catherine O'Hara", 'Kathryn Hahn'],
+    genres: ['Comedy', 'Industry Satire', 'Showbiz'],
+    ottPlatforms: ['Apple TV'],
+    rating: '9.0',
+    seasons: 'Season 1',
+    synopsis:
+      'The newly appointed head of Continental Studios desperately navigates narcissistic directors, corporate board meddling, franchise obsolescence, and creative panic in contemporary Hollywood.',
+    takeaway:
+      'A kinetic, hilariously brutal insider deconstruction of cinematic IP machinery, studio politics, and the existential survival of storytelling.',
+  },
+  {
+    id: 'cape-fear',
+    title: 'Cape Fear',
+    years: '2025 – Present',
+    creator: 'Nick Antosca (Exec Prod: Martin Scorsese & Steven Spielberg)',
+    cast: ['Javier Bardem', 'Patrick Wilson', 'Amy Adams'],
+    genres: ['Psychological Thriller', 'Crime', 'Suspense'],
+    ottPlatforms: ['Apple TV'],
+    rating: '9.3',
+    seasons: 'Miniseries (10 Episodes)',
+    synopsis:
+      'A storm of psychological terror descends when a convicted criminal is released from prison and launches a calculated, relentless vendetta against the married defense attorneys who failed him.',
+    takeaway:
+      'Javier Bardem’s terrifyingly methodical intensity orchestrated under Nick Antosca’s claustrophobic suspense and Scorsese’s noir pedigree.',
+  },
+  {
+    id: 'last-seen',
+    title: 'Last Seen',
+    years: '2025 – Present',
+    creator: 'Kris Mrksa (Based on Ryan David Jahn)',
+    cast: ['Hugo Weaving', 'Ewen Leslie', 'Sarah Snook'],
+    genres: ['Thriller', 'Crime', 'Mystery'],
+    ottPlatforms: ['Apple TV'],
+    rating: '9.0',
+    seasons: 'Miniseries',
+    synopsis:
+      'A traumatized former police officer turned night-shift emergency dispatcher receives a chilling distress call from a kidnapped woman who is revealed to be his estranged daughter.',
+    takeaway:
+      'Real-time auditory tension and procedural urgency compressed into an unrelenting dispatch terminal race against the clock.',
+  },
+  {
+    id: 'monarch-legacy-of-monsters',
+    title: 'Monarch: Legacy of Monsters',
+    years: '2023 – Present',
+    creator: 'Chris Black & Matt Fraction',
+    cast: ['Kurt Russell', 'Wyatt Russell', 'Anna Sawai', 'Kiersey Clemons', 'Ren Watabe'],
+    genres: ['Sci-Fi', 'Action', 'Mystery'],
+    ottPlatforms: ['Apple TV'],
+    rating: '8.8',
+    seasons: 'Season 1 & 2',
+    synopsis:
+      'Spanning three generations from the 1950s atomic era to Godzilla’s 2014 emergence, two siblings unearth their family’s deep connection to the clandestine monster-tracking syndicate known as Monarch.',
+    takeaway:
+      'Kurt and Wyatt Russell’s dual-era portrayal of Lee Shaw framing kaiju encounters through geopolitical secrets, Hollow Earth physics, and corporate compartmentalization.',
   },
 ];
