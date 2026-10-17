@@ -1,0 +1,389 @@
+---
+/**
+ * ResumeModal.astro — Interactive brutalist overlay modal for the visual resume.
+ * Mounted at the page root outside scroll/mask containers to guarantee full-viewport display.
+ */
+---
+
+<div
+  id="resumeModalOverlay"
+  class="resume-modal-backdrop"
+  role="dialog"
+  aria-modal="true"
+  aria-labelledby="resumeModalTitle"
+  aria-hidden="true"
+>
+  <div class="resume-modal-card" id="resumeModalCard">
+    <!-- Modal Tactical HUD Top Bar -->
+    <div class="resume-modal-bar">
+      <div class="resume-modal-info">
+        <span class="resume-modal-badge">PDF</span>
+        <span class="resume-modal-filename" id="resumeModalTitle">
+          bernard-resume-sourceserifpro.pdf
+        </span>
+        <span class="resume-modal-edition">// SOURCE SERIF PRO EDITION</span>
+      </div>
+
+      <div class="resume-modal-controls">
+        <a
+          href="/bernard-resume-sourceserifpro.pdf"
+          download="Bernard_Birendra_Das_Resume.pdf"
+          class="resume-modal-btn"
+          title="Download PDF"
+        >
+          Download <span aria-hidden="true">↓</span>
+        </a>
+        <a
+          href="/bernard-resume-sourceserifpro.pdf"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="resume-modal-btn"
+          title="Open raw PDF in new browser tab"
+        >
+          Raw PDF <span aria-hidden="true">↗</span>
+        </a>
+        <button
+          type="button"
+          id="resumeModalClose"
+          class="resume-modal-close"
+          aria-label="Close resume overlay (Escape)"
+          title="Close (ESC)"
+        >
+          ✕
+        </button>
+      </div>
+    </div>
+
+    <!-- Modal Content: Embedded PDF with Mobile/Fallback preview -->
+    <div class="resume-modal-body">
+      <object
+        data="/bernard-resume-sourceserifpro.pdf#view=FitH"
+        type="application/pdf"
+        class="resume-pdf-embed"
+        title="Bernard Birendra Das Visual Resume"
+      >
+        <div class="resume-pdf-fallback">
+          <img
+            src="/bernard-resume-preview.png"
+            alt="Bernard Birendra Das Visual Resume — Source Serif Pro Edition"
+            class="resume-fallback-img"
+            loading="lazy"
+            decoding="async"
+          />
+          <div class="resume-fallback-actions">
+            <a
+              href="/bernard-resume-sourceserifpro.pdf"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="resume-fallback-btn"
+            >
+              Open Raw PDF ↗
+            </a>
+            <a
+              href="/bernard-resume-sourceserifpro.pdf"
+              download="Bernard_Birendra_Das_Resume.pdf"
+              class="resume-fallback-btn"
+            >
+              Download PDF ↓
+            </a>
+          </div>
+        </div>
+      </object>
+    </div>
+  </div>
+</div>
+
+<style>
+  .resume-modal-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 999999;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+    background: rgba(5, 7, 10, 0.88);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    opacity: 0;
+    transition: opacity 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .resume-modal-backdrop.is-active {
+    display: flex;
+  }
+
+  .resume-modal-backdrop.is-visible {
+    opacity: 1;
+  }
+
+  .resume-modal-card {
+    width: 100%;
+    max-width: 920px;
+    height: 90vh;
+    max-height: 960px;
+    background: rgba(var(--bg-rgb, 10, 11, 14), 0.98);
+    border: 1px solid var(--hairline, rgba(238, 240, 230, 0.15));
+    border-radius: var(--radius, 4px);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    box-shadow:
+      0 24px 64px rgba(0, 0, 0, 0.75),
+      0 0 0 1px rgba(0, 0, 0, 0.5);
+    transform: scale(0.97) translateY(8px);
+    transition: transform 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .resume-modal-backdrop.is-visible .resume-modal-card {
+    transform: scale(1) translateY(0);
+  }
+
+  .resume-modal-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 14px;
+    background: rgba(var(--bg-rgb, 10, 11, 14), 0.95);
+    border-bottom: 1px solid var(--hairline, rgba(238, 240, 230, 0.15));
+    font-family: var(--font-mono, ui-monospace, monospace);
+    flex-shrink: 0;
+    gap: 12px;
+  }
+
+  .resume-modal-info {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
+
+  .resume-modal-badge {
+    font-size: 10px;
+    font-weight: 700;
+    padding: 2px 6px;
+    border-radius: var(--radius, 4px);
+    background: rgba(var(--accent-rgb, 242, 149, 89), 0.15);
+    color: var(--accent, #f29559);
+    border: 1px solid rgba(var(--accent-rgb, 242, 149, 89), 0.3);
+    letter-spacing: 0.05em;
+    flex-shrink: 0;
+  }
+
+  .resume-modal-filename {
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--ink, #eef0e6);
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .resume-modal-edition {
+    font-size: 10px;
+    color: var(--ink-dim, rgba(238, 240, 230, 0.55));
+    letter-spacing: 0.04em;
+  }
+
+  .resume-modal-controls {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-shrink: 0;
+  }
+
+  .resume-modal-btn {
+    font-family: var(--font-mono, ui-monospace, monospace);
+    font-size: 11px;
+    color: var(--ink-dim, rgba(238, 240, 230, 0.55));
+    padding: 4px 10px;
+    border: 1px solid var(--hairline, rgba(238, 240, 230, 0.15));
+    border-radius: var(--radius, 4px);
+    background: transparent;
+    transition:
+      color 0.15s ease,
+      border-color 0.15s ease,
+      background 0.15s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    text-decoration: none;
+  }
+
+  .resume-modal-btn:hover {
+    color: var(--accent, #f29559);
+    border-color: var(--hairline-hover, rgba(238, 240, 230, 0.35));
+    background: rgba(var(--bg-rgb, 10, 11, 14), 0.5);
+  }
+
+  .resume-modal-close {
+    width: 28px;
+    height: 28px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--font-mono, ui-monospace, monospace);
+    font-size: 13px;
+    color: var(--ink-dim, rgba(238, 240, 230, 0.55));
+    border: 1px solid var(--hairline, rgba(238, 240, 230, 0.15));
+    border-radius: var(--radius, 4px);
+    background: transparent;
+    cursor: pointer;
+    transition:
+      color 0.15s ease,
+      border-color 0.15s ease,
+      background 0.15s ease;
+  }
+
+  .resume-modal-close:hover {
+    color: var(--accent, #f29559);
+    border-color: var(--hairline-hover, rgba(238, 240, 230, 0.35));
+    background: rgba(var(--bg-rgb, 10, 11, 14), 0.5);
+  }
+
+  .resume-modal-body {
+    flex: 1;
+    width: 100%;
+    height: calc(100% - 50px);
+    background: #14171c;
+    overflow: hidden;
+    position: relative;
+  }
+
+  .resume-pdf-embed {
+    width: 100%;
+    height: 100%;
+    border: none;
+    display: block;
+  }
+
+  .resume-pdf-fallback {
+    width: 100%;
+    height: 100%;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    overflow-y: auto;
+  }
+
+  .resume-fallback-img {
+    max-width: 100%;
+    max-height: 70vh;
+    height: auto;
+    border-radius: var(--radius, 4px);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+    border: 1px solid var(--hairline, rgba(238, 240, 230, 0.15));
+  }
+
+  .resume-fallback-actions {
+    display: flex;
+    gap: 12px;
+  }
+
+  .resume-fallback-btn {
+    font-family: var(--font-mono, ui-monospace, monospace);
+    font-size: 12px;
+    color: var(--ink, #eef0e6);
+    border: 1px solid var(--hairline, rgba(238, 240, 230, 0.15));
+    padding: 6px 14px;
+    border-radius: var(--radius, 4px);
+    text-decoration: none;
+    transition:
+      border-color 0.15s ease,
+      color 0.15s ease;
+  }
+
+  .resume-fallback-btn:hover {
+    color: var(--accent, #f29559);
+    border-color: var(--hairline-hover, rgba(238, 240, 230, 0.35));
+  }
+
+  @media (max-width: 640px) {
+    .resume-modal-card {
+      height: 94vh;
+      max-height: 98vh;
+    }
+
+    .resume-modal-edition {
+      display: none;
+    }
+
+    .resume-modal-bar {
+      padding: 8px 10px;
+    }
+  }
+</style>
+
+<script>
+  function setupResumeModal() {
+    const overlay = document.getElementById('resumeModalOverlay');
+    const closeBtn = document.getElementById('resumeModalClose');
+
+    if (!overlay || !closeBtn) return;
+
+    let previousActiveElement: HTMLElement | null = null;
+
+    const openModal = () => {
+      previousActiveElement = document.activeElement as HTMLElement | null;
+      overlay.classList.add('is-active');
+      // Force reflow for CSS opacity transition
+      void overlay.offsetWidth;
+      overlay.classList.add('is-visible');
+      overlay.setAttribute('aria-hidden', 'false');
+      document.body.style.overflow = 'hidden';
+      closeBtn.focus();
+    };
+
+    const closeModal = () => {
+      overlay.classList.remove('is-visible');
+      overlay.setAttribute('aria-hidden', 'true');
+      document.body.style.overflow = '';
+      setTimeout(() => {
+        if (!overlay.classList.contains('is-visible')) {
+          overlay.classList.remove('is-active');
+        }
+      }, 220);
+      if (previousActiveElement && typeof previousActiveElement.focus === 'function') {
+        previousActiveElement.focus();
+      }
+    };
+
+    // Global listener for all trigger buttons
+    document.addEventListener('click', (e) => {
+      const target = (e.target as HTMLElement)?.closest('[data-open-resume-overlay]');
+      if (target) {
+        e.preventDefault();
+        openModal();
+      }
+    });
+
+    closeBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      closeModal();
+    });
+
+    // Close when clicking backdrop outside card
+    overlay.addEventListener('click', (e) => {
+      if (e.target === overlay) {
+        closeModal();
+      }
+    });
+
+    // Close on Escape key
+    window.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && overlay.classList.contains('is-visible')) {
+        closeModal();
+      }
+    });
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', setupResumeModal);
+  } else {
+    setupResumeModal();
+  }
+</script>

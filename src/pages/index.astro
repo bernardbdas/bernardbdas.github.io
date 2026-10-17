@@ -9,6 +9,8 @@ import ChromeNav from '../components/ChromeNav.astro';
 import ChromeFooter from '../components/ChromeFooter.astro';
 import Hero from '../components/Hero.astro';
 import About from '../components/About.astro';
+import Resume from '../components/Resume.astro';
+import ResumeModal from '../components/ResumeModal.astro';
 import Projects from '../components/Projects.astro';
 import Skills from '../components/Skills.astro';
 import Contact from '../components/Contact.astro';
@@ -27,6 +29,7 @@ import Contact from '../components/Contact.astro';
     <main class="content-col" id="top">
       <Hero />
       <About />
+      <Resume />
       <Projects />
       <Skills />
       <Contact />
@@ -35,6 +38,8 @@ import Contact from '../components/Contact.astro';
     <!-- ─── RIGHT: NEGATIVE SPACE SHOWING 3D TERRAIN ─────────── -->
     <div class="bg-col" aria-hidden="true"></div>
   </div>
+
+  <ResumeModal />
 
   <ChromeFooter />
 
