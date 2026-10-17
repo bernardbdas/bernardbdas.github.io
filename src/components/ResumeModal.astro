@@ -102,9 +102,9 @@
     align-items: center;
     justify-content: center;
     padding: 16px;
-    background: rgba(5, 7, 10, 0.88);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
+    background: rgba(var(--bg-rgb, 7, 9, 10), 0.75);
+    backdrop-filter: var(--glass-blur, blur(16px) saturate(160%));
+    -webkit-backdrop-filter: var(--glass-blur, blur(16px) saturate(160%));
     opacity: 0;
     transition: opacity 0.22s cubic-bezier(0.16, 1, 0.3, 1);
   }
@@ -122,15 +122,17 @@
     max-width: 920px;
     height: 90vh;
     max-height: 960px;
-    background: rgba(var(--bg-rgb, 10, 11, 14), 0.98);
-    border: 1px solid var(--hairline, rgba(238, 240, 230, 0.15));
+    background: var(--glass-bg, rgba(7, 9, 10, 0.85));
+    backdrop-filter: var(--glass-blur, blur(14px));
+    -webkit-backdrop-filter: var(--glass-blur, blur(14px));
+    border: 1px solid var(--glass-border, rgba(238, 240, 230, 0.15));
     border-radius: var(--radius, 4px);
     display: flex;
     flex-direction: column;
     overflow: hidden;
     box-shadow:
-      0 24px 64px rgba(0, 0, 0, 0.75),
-      0 0 0 1px rgba(0, 0, 0, 0.5);
+      var(--glass-specular, inset 0 1px 1px rgba(255, 255, 255, 0.18)),
+      0 32px 80px rgba(0, 0, 0, 0.8);
     transform: scale(0.97) translateY(8px);
     transition: transform 0.22s cubic-bezier(0.16, 1, 0.3, 1);
   }
@@ -144,8 +146,11 @@
     align-items: center;
     justify-content: space-between;
     padding: 10px 14px;
-    background: rgba(var(--bg-rgb, 10, 11, 14), 0.95);
-    border-bottom: 1px solid var(--hairline, rgba(238, 240, 230, 0.15));
+    background: var(--glass-bg-subtle, rgba(7, 9, 10, 0.65));
+    backdrop-filter: var(--glass-blur, blur(14px));
+    -webkit-backdrop-filter: var(--glass-blur, blur(14px));
+    border-bottom: 1px solid var(--glass-border, rgba(238, 240, 230, 0.15));
+    box-shadow: var(--glass-specular, inset 0 1px 1px rgba(255, 255, 255, 0.18));
     font-family: var(--font-mono, ui-monospace, monospace);
     flex-shrink: 0;
     gap: 12px;
@@ -198,13 +203,17 @@
     font-size: 11px;
     color: var(--ink-dim, rgba(238, 240, 230, 0.55));
     padding: 4px 10px;
-    border: 1px solid var(--hairline, rgba(238, 240, 230, 0.15));
+    border: 1px solid var(--glass-border, rgba(238, 240, 230, 0.15));
     border-radius: var(--radius, 4px);
-    background: transparent;
+    background: var(--glass-bg-subtle, transparent);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    box-shadow: var(--glass-specular, none);
     transition:
       color 0.15s ease,
       border-color 0.15s ease,
-      background 0.15s ease;
+      background 0.15s ease,
+      box-shadow 0.15s ease;
     display: inline-flex;
     align-items: center;
     gap: 4px;
@@ -213,8 +222,11 @@
 
   .resume-modal-btn:hover {
     color: var(--accent, #f29559);
-    border-color: var(--hairline-hover, rgba(238, 240, 230, 0.35));
-    background: rgba(var(--bg-rgb, 10, 11, 14), 0.5);
+    border-color: var(--glass-border-hover, rgba(242, 149, 89, 0.65));
+    background: var(--glass-bg-hover, rgba(7, 9, 10, 0.8));
+    box-shadow:
+      var(--glass-specular, none),
+      0 0 10px rgba(var(--accent-rgb, 242, 149, 89), 0.25);
   }
 
   .resume-modal-close {
@@ -226,20 +238,27 @@
     font-family: var(--font-mono, ui-monospace, monospace);
     font-size: 13px;
     color: var(--ink-dim, rgba(238, 240, 230, 0.55));
-    border: 1px solid var(--hairline, rgba(238, 240, 230, 0.15));
+    border: 1px solid var(--glass-border, rgba(238, 240, 230, 0.15));
     border-radius: var(--radius, 4px);
-    background: transparent;
+    background: var(--glass-bg-subtle, transparent);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    box-shadow: var(--glass-specular, none);
     cursor: pointer;
     transition:
       color 0.15s ease,
       border-color 0.15s ease,
-      background 0.15s ease;
+      background 0.15s ease,
+      box-shadow 0.15s ease;
   }
 
   .resume-modal-close:hover {
     color: var(--accent, #f29559);
-    border-color: var(--hairline-hover, rgba(238, 240, 230, 0.35));
-    background: rgba(var(--bg-rgb, 10, 11, 14), 0.5);
+    border-color: var(--glass-border-hover, rgba(242, 149, 89, 0.65));
+    background: var(--glass-bg-hover, rgba(7, 9, 10, 0.8));
+    box-shadow:
+      var(--glass-specular, none),
+      0 0 10px rgba(var(--accent-rgb, 242, 149, 89), 0.25);
   }
 
   .resume-modal-body {
