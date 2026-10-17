@@ -20,3 +20,8 @@ Consult these guides before working on related tasks:
 - [Adding or managing content](https://docs.astro.build/en/guides/content-collections/)
 - [Adding styles or using Tailwind](https://docs.astro.build/en/guides/styling/)
 - [Supporting multiple languages](https://docs.astro.build/en/guides/internationalization/)
+
+## Rules & Constraints
+
+1. **Strict Scope Discipline**: Do not change things the user did not explicitly ask to change, unless it is breaking.
+2. **Commit Policy**: Stage changes (`git add`), but NEVER commit (`git commit`) unless the user explicitly reviews and approves the changes.
