@@ -927,6 +927,8 @@ button {
   border-radius: var(--radius);
   background: transparent;
   cursor: pointer;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
   transition:
     color 0.15s ease,
     border-color 0.15s ease,
@@ -2277,7 +2279,8 @@ button {
     opacity: 0;
     transition: opacity 0.22s ease;
   }
-  .mobile-nav-drawer[aria-hidden='false'] {
+  .mobile-nav-drawer[aria-hidden='false'],
+  .mobile-nav-drawer.is-open {
     opacity: 1;
     pointer-events: auto;
   }
@@ -2302,7 +2305,8 @@ button {
     transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
     overflow-y: auto;
   }
-  .mobile-nav-drawer[aria-hidden='false'] .mobile-nav-panel {
+  .mobile-nav-drawer[aria-hidden='false'] .mobile-nav-panel,
+  .mobile-nav-drawer.is-open .mobile-nav-panel {
     transform: translateY(0);
   }
   .mobile-nav-header {

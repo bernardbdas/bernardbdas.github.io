@@ -349,141 +349,122 @@ const links: NavLink[] = [
     { id: 'light', label: 'LIGHT' },
   ] as const;
 
-  function setupThemeToggle(): void {
-    const btn = document.getElementById('themeToggle');
+  function applyTheme(themeId: string): void {
+    const matched = THEMES.find((t) => t.id === themeId) || THEMES[0];
+    document.documentElement.setAttribute('data-theme', matched.id);
+    localStorage.setItem('theme', matched.id);
+
     const label = document.getElementById('themeLabel');
-    const paletteButtons = document.querySelectorAll<HTMLElement>('[data-set-theme]');
-    const mobileThemeToggle = document.getElementById('mobileThemeToggle');
+    const btn = document.getElementById('themeToggle');
     const mobileThemeLabel = document.getElementById('mobileThemeLabel');
+    const paletteButtons = document.querySelectorAll<HTMLElement>('[data-set-theme]');
 
-    function applyTheme(themeId: string): void {
-      const matched = THEMES.find((t) => t.id === themeId) || THEMES[0];
-      document.documentElement.setAttribute('data-theme', matched.id);
-      localStorage.setItem('theme', matched.id);
-
-      if (label) {
-        label.textContent = matched.label;
-      }
-      if (btn) {
-        btn.setAttribute('title', `Color Theme: ${matched.label} (Click to cycle)`);
-      }
-      if (mobileThemeLabel) {
-        mobileThemeLabel.textContent = `THEME: ${matched.label}`;
-      }
-
-      paletteButtons.forEach((b) => {
-        const isCur = b.getAttribute('data-set-theme') === matched.id;
-        b.classList.toggle('active', isCur);
-      });
-
-      window.dispatchEvent(new CustomEvent('themechange', { detail: { theme: matched.id } }));
-    }
-
-    function cycleTheme(): void {
-      const current = document.documentElement.getAttribute('data-theme') || 'dark';
-      const curIndex = THEMES.findIndex((t) => t.id === current);
-      const nextIndex = (curIndex + 1) % THEMES.length;
-      applyTheme(THEMES[nextIndex].id);
-    }
-
-    const initial = document.documentElement.getAttribute('data-theme') || 'dark';
-    applyTheme(initial);
-
-    btn?.addEventListener('click', cycleTheme);
-    mobileThemeToggle?.addEventListener('click', cycleTheme);
+    if (label) label.textContent = matched.label;
+    if (btn) btn.setAttribute('title', `Color Theme: ${matched.label} (Click to cycle)`);
+    if (mobileThemeLabel) mobileThemeLabel.textContent = `THEME: ${matched.label}`;
 
     paletteButtons.forEach((b) => {
-      b.addEventListener('click', () => {
-        const target = b.getAttribute('data-set-theme');
-        if (target) applyTheme(target);
-      });
+      const isCur = b.getAttribute('data-set-theme') === matched.id;
+      b.classList.toggle('active', isCur);
     });
+
+    window.dispatchEvent(new CustomEvent('themechange', { detail: { theme: matched.id } }));
   }
 
-  function setupBrandNavigation(): void {
-    const brandLink = document.querySelector<HTMLAnchorElement>('a.brand');
-    if (!brandLink) return;
-
-    brandLink.addEventListener('click', (e: MouseEvent) => {
-      // Respect standard browser modifier clicks (Cmd/Ctrl click, new tab)
-      if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0) return;
-
-      const contentCol = document.querySelector('.content-col');
-      const isScrolled = (contentCol && contentCol.scrollTop > 30) || window.scrollY > 30;
-
-      if (isScrolled) {
-        e.preventDefault();
-        if (contentCol) {
-          contentCol.scrollTo({ top: 0, behavior: 'smooth' });
-        }
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-
-        if (window.location.hash) {
-          history.pushState(null, '', window.location.pathname);
-        }
-      } else {
-        // Already at top: trigger a clean reload/refresh
-        e.preventDefault();
-        window.location.href = '/';
-      }
-    });
+  function cycleTheme(): void {
+    const current = document.documentElement.getAttribute('data-theme') || 'dark';
+    const curIndex = THEMES.findIndex((t) => t.id === current);
+    const nextIndex = (curIndex + 1) % THEMES.length;
+    applyTheme(THEMES[nextIndex].id);
   }
 
-  function setupMobileMenu(): void {
-    const toggleBtn = document.getElementById('mobileNavToggle');
+  function openMobileMenu(): void {
     const drawer = document.getElementById('mobileNavDrawer');
-    const closeBtn = document.getElementById('mobileNavClose');
-    const backdrop = document.getElementById('mobileNavBackdrop');
-    const mobileLinks = document.querySelectorAll<HTMLAnchorElement>('.mobile-nav-item');
-
-    if (!toggleBtn || !drawer) return;
-
-    function openMenu(): void {
-      drawer!.setAttribute('aria-hidden', 'false');
-      toggleBtn!.setAttribute('aria-expanded', 'true');
-      const textSpan = toggleBtn!.querySelector('.mobile-nav-text');
+    const toggleBtn = document.getElementById('mobileNavToggle');
+    if (!drawer) return;
+    drawer.setAttribute('aria-hidden', 'false');
+    drawer.classList.add('is-open');
+    if (toggleBtn) {
+      toggleBtn.setAttribute('aria-expanded', 'true');
+      const textSpan = toggleBtn.querySelector('.mobile-nav-text');
       if (textSpan) textSpan.textContent = 'CLOSE';
-      document.body.style.overflow = 'hidden';
     }
+    document.body.style.overflow = 'hidden';
+  }
 
-    function closeMenu(): void {
-      drawer!.setAttribute('aria-hidden', 'true');
-      toggleBtn!.setAttribute('aria-expanded', 'false');
-      const textSpan = toggleBtn!.querySelector('.mobile-nav-text');
+  function closeMobileMenu(): void {
+    const drawer = document.getElementById('mobileNavDrawer');
+    const toggleBtn = document.getElementById('mobileNavToggle');
+    if (!drawer) return;
+    drawer.setAttribute('aria-hidden', 'true');
+    drawer.classList.remove('is-open');
+    if (toggleBtn) {
+      toggleBtn.setAttribute('aria-expanded', 'false');
+      const textSpan = toggleBtn.querySelector('.mobile-nav-text');
       if (textSpan) textSpan.textContent = 'MENU';
-      document.body.style.overflow = '';
     }
+    document.body.style.overflow = '';
+  }
 
-    toggleBtn.addEventListener('click', () => {
-      const isOpen = drawer!.getAttribute('aria-hidden') === 'false';
-      if (isOpen) {
-        closeMenu();
-      } else {
-        openMenu();
+  let navEventsBound = false;
+
+  function initNav(): void {
+    // Synchronize active theme from storage or DOM attribute
+    const initialTheme =
+      document.documentElement.getAttribute('data-theme') ||
+      localStorage.getItem('theme') ||
+      'dark';
+    applyTheme(initialTheme);
+
+    // Ensure mobile drawer is closed on route load
+    closeMobileMenu();
+
+    if (navEventsBound) return;
+    navEventsBound = true;
+
+    // Unified Document Click Delegation for 100% resilient interaction
+    document.addEventListener('click', (e: MouseEvent) => {
+      const target = e.target as HTMLElement | null;
+      if (!target) return;
+
+      // 1. Mobile Menu Toggle Button
+      const toggleBtn = target.closest<HTMLElement>('#mobileNavToggle');
+      if (toggleBtn) {
+        e.preventDefault();
+        e.stopPropagation();
+        const drawer = document.getElementById('mobileNavDrawer');
+        const isOpen =
+          drawer?.getAttribute('aria-hidden') === 'false' || drawer?.classList.contains('is-open');
+        if (isOpen) {
+          closeMobileMenu();
+        } else {
+          openMobileMenu();
+        }
+        return;
       }
-    });
 
-    closeBtn?.addEventListener('click', closeMenu);
-    backdrop?.addEventListener('click', closeMenu);
-
-    document.addEventListener('keydown', (e: KeyboardEvent) => {
-      if (e.key === 'Escape' && drawer!.getAttribute('aria-hidden') === 'false') {
-        closeMenu();
+      // 2. Mobile Drawer Close Button or Backdrop
+      const closeBtn = target.closest<HTMLElement>('#mobileNavClose, #mobileNavBackdrop');
+      if (closeBtn) {
+        e.preventDefault();
+        e.stopPropagation();
+        closeMobileMenu();
+        return;
       }
-    });
 
-    mobileLinks.forEach((link) => {
-      link.addEventListener('click', (e: MouseEvent) => {
-        const href = link.getAttribute('href');
+      // 3. Mobile Nav Drawer Links
+      const mobileLink = target.closest<HTMLAnchorElement>('.mobile-nav-item');
+      if (mobileLink) {
+        const href = mobileLink.getAttribute('href');
         if (!href) return;
         if (href.startsWith('#') || (href.startsWith('/#') && window.location.pathname === '/')) {
           const hash = href.startsWith('/#') ? href.substring(1) : href;
           e.preventDefault();
-          closeMenu();
-          const target = document.querySelector(hash);
-          if (target) {
+          closeMobileMenu();
+          const targetEl = document.querySelector(hash);
+          if (targetEl) {
             const topBarOffset = 44;
-            const y = target.getBoundingClientRect().top + window.scrollY - topBarOffset;
+            const y = targetEl.getBoundingClientRect().top + window.scrollY - topBarOffset;
             window.scrollTo({ top: y, behavior: 'smooth' });
             const contentCol = document.querySelector('.content-col');
             if (contentCol && contentCol.scrollHeight > contentCol.clientHeight) {
@@ -491,42 +472,94 @@ const links: NavLink[] = [
             }
           }
         } else {
-          closeMenu();
+          closeMobileMenu();
         }
-      });
-    });
-  }
+        return;
+      }
 
-  function setupDesktopNav(): void {
-    const desktopLinks = document.querySelectorAll<HTMLAnchorElement>('.nav-links a');
-    desktopLinks.forEach((link) => {
-      link.addEventListener('click', (e: MouseEvent) => {
+      // 4. Theme Toggle Buttons
+      const themeToggle = target.closest<HTMLElement>('#themeToggle, #mobileThemeToggle');
+      if (themeToggle) {
+        e.preventDefault();
+        e.stopPropagation();
+        cycleTheme();
+        return;
+      }
+
+      // 5. Theme Palette Swatches
+      const paletteItem = target.closest<HTMLElement>('[data-set-theme]');
+      if (paletteItem) {
+        const targetTheme = paletteItem.getAttribute('data-set-theme');
+        if (targetTheme) {
+          e.preventDefault();
+          e.stopPropagation();
+          applyTheme(targetTheme);
+        }
+        return;
+      }
+
+      // 6. Brand Logo Scroll-to-Top Navigation
+      const brand = target.closest<HTMLAnchorElement>('a.brand');
+      if (brand) {
         if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0) return;
-        const href = link.getAttribute('href');
+        const contentCol = document.querySelector('.content-col');
+        const isScrolled = (contentCol && contentCol.scrollTop > 30) || window.scrollY > 30;
+
+        if (isScrolled) {
+          e.preventDefault();
+          if (contentCol) {
+            contentCol.scrollTo({ top: 0, behavior: 'smooth' });
+          }
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+
+          if (window.location.hash) {
+            history.pushState(null, '', window.location.pathname);
+          }
+        } else {
+          e.preventDefault();
+          window.location.href = '/';
+        }
+        return;
+      }
+
+      // 7. Desktop In-Page Hash Links
+      const desktopLink = target.closest<HTMLAnchorElement>('.nav-links a');
+      if (desktopLink) {
+        if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0) return;
+        const href = desktopLink.getAttribute('href');
         if (!href) return;
         if (href.startsWith('#') || (href.startsWith('/#') && window.location.pathname === '/')) {
           const hash = href.startsWith('/#') ? href.substring(1) : href;
-          const target = document.querySelector(hash);
-          if (target) {
+          const targetSection = document.querySelector(hash);
+          if (targetSection) {
             e.preventDefault();
             const contentCol = document.querySelector('.content-col');
             if (contentCol) {
-              const targetTop = (target as HTMLElement).offsetTop - 60;
+              const targetTop = (targetSection as HTMLElement).offsetTop - 60;
               contentCol.scrollTo({ top: Math.max(0, targetTop), behavior: 'smooth' });
             }
-            window.scrollTo({ top: (target as HTMLElement).offsetTop - 60, behavior: 'smooth' });
+            window.scrollTo({
+              top: (targetSection as HTMLElement).offsetTop - 60,
+              behavior: 'smooth',
+            });
             history.pushState(null, '', hash);
           }
         }
-      });
+      }
     });
-  }
 
-  function initNav(): void {
-    setupThemeToggle();
-    setupBrandNavigation();
-    setupMobileMenu();
-    setupDesktopNav();
+    // Escape Key Accessibility
+    document.addEventListener('keydown', (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        const drawer = document.getElementById('mobileNavDrawer');
+        if (
+          drawer &&
+          (drawer.getAttribute('aria-hidden') === 'false' || drawer.classList.contains('is-open'))
+        ) {
+          closeMobileMenu();
+        }
+      }
+    });
   }
 
   if (document.readyState === 'loading') {
