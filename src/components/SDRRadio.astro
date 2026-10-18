@@ -469,6 +469,7 @@ const defaultStation: FMStation = RADIO_STATIONS[0];
         if (powerLabel) powerLabel.textContent = 'MUTE / PAUSE';
         this.updateActiveCard();
         this.updateClubLightingState();
+        window.dispatchEvent(new CustomEvent('sdr-radio-play'));
       } else if (state === 3) {
         // Buffering
         this.setStatusText('TUNING // ACQUIRING SIGNAL');
@@ -481,6 +482,7 @@ const defaultStation: FMStation = RADIO_STATIONS[0];
         if (powerLabel) powerLabel.textContent = 'RESUME AUDIO';
         this.setStatusText('RECEIVER PAUSED');
         this.updateClubLightingState();
+        window.dispatchEvent(new CustomEvent('sdr-radio-stop'));
       }
     }
 

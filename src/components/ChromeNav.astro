@@ -158,6 +158,25 @@ const links: NavLink[] = [
         </button>
       </div>
     </div>
+    <div class="sound-toggle-wrap">
+      <button
+        class="sound-toggle"
+        id="soundToggle"
+        type="button"
+        aria-label="Toggle atmospheric background audio (Dark ambient sound)"
+        title="Atmospheric Sound (Click to toggle)"
+        aria-pressed="false"
+      >
+        <span class="sound-icon-wrap" aria-hidden="true">
+          <span class="eq-bar bar-1"></span>
+          <span class="eq-bar bar-2"></span>
+          <span class="eq-bar bar-3"></span>
+        </span>
+        <span class="sound-label" id="soundLabel">
+          SOUND // OFF
+        </span>
+      </button>
+    </div>
     <button
       class="mobile-nav-toggle"
       id="mobileNavToggle"
@@ -256,12 +275,29 @@ const links: NavLink[] = [
         <span class="status-dot"></span>
         <span>&copy; 2026 BERNARD BIRENDRA DAS</span>
       </div>
-      <button class="mobile-theme-toggle" id="mobileThemeToggle" type="button">
-        <span class="theme-icon">◐</span>
-        <span class="theme-label" id="mobileThemeLabel">
-          CYCLE THEME
-        </span>
-      </button>
+      <div class="mobile-footer-actions">
+        <button
+          class="mobile-sound-toggle"
+          id="mobileSoundToggle"
+          type="button"
+          aria-label="Toggle atmospheric sound"
+        >
+          <span class="sound-icon-wrap" aria-hidden="true">
+            <span class="eq-bar bar-1"></span>
+            <span class="eq-bar bar-2"></span>
+            <span class="eq-bar bar-3"></span>
+          </span>
+          <span class="sound-label" id="mobileSoundLabel">
+            SOUND // OFF
+          </span>
+        </button>
+        <button class="mobile-theme-toggle" id="mobileThemeToggle" type="button">
+          <span class="theme-icon">◐</span>
+          <span class="theme-label" id="mobileThemeLabel">
+            CYCLE THEME
+          </span>
+        </button>
+      </div>
     </div>
   </div>
 </div>
@@ -269,6 +305,7 @@ const links: NavLink[] = [
 <script>
   import '../scripts/age-counter';
   import '../scripts/local-clock';
+  import '../scripts/ambient-sound';
 
   const THEMES = [
     { id: 'dark', label: 'AMBER' },
