@@ -450,9 +450,13 @@ import MediaTV from '../components/MediaTV.astro';
             .map((g) => g.trim().toLowerCase());
           const platforms = (card.getAttribute('data-platforms') || '')
             .split(',')
-            .map((p) => p.trim());
+            .map((p) => p.trim())
+            .filter(Boolean);
 
-          const matchesPlatform = currentPlatform === 'ALL' || platforms.includes(currentPlatform);
+          const matchesPlatform =
+            currentPlatform === 'ALL'
+              ? true
+              : platforms.length === 1 && platforms[0] === currentPlatform;
           const matchesGenre =
             currentGenre === 'ALL' || genres.includes(currentGenre.toLowerCase());
 

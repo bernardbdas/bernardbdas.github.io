@@ -82,7 +82,7 @@ export const CURATED_MOVIES: MovieItem[] = [
     director: 'Denis Villeneuve',
     cast: ['Ryan Gosling', 'Harrison Ford', 'Ana de Armas', 'Sylvia Hoeks'],
     genres: ['Sci-Fi', 'Cyberpunk', 'Neo-Noir'],
-    ottPlatforms: ['Primevideo', 'Apple TV', 'Lionsgate'],
+    ottPlatforms: ['Lionsgate'],
     rating: '9.4',
     runtime: '164 min',
     synopsis:
@@ -97,7 +97,7 @@ export const CURATED_MOVIES: MovieItem[] = [
     director: 'Christopher Nolan',
     cast: ['Matthew McConaughey', 'Anne Hathaway', 'Jessica Chastain', 'Michael Caine'],
     genres: ['Sci-Fi', 'Adventure', 'Drama'],
-    ottPlatforms: ['Primevideo', 'HBO Max', 'JioHotstar'],
+    ottPlatforms: ['Primevideo'],
     rating: '9.3',
     runtime: '169 min',
     synopsis:
@@ -112,7 +112,7 @@ export const CURATED_MOVIES: MovieItem[] = [
     director: 'Christopher Nolan',
     cast: ['Cillian Murphy', 'Emily Blunt', 'Robert Downey Jr.', 'Matt Damon'],
     genres: ['Biography', 'History', 'Drama'],
-    ottPlatforms: ['JioHotstar', 'Primevideo', 'Apple TV'],
+    ottPlatforms: ['JioHotstar'],
     rating: '9.2',
     runtime: '180 min',
     synopsis:
@@ -127,7 +127,7 @@ export const CURATED_MOVIES: MovieItem[] = [
     director: 'Alex Garland',
     cast: ['Domhnall Gleeson', 'Alicia Vikander', 'Oscar Isaac'],
     genres: ['Sci-Fi', 'AI Thriller', 'Psychological'],
-    ottPlatforms: ['A24 movies', 'HBO Max', 'Primevideo'],
+    ottPlatforms: ['A24 movies'],
     rating: '9.0',
     runtime: '108 min',
     synopsis:
@@ -142,7 +142,7 @@ export const CURATED_MOVIES: MovieItem[] = [
     director: 'Celine Song',
     cast: ['Greta Lee', 'Teo Yoo', 'John Magaro'],
     genres: ['Drama', 'Romance', 'Philosophy'],
-    ottPlatforms: ['A24 movies', 'Lionsgate', 'Apple TV'],
+    ottPlatforms: ['A24 movies'],
     rating: '9.2',
     runtime: '106 min',
     synopsis:
@@ -157,7 +157,7 @@ export const CURATED_MOVIES: MovieItem[] = [
     director: 'Park Chan-wook',
     cast: ['Tang Wei', 'Park Hae-il', 'Lee Jung-hyun'],
     genres: ['Neo-Noir', 'Mystery', 'Psychological'],
-    ottPlatforms: ['Mubi', 'Apple TV'],
+    ottPlatforms: ['Mubi'],
     rating: '9.1',
     runtime: '138 min',
     synopsis:
@@ -172,7 +172,7 @@ export const CURATED_MOVIES: MovieItem[] = [
     director: 'Spike Jonze',
     cast: ['Joaquin Phoenix', 'Scarlett Johansson', 'Amy Adams', 'Rooney Mara'],
     genres: ['Sci-Fi', 'Drama', 'Philosophy'],
-    ottPlatforms: ['Netflix', 'Apple TV'],
+    ottPlatforms: ['Netflix'],
     rating: '8.9',
     runtime: '126 min',
     synopsis:
@@ -187,7 +187,7 @@ export const CURATED_MOVIES: MovieItem[] = [
     director: 'Stanley Kubrick',
     cast: ['Keir Dullea', 'Gary Lockwood', 'William Sylvester'],
     genres: ['Sci-Fi', 'Mystery', 'Philosophy'],
-    ottPlatforms: ['HBO Max', 'Apple TV'],
+    ottPlatforms: ['HBO Max'],
     rating: '9.5',
     runtime: '149 min',
     synopsis:
@@ -202,7 +202,7 @@ export const CURATED_MOVIES: MovieItem[] = [
     director: 'David Fincher',
     cast: ['Jesse Eisenberg', 'Andrew Garfield', 'Justin Timberlake', 'Armie Hammer'],
     genres: ['Tech Drama', 'Biography'],
-    ottPlatforms: ['Netflix', 'Primevideo'],
+    ottPlatforms: ['Netflix'],
     rating: '9.1',
     runtime: '120 min',
     synopsis:
@@ -217,7 +217,7 @@ export const CURATED_MOVIES: MovieItem[] = [
     director: 'Denis Villeneuve',
     cast: ['Amy Adams', 'Jeremy Renner', 'Forest Whitaker'],
     genres: ['Sci-Fi', 'Mystery', 'Philosophy'],
-    ottPlatforms: ['Netflix', 'Primevideo'],
+    ottPlatforms: ['Primevideo'],
     rating: '9.2',
     runtime: '116 min',
     synopsis:
@@ -232,7 +232,7 @@ export const CURATED_MOVIES: MovieItem[] = [
     director: 'Jonathan Glazer',
     cast: ['Christian Friedel', 'Sandra Hüller'],
     genres: ['Drama', 'History', 'Psychological'],
-    ottPlatforms: ['A24 movies', 'Mubi', 'JioHotstar'],
+    ottPlatforms: ['A24 movies'],
     rating: '9.3',
     runtime: '105 min',
     synopsis:
@@ -247,7 +247,7 @@ export const CURATED_MOVIES: MovieItem[] = [
     director: 'Denis Villeneuve',
     cast: ['Timothée Chalamet', 'Zendaya', 'Rebecca Ferguson', 'Javier Bardem'],
     genres: ['Sci-Fi', 'Epic', 'Adventure'],
-    ottPlatforms: ['HBO Max', 'JioHotstar', 'Apple TV'],
+    ottPlatforms: ['HBO Max'],
     rating: '9.3',
     runtime: '166 min',
     synopsis:
@@ -262,7 +262,7 @@ export const CURATED_MOVIES: MovieItem[] = [
     director: 'Denis Villeneuve',
     cast: ['Emily Blunt', 'Benicio Del Toro', 'Josh Brolin'],
     genres: ['Thriller', 'Crime', 'Action'],
-    ottPlatforms: ['Lionsgate', 'Primevideo', 'Apple TV'],
+    ottPlatforms: ['Lionsgate'],
     rating: '9.1',
     runtime: '121 min',
     synopsis:
@@ -277,7 +277,7 @@ export const CURATED_MOVIES: MovieItem[] = [
     director: 'Lana & Lilly Wachowski',
     cast: ['Keanu Reeves', 'Laurence Fishburne', 'Carrie-Anne Moss', 'Hugo Weaving'],
     genres: ['Sci-Fi', 'Cyberpunk', 'Action'],
-    ottPlatforms: ['HBO Max', 'Primevideo'],
+    ottPlatforms: ['HBO Max'],
     rating: '9.3',
     runtime: '136 min',
     synopsis:
@@ -292,7 +292,7 @@ export const CURATED_MOVIES: MovieItem[] = [
     director: 'Daniel Kwan & Daniel Scheinert',
     cast: ['Michelle Yeoh', 'Ke Huy Quan', 'Stephanie Hsu', 'Jamie Lee Curtis'],
     genres: ['Sci-Fi', 'Action', 'Philosophy'],
-    ottPlatforms: ['A24 movies', 'Lionsgate', 'Primevideo'],
+    ottPlatforms: ['A24 movies'],
     rating: '9.2',
     runtime: '139 min',
     synopsis:
@@ -307,7 +307,7 @@ export const CURATED_MOVIES: MovieItem[] = [
     director: 'Christopher Nolan',
     cast: ['Leonardo DiCaprio', 'Joseph Gordon-Levitt', 'Elliot Page', 'Tom Hardy'],
     genres: ['Sci-Fi', 'Action', 'Psychological'],
-    ottPlatforms: ['Netflix', 'Primevideo', 'JioHotstar'],
+    ottPlatforms: ['Netflix'],
     rating: '9.1',
     runtime: '148 min',
     synopsis:
@@ -420,6 +420,321 @@ export const CURATED_MOVIES: MovieItem[] = [
     takeaway:
       'Mahershala Ali’s dual tour-de-force performance in a minimalist near-future bioethical chamber piece exploring love, selflessness, and the sanctity of mortality.',
   },
+  {
+    id: 'fight-club',
+    title: 'Fight Club',
+    year: 1999,
+    director: 'David Fincher',
+    cast: ['Brad Pitt', 'Edward Norton', 'Helena Bonham Carter', 'Meat Loaf'],
+    genres: ['Psychological', 'Drama', 'Satire'],
+    ottPlatforms: ['Netflix'],
+    rating: '9.4',
+    runtime: '139 min',
+    synopsis:
+      'An insomniac office worker looking for a way to change his life crosses paths with a devil-may-care soap maker and forms an underground fight club that evolves into something much more dangerous.',
+    takeaway:
+      'Fincher’s visceral deconstruction of consumerist alienation, toxic corporate emasculation, and fractured psychological identity.',
+  },
+  {
+    id: 'american-psycho',
+    title: 'American Psycho',
+    year: 2000,
+    director: 'Mary Harron',
+    cast: ['Christian Bale', 'Willem Dafoe', 'Jared Leto', 'Chloë Sevigny'],
+    genres: ['Psychological', 'Thriller', 'Drama'],
+    ottPlatforms: ['Netflix'],
+    rating: '9.1',
+    runtime: '102 min',
+    synopsis:
+      'A wealthy New York City investment banking executive hides his alternate psychopathic ego from his co-workers and friends as he escalates into violent, hedonistic fantasies.',
+    takeaway:
+      'Mary Harron’s razor-sharp satire of Wall Street commodification, surface aesthetics, and hollow narcissistic psychopathy.',
+  },
+  {
+    id: 'american-made',
+    title: 'American Made',
+    year: 2017,
+    director: 'Doug Liman',
+    cast: ['Tom Cruise', 'Domhnall Gleeson', 'Sarah Wright', 'Jesse Plemons'],
+    genres: ['Action', 'Drama', 'History'],
+    ottPlatforms: ['Netflix'],
+    rating: '8.7',
+    runtime: '115 min',
+    synopsis:
+      'The story of Barry Seal, an American pilot who became a drug runner for the Medellín Cartel in the 1980s and was subsequently recruited by the CIA for covert reconnaissance.',
+    takeaway:
+      'Doug Liman’s kinetic, sun-drenched satire of clandestine Cold War geopolitics, illicit cartel logistics, and opportunistic American capitalism.',
+  },
+  {
+    id: 'scarface',
+    title: 'Scarface',
+    year: 1983,
+    director: 'Brian De Palma',
+    cast: ['Al Pacino', 'Michelle Pfeiffer', 'Steven Bauer', 'Robert Loggia'],
+    genres: ['Drama', 'Action', 'Thriller'],
+    ottPlatforms: ['Netflix'],
+    rating: '9.2',
+    runtime: '170 min',
+    synopsis:
+      'In 1980 Miami, a determined Cuban immigrant takes over a drug cartel and succumbs to greed, paranoia, and catastrophic excess.',
+    takeaway:
+      'De Palma and Oliver Stone crafting the mythic opera of ruthless immigrant ambition, synthesizer grandeur, and the inevitable entropy of unchecked power.',
+  },
+  {
+    id: 'devils-advocate',
+    title: "The Devil's Advocate",
+    year: 1997,
+    director: 'Taylor Hackford',
+    cast: ['Keanu Reeves', 'Al Pacino', 'Charlize Theron', 'Jeffrey Jones'],
+    genres: ['Drama', 'Mystery', 'Psychological'],
+    ottPlatforms: ['Netflix'],
+    rating: '8.8',
+    runtime: '144 min',
+    synopsis:
+      'An exceptionally adept Florida defense attorney is offered a lucrative job at a high-end New York City law firm run by an enigmatic patriarch who harbors infernal secrets.',
+    takeaway:
+      'Pacino’s legendary theatrical tour-de-force exploring moral vanity, corporate hubris, and Milton’s free will paradox.',
+  },
+  {
+    id: 'the-irishman',
+    title: 'The Irishman',
+    year: 2019,
+    director: 'Martin Scorsese',
+    cast: ['Robert De Niro', 'Al Pacino', 'Joe Pesci', 'Harvey Keitel'],
+    genres: ['Drama', 'History', 'Biography'],
+    ottPlatforms: ['Netflix'],
+    rating: '9.3',
+    runtime: '209 min',
+    synopsis:
+      'An old truck driver turned hitman reflects on his life in organized crime, his close friendship with Jimmy Hoffa, and the heavy moral price of lifelong loyalty.',
+    takeaway:
+      'Scorsese’s elegiac masterwork dismantling mob romanticism into lonely geriatric silence, temporal regret, and historical guilt.',
+  },
+  {
+    id: 'el-camino',
+    title: 'El Camino: A Breaking Bad Movie',
+    year: 2019,
+    director: 'Vince Gilligan',
+    cast: ['Aaron Paul', 'Jesse Plemons', 'Krysten Ritter', 'Robert Forster'],
+    genres: ['Drama', 'Action', 'Thriller'],
+    ottPlatforms: ['Netflix'],
+    rating: '8.9',
+    runtime: '122 min',
+    synopsis:
+      'In the wake of his dramatic escape from captivity, Jesse Pinkman must wrestle with the scars of his past in order to forge some kind of future.',
+    takeaway:
+      'Vince Gilligan’s meticulous cinematic epilogue granting hard-won catharsis through precision neo-Western shootouts and trauma reconciliation.',
+  },
+  {
+    id: 'texas-chainsaw-massacre',
+    title: 'Texas Chainsaw Massacre',
+    year: 2022,
+    director: 'David Blue Garcia',
+    cast: ['Sarah Yarkin', 'Elsie Fisher', 'Mark Burnham', 'Jacob Latimore'],
+    genres: ['Horror', 'Action', 'Thriller'],
+    ottPlatforms: ['Netflix'],
+    rating: '7.3',
+    runtime: '83 min',
+    synopsis:
+      'After nearly 50 years of hiding, Leatherface returns to terrorize a group of idealistic young influencers who accidentally disrupt his carefully shielded world in a remote Texas ghost town.',
+    takeaway:
+      'A visceral, unapologetic industrial slaughterhouse thrill-ride contrasting gentrification influencer culture with raw grindhouse butchery.',
+  },
+  {
+    id: '28-days-later',
+    title: '28 Days Later',
+    year: 2002,
+    director: 'Danny Boyle',
+    cast: ['Cillian Murphy', 'Naomie Harris', 'Christopher Eccleston', 'Brendan Gleeson'],
+    genres: ['Sci-Fi', 'Horror', 'Psychological'],
+    ottPlatforms: ['Netflix'],
+    rating: '9.2',
+    runtime: '113 min',
+    synopsis:
+      'Four weeks after a mysterious, incurable virus spreads throughout the UK, a bicycle courier awakens from a coma to discover London desolate and overrun by infected rage victims.',
+    takeaway:
+      'Danny Boyle’s pioneering digital DV cinematography that radically reimagined modern pandemic cinema and kinetic viral panic.',
+  },
+  {
+    id: '28-years-later',
+    title: '28 Years Later',
+    year: 2025,
+    director: 'Danny Boyle',
+    cast: ['Cillian Murphy', 'Jodie Comer', 'Aaron Taylor-Johnson', 'Ralph Fiennes'],
+    genres: ['Sci-Fi', 'Horror', 'Action'],
+    ottPlatforms: ['Netflix'],
+    rating: '9.1',
+    runtime: '118 min',
+    synopsis:
+      'Nearly three decades after the initial outbreak, society on the British Isles has mutated into fortified enclave survivalism as a new evolutionary strain of the Rage virus surfaces.',
+    takeaway:
+      'Alex Garland and Danny Boyle returning to their seminal apocalypse with large-format kinetic optics exploring intergenerational trauma and viral permanence.',
+  },
+  {
+    id: '28-years-later-part-2',
+    title: '28 Years Later: The Bone Temple',
+    year: 2026,
+    director: 'Nia DaCosta',
+    cast: ['Ralph Fiennes', 'Jack O’Connell', 'Alfie Williams', 'Aaron Taylor-Johnson'],
+    genres: ['Sci-Fi', 'Horror', 'Drama'],
+    ottPlatforms: ['Netflix'],
+    rating: '9.0',
+    runtime: '115 min',
+    synopsis:
+      'The direct sequel following 28 Years Later, tracking survivors deeper into the contaminated ruins of the British interior where rival survivor enclaves and mutated threats clash.',
+    takeaway:
+      'Nia DaCosta bringing psychological claustrophobia and visceral gothic dread into the expanding post-Rage mythos.',
+  },
+  {
+    id: 'no-country-for-old-men',
+    title: 'No Country for Old Men',
+    year: 2007,
+    director: 'Joel & Ethan Coen',
+    cast: ['Javier Bardem', 'Tommy Lee Jones', 'Josh Brolin', 'Woody Harrelson'],
+    genres: ['Drama', 'Thriller', 'Neo-Noir'],
+    ottPlatforms: ['Netflix'],
+    rating: '9.6',
+    runtime: '122 min',
+    synopsis:
+      'Violence and mayhem ensue after a hunter stumbles upon a drug deal gone wrong and more than two million dollars in cash near the Rio Grande.',
+    takeaway:
+      'The Coen brothers’ cold mathematical masterpiece on stochastic fate, Anton Chigurh’s coin toss fatalism, and the vanishing certainty of moral order.',
+  },
+  {
+    id: 'the-cloverfield-paradox',
+    title: 'The Cloverfield Paradox',
+    year: 2018,
+    director: 'Julius Onah',
+    cast: ['Gugu Mbatha-Raw', 'David Oyelowo', 'Daniel Brühl', 'Elizabeth Debicki'],
+    genres: ['Sci-Fi', 'Mystery', 'Thriller'],
+    ottPlatforms: ['Netflix'],
+    rating: '7.6',
+    runtime: '102 min',
+    synopsis:
+      'Orbiting a planet on the brink of war, scientists test a particle accelerator to solve an energy crisis, only to rip apart spacetime and discover Earth has vanished.',
+    takeaway:
+      'High-concept spatial entanglement, interdimensional anomaly physics, and paranoid orbital containment.',
+  },
+  {
+    id: '10-cloverfield-lane',
+    title: '10 Cloverfield Lane',
+    year: 2016,
+    director: 'Dan Trachtenberg',
+    cast: ['Mary Elizabeth Winstead', 'John Goodman', 'John Gallagher Jr.'],
+    genres: ['Psychological', 'Sci-Fi', 'Mystery'],
+    ottPlatforms: ['Netflix'],
+    rating: '9.0',
+    runtime: '103 min',
+    synopsis:
+      'After surviving a car crash, a young woman wakes up in an underground bunker with two men who claim the outside world has been rendered uninhabitable by a widespread chemical attack.',
+    takeaway:
+      'A claustrophobic pressure-cooker triumph of unreliable narrators, bunker survivalism, and apocalyptic sleight-of-hand.',
+  },
+  {
+    id: 'a-quiet-place',
+    title: 'A Quiet Place',
+    year: 2018,
+    director: 'John Krasinski',
+    cast: ['Emily Blunt', 'John Krasinski', 'Millicent Simmonds', 'Noah Jupe'],
+    genres: ['Sci-Fi', 'Drama', 'Horror'],
+    ottPlatforms: ['Netflix'],
+    rating: '9.1',
+    runtime: '90 min',
+    synopsis:
+      'A family must navigate their lives in silence while hiding from blind extraterrestrial creatures with ultra-sensitive acoustic tracking capabilities.',
+    takeaway:
+      'Revolutionary acoustic sound engineering where decibel dynamics serve as the core life-or-death narrative engine.',
+  },
+  {
+    id: 'a-quiet-place-part-ii',
+    title: 'A Quiet Place Part II',
+    year: 2020,
+    director: 'John Krasinski',
+    cast: ['Emily Blunt', 'Cillian Murphy', 'Millicent Simmonds', 'Noah Jupe'],
+    genres: ['Sci-Fi', 'Action', 'Drama'],
+    ottPlatforms: ['Netflix'],
+    rating: '8.9',
+    runtime: '97 min',
+    synopsis:
+      'Following the events at home, the Abbott family must now face the terrors of the outside world as they continue their fight for survival in silence.',
+    takeaway:
+      'Masterful cross-cut parallel editing and tactile tension expanding the sonic warfare survival parameters.',
+  },
+  {
+    id: 'the-revenant',
+    title: 'The Revenant',
+    year: 2015,
+    director: 'Alejandro G. Iñárritu',
+    cast: ['Leonardo DiCaprio', 'Tom Hardy', 'Domhnall Gleeson', 'Will Poulter'],
+    genres: ['Adventure', 'Drama', 'History'],
+    ottPlatforms: ['Netflix'],
+    rating: '9.4',
+    runtime: '156 min',
+    synopsis:
+      'A frontiersman on a fur trading expedition in the 1820s fights for survival after being mauled by a bear and left for dead by members of his own hunting team.',
+    takeaway:
+      'Emmanuel Lubezki’s natural light tracking shots creating an elemental, brutalist survival epic of raw human willpower.',
+  },
+  {
+    id: 'hotel-transylvania',
+    title: 'Hotel Transylvania',
+    year: 2012,
+    director: 'Genndy Tartakovsky',
+    cast: ['Adam Sandler', 'Andy Samberg', 'Selena Gomez', 'Kevin James'],
+    genres: ['Adventure', 'Comedy', 'Animation'],
+    ottPlatforms: ['Netflix'],
+    rating: '8.2',
+    runtime: '89 min',
+    synopsis:
+      'Dracula, who operates a high-end resort away from the human world, goes into overprotective mode when a human boy stumbles onto the resort and falls for his teenage daughter.',
+    takeaway:
+      'Genndy Tartakovsky applying classic 2D squash-and-stretch animation timing and elastic kinetic energy to 3D computer graphics.',
+  },
+  {
+    id: 'hotel-transylvania-2',
+    title: 'Hotel Transylvania 2',
+    year: 2015,
+    director: 'Genndy Tartakovsky',
+    cast: ['Adam Sandler', 'Andy Samberg', 'Selena Gomez', 'Mel Brooks'],
+    genres: ['Adventure', 'Comedy', 'Animation'],
+    ottPlatforms: ['Netflix'],
+    rating: '8.0',
+    runtime: '89 min',
+    synopsis:
+      'Dracula and his monster squad try to bring out the inner monster in his half-human, half-vampire grandson Dennis, while his old-school father Vlad pays a surprise visit.',
+    takeaway:
+      'Tartakovsky’s physical comedy choreography elevated by Mel Brooks’ veteran comedic presence and frantic character animation.',
+  },
+  {
+    id: 'hotel-transylvania-3',
+    title: 'Hotel Transylvania 3: Summer Vacation',
+    year: 2018,
+    director: 'Genndy Tartakovsky',
+    cast: ['Adam Sandler', 'Andy Samberg', 'Selena Gomez', 'Kathryn Hahn'],
+    genres: ['Adventure', 'Comedy', 'Animation'],
+    ottPlatforms: ['Netflix'],
+    rating: '7.9',
+    runtime: '97 min',
+    synopsis:
+      'Dracula falls for a mysterious ship captain on a luxury monster cruise, unaware that she is the great-granddaughter of his archenemy, monster hunter Van Helsing.',
+    takeaway:
+      'Maximalist slapstick staging, vibrant nautical color theory, and Looney Tunes-inspired physical gag mechanics.',
+  },
+  {
+    id: 'the-lord-of-the-rings',
+    title: 'The Lord of the Rings: The Fellowship of the Ring',
+    year: 2001,
+    director: 'Peter Jackson',
+    cast: ['Elijah Wood', 'Ian McKellen', 'Viggo Mortensen', 'Orlando Bloom', 'Sean Astin'],
+    genres: ['Adventure', 'Drama', 'Epic'],
+    ottPlatforms: ['Netflix'],
+    rating: '9.8',
+    runtime: '178 min',
+    synopsis:
+      'A meek Hobbit from the Shire and eight companions set out on a perilous journey to destroy the powerful One Ring and save Middle-earth from the Dark Lord Sauron.',
+    takeaway:
+      'The absolute summit of practical physical miniatures, Wētā prosthetic crafts, Howard Shore orchestral leitmotifs, and worldbuilding fidelity.',
+  },
 ];
 
 export const CURATED_TV_SHOWS: TVShowItem[] = [
@@ -475,7 +790,7 @@ export const CURATED_TV_SHOWS: TVShowItem[] = [
     creator: 'Craig Mazin (Dir: Johan Renck)',
     cast: ['Jared Harris', 'Stellan Skarsgård', 'Emily Watson'],
     genres: ['History', 'Drama', 'Disaster'],
-    ottPlatforms: ['HBO Max', 'JioHotstar'],
+    ottPlatforms: ['HBO Max'],
     rating: '9.6',
     seasons: 'Miniseries (5 Episodes)',
     synopsis:
@@ -490,7 +805,7 @@ export const CURATED_TV_SHOWS: TVShowItem[] = [
     creator: 'Jesse Armstrong',
     cast: ['Brian Cox', 'Jeremy Strong', 'Sarah Snook', 'Kieran Culkin'],
     genres: ['Drama', 'Corporate Satire'],
-    ottPlatforms: ['HBO Max', 'JioHotstar'],
+    ottPlatforms: ['HBO Max'],
     rating: '9.4',
     seasons: '4 Seasons (Complete)',
     synopsis:
@@ -505,7 +820,7 @@ export const CURATED_TV_SHOWS: TVShowItem[] = [
     creator: 'Nic Pizzolatto (Dir: Cary Joji Fukunaga)',
     cast: ['Matthew McConaughey', 'Woody Harrelson', 'Michelle Monaghan'],
     genres: ['Crime', 'Mystery', 'Philosophy'],
-    ottPlatforms: ['HBO Max', 'JioHotstar'],
+    ottPlatforms: ['HBO Max'],
     rating: '9.5',
     seasons: 'Season 1',
     synopsis:
@@ -550,7 +865,7 @@ export const CURATED_TV_SHOWS: TVShowItem[] = [
     creator: 'Mike Judge, John Altschuler, Dave Krinsky',
     cast: ['Thomas Middleditch', 'Martin Starr', 'Kumail Nanjiani', 'Zach Woods'],
     genres: ['Comedy', 'Tech Satire'],
-    ottPlatforms: ['HBO Max', 'JioHotstar'],
+    ottPlatforms: ['HBO Max'],
     rating: '8.8',
     seasons: '6 Seasons (Complete)',
     synopsis:
@@ -722,5 +1037,221 @@ export const CURATED_TV_SHOWS: TVShowItem[] = [
       'Spanning three generations from the 1950s atomic era to Godzilla’s 2014 emergence, two siblings unearth their family’s deep connection to the clandestine monster-tracking syndicate known as Monarch.',
     takeaway:
       'Kurt and Wyatt Russell’s dual-era portrayal of Lee Shaw framing kaiju encounters through geopolitical secrets, Hollow Earth physics, and corporate compartmentalization.',
+  },
+  {
+    id: 'adolescence',
+    title: 'Adolescence',
+    years: '2025',
+    creator: 'Jack Thorne & Stephen Graham (Dir: Philip Barantini)',
+    cast: ['Stephen Graham', 'Owen Cooper', 'Christine Tremarco', 'Ashley Walters'],
+    genres: ['Drama', 'Psychological', 'Crime'],
+    ottPlatforms: ['Netflix'],
+    rating: '9.5',
+    seasons: 'Miniseries (4 Episodes)',
+    synopsis:
+      'When a 13-year-old boy is arrested for the murder of a female classmate, his family and community unravel in a real-time, four-part continuous single-take exploration of grief, modern youth, and social media radicalization.',
+    takeaway:
+      'Philip Barantini’s revolutionary continuous single-take cinematography transforming real-time domestic grief into an unflinching, claustrophobic psychological tour-de-force.',
+  },
+  {
+    id: 'midnight-mass',
+    title: 'Midnight Mass',
+    years: '2021',
+    creator: 'Mike Flanagan',
+    cast: ['Kate Siegel', 'Zach Gilford', 'Hamish Linklater', 'Samantha Sloyan'],
+    genres: ['Drama', 'Mystery', 'Psychological'],
+    ottPlatforms: ['Netflix'],
+    rating: '9.3',
+    seasons: 'Miniseries (7 Episodes)',
+    synopsis:
+      'The arrival of a charismatic young priest revitalizes a dying isolated island community, bringing about miraculous occurrences and frightening religious fervor.',
+    takeaway:
+      'Hamish Linklater’s mesmerizing homilies anchoring a transcendent meditation on mortality, religious dogma, addiction, and the biological terror of eternal life.',
+  },
+  {
+    id: 'chucky',
+    title: 'Chucky',
+    years: '2021 – Present',
+    creator: 'Don Mancini',
+    cast: ['Zackary Arthur', 'Björgvin Arnarson', 'Alyvia Alyn Lind', 'Brad Dourif'],
+    genres: ['Comedy', 'Mystery', 'Psychological'],
+    ottPlatforms: ['Netflix'],
+    rating: '8.6',
+    seasons: '3 Seasons',
+    synopsis:
+      'After a vintage Chucky doll turns up at a suburban yard sale, an idyllic American town is thrown into chaos as a series of horrifying murders begin to expose the town’s hypocrisies and secrets.',
+    takeaway:
+      'Don Mancini ingeniously revitalizing franchise lore through practical puppet animatronics, queer coming-of-age storytelling, and unapologetic camp-slasher subversion.',
+  },
+  {
+    id: 'tiger-king',
+    title: 'Tiger King',
+    years: '2020 – 2021',
+    creator: 'Eric Goode & Rebecca Chaiklin',
+    cast: ['Joe Exotic', 'Carole Baskin', 'Bhagavan Antle', 'John Finlay'],
+    genres: ['Crime', 'History', 'Comedy'],
+    ottPlatforms: ['Netflix'],
+    rating: '8.5',
+    seasons: '2 Seasons',
+    synopsis:
+      'A rivalry between eccentric big cat collectors takes a dark turn when Joe Exotic, a controversial Oklahoma zoo owner, is embroiled in a murder-for-hire plot.',
+    takeaway:
+      'A surreal, captivating sociological snapshot of fringe Americana, private zoo commercialism, and sensationalist unscripted warfare.',
+  },
+  {
+    id: 'breaking-bad',
+    title: 'Breaking Bad',
+    years: '2008 – 2013',
+    creator: 'Vince Gilligan',
+    cast: ['Bryan Cranston', 'Aaron Paul', 'Anna Gunn', 'Giancarlo Esposito', 'Dean Norris'],
+    genres: ['Crime', 'Drama', 'Psychological'],
+    ottPlatforms: ['Netflix'],
+    rating: '9.8',
+    seasons: '5 Seasons (Complete)',
+    synopsis:
+      'A chemistry teacher diagnosed with terminal lung cancer teams up with a former student to manufacture and sell crystal meth in order to secure his family’s financial future.',
+    takeaway:
+      'The pinnacle of dramatic causal architecture, moral decay physics, and Bryan Cranston’s transformative descent into Heisenberg.',
+  },
+  {
+    id: 'better-call-saul',
+    title: 'Better Call Saul',
+    years: '2015 – 2022',
+    creator: 'Vince Gilligan & Peter Gould',
+    cast: [
+      'Bob Odenkirk',
+      'Rhea Seehorn',
+      'Jonathan Banks',
+      'Giancarlo Esposito',
+      'Patrick Fabian',
+    ],
+    genres: ['Crime', 'Drama', 'Corporate Satire'],
+    ottPlatforms: ['Netflix'],
+    rating: '9.7',
+    seasons: '6 Seasons (Complete)',
+    synopsis:
+      'The trials and tribulations of criminal lawyer Jimmy McGill in the years leading up to his fateful run-in with Walter White and Jesse Pinkman.',
+    takeaway:
+      'Unsurpassed character study pacing, intricate procedural legal writing, and Rhea Seehorn & Bob Odenkirk’s tragic moral devolution.',
+  },
+  {
+    id: 'peaky-blinders',
+    title: 'Peaky Blinders',
+    years: '2013 – 2022',
+    creator: 'Steven Knight',
+    cast: ['Cillian Murphy', 'Paul Anderson', 'Helen McCrory', 'Tom Hardy', 'Sophie Rundle'],
+    genres: ['Crime', 'Drama', 'History'],
+    ottPlatforms: ['Netflix'],
+    rating: '9.3',
+    seasons: '6 Seasons (Complete)',
+    synopsis:
+      'A notorious gang in 1919 Birmingham, England, is led by the fierce Tommy Shelby, a crime boss set on moving up in the world no matter the cost.',
+    takeaway:
+      'Cillian Murphy’s razor-calm tactical mastermind Tommy Shelby contrasted with anachronistic rock soundtracks and industrialized post-WWI smoke and brimstone.',
+  },
+  {
+    id: 'wednesday',
+    title: 'Wednesday',
+    years: '2022 – Present',
+    creator: 'Alfred Gough & Miles Millar (Dir: Tim Burton)',
+    cast: ['Jenna Ortega', 'Gwendoline Christie', 'Emma Myers', 'Christina Ricci'],
+    genres: ['Mystery', 'Comedy', 'Psychological'],
+    ottPlatforms: ['Netflix'],
+    rating: '8.8',
+    seasons: 'Season 1 & 2',
+    synopsis:
+      'While attending Nevermore Academy, Wednesday Addams attempts to master her emerging psychic ability, thwart a monstrous killing spree, and solve a 25-year-old mystery.',
+    takeaway:
+      'Jenna Ortega’s deadpan physical precision and Tim Burton’s gothic visual architecture re-energizing the macabre Addams mythos.',
+  },
+  {
+    id: 'stranger-things',
+    title: 'Stranger Things',
+    years: '2016 – 2025',
+    creator: 'The Duffer Brothers',
+    cast: ['Millie Bobby Brown', 'Finn Wolfhard', 'Winona Ryder', 'David Harbour'],
+    genres: ['Sci-Fi', 'Mystery', 'Drama'],
+    ottPlatforms: ['Netflix'],
+    rating: '9.2',
+    seasons: '5 Seasons',
+    synopsis:
+      'When a young boy vanishes, a small Indiana town uncovers a mystery involving secret experiments, terrifying supernatural forces, and one strange little girl with telekinetic powers.',
+    takeaway:
+      'Masterful synthesis of Spielbergian childhood camaraderie, Carpenter synth scores, and Lovecraftian multidimensional horror.',
+  },
+  {
+    id: 'lucifer',
+    title: 'Lucifer',
+    years: '2016 – 2021',
+    creator: 'Tom Kapinos',
+    cast: ['Tom Ellis', 'Lauren German', 'Lesley-Ann Brandt', 'D.B. Woodside'],
+    genres: ['Crime', 'Mystery', 'Comedy'],
+    ottPlatforms: ['Netflix'],
+    rating: '8.7',
+    seasons: '6 Seasons (Complete)',
+    synopsis:
+      'Bored and unhappy as the Lord of Hell, Lucifer Morningstar abandons his throne and retires to Los Angeles, where he ends up teaming with an LAPD detective to solve homicides.',
+    takeaway:
+      'Tom Ellis’s charismatic theatrical charm steering an irresistible blend of celestial psychology, Freudian therapy, and detective casework.',
+  },
+  {
+    id: 'rick-and-morty',
+    title: 'Rick and Morty',
+    years: '2013 – Present',
+    creator: 'Dan Harmon & Justin Roiland',
+    cast: ['Justin Roiland', 'Chris Parnell', 'Spencer Grammer', 'Sarah Chalke'],
+    genres: ['Sci-Fi', 'Comedy', 'Cyber-Thriller'],
+    ottPlatforms: ['Netflix'],
+    rating: '9.3',
+    seasons: '7 Seasons',
+    synopsis:
+      'An eccentric sociopathic scientist and his easily influenced grandson embark on insane interdimensional adventures across infinite parallel universes.',
+    takeaway:
+      'Dan Harmon’s airtight story circle mechanics dismantling narrative tropes through nihilistic quantum absurdity and existential dread.',
+  },
+  {
+    id: 'trailer-park-boys',
+    title: 'Trailer Park Boys',
+    years: '2001 – 2018',
+    creator: 'Mike Clattenburg',
+    cast: ['Robb Wells', 'John Paul Tremblay', 'Mike Smith', 'John Dunsworth'],
+    genres: ['Comedy', 'Crime'],
+    ottPlatforms: ['Netflix'],
+    rating: '8.7',
+    seasons: '12 Seasons',
+    synopsis:
+      'Three petty felons living in a Dartmouth, Nova Scotia trailer park constantly concoct get-rich-quick schemes while dodging alcoholic trailer park supervisor Jim Lahey.',
+    takeaway:
+      'Pioneering mockumentary low-fi authenticity, improvised chaotic gold, and John Dunsworth’s masterclass in physical character acting.',
+  },
+  {
+    id: 'pantheon',
+    title: 'Pantheon',
+    years: '2022 – 2023',
+    creator: 'Craig Silverstein (Based on Ken Liu)',
+    cast: ['Katie Chang', 'Paul Dano', 'Daniel Dae Kim', 'Rosemarie DeWitt'],
+    genres: ['Sci-Fi', 'Cyber-Thriller', 'Psychological'],
+    ottPlatforms: ['Netflix'],
+    rating: '9.4',
+    seasons: '2 Seasons (Complete)',
+    synopsis:
+      'A bullied teen receives mysterious online help from her deceased father, uncovering a global corporate conspiracy surrounding Uploaded Intelligence (UI) and digital immortality.',
+    takeaway:
+      'The most intellectually uncompromising hard sci-fi exploration of whole brain emulation, cognitive substrate independence, and post-human Dyson megastructures ever animated.',
+  },
+  {
+    id: '3-body-problem',
+    title: '3 Body Problem',
+    years: '2024 – Present',
+    creator: 'David Benioff, D.B. Weiss, Alexander Woo (Based on Liu Cixin)',
+    cast: ['Benedict Wong', 'Jess Hong', 'Jovan Adepo', 'Eiza González', 'Liam Cunningham'],
+    genres: ['Sci-Fi', 'Mystery', 'Drama'],
+    ottPlatforms: ['Netflix'],
+    rating: '9.0',
+    seasons: 'Season 1',
+    synopsis:
+      'A fateful decision made in 1960s China reverberates across space and time to a group of brilliant scientists in the present day as the laws of physics unspool and an alien fleet approaches.',
+    takeaway:
+      'Liu Cixin’s Dark Forest cosmic pessimism brought to life with terrifying scale: nanofiber canal ambushes, sophon proton unfoldings, and existential human vulnerability.',
   },
 ];
