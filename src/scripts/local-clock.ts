@@ -66,6 +66,8 @@ export function initLocalClock(): void {
   const tzEl = document.getElementById('clock-tz');
 
   if (!container || !dateEl || !timeEl) return;
+  if (container.dataset.clockBound === 'true') return;
+  container.dataset.clockBound = 'true';
 
   type ClockMode = 'local' | 'bernard';
   let mode: ClockMode = 'local';
@@ -245,3 +247,5 @@ if (document.readyState === 'loading') {
 } else {
   initLocalClock();
 }
+
+document.addEventListener('astro:page-load', initLocalClock);

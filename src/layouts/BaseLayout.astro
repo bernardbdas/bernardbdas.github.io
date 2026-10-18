@@ -1,4 +1,6 @@
 ---
+import { ClientRouter } from 'astro:transitions';
+
 export interface Props {
   title: string;
   description: string;
@@ -10,6 +12,7 @@ const { title, description } = Astro.props;
 <!doctype html>
 <html lang="en">
   <head>
+    <ClientRouter />
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>{title}</title>
@@ -55,6 +58,14 @@ const { title, description } = Astro.props;
     </script>
   </head>
   <body>
+    <!-- Persistent Ambient Audio Element (preserved across all page navigations via Astro transitions) -->
+    <audio
+      id="ambient-audio-element"
+      transition:persist="ambient-audio"
+      loop
+      preload="auto"
+      aria-hidden="true"
+    ></audio>
     <slot />
   </body>
 </html>

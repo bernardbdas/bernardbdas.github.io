@@ -160,11 +160,11 @@ const links: NavLink[] = [
     </div>
     <div class="sound-toggle-wrap">
       <button
-        class="sound-toggle"
+        class="sound-toggle ambient-toggle"
         id="soundToggle"
         type="button"
-        aria-label="Toggle atmospheric background audio (Dark ambient sound)"
-        title="Atmospheric Sound (Click to toggle)"
+        aria-label="Toggle atmospheric background audio (Dark soundscape)"
+        title="Atmospheric Sound (Click to pause/play, Double-click to switch track)"
         aria-pressed="false"
       >
         <span class="sound-icon-wrap" aria-hidden="true">
@@ -173,7 +173,24 @@ const links: NavLink[] = [
           <span class="eq-bar bar-3"></span>
         </span>
         <span class="sound-label" id="soundLabel">
-          SOUND // OFF
+          AMB // OFF
+        </span>
+      </button>
+
+      <button
+        class="sound-toggle fx-toggle is-active"
+        id="fxToggle"
+        type="button"
+        aria-label="Toggle sound effects (FX)"
+        title="Sound Effects: FX [Active] (Click to toggle)"
+        aria-pressed="true"
+      >
+        <span class="fx-icon-wrap" aria-hidden="true">
+          <span class="fx-dot"></span>
+        </span>
+        <span class="fx-badge">FX</span>
+        <span class="sound-label" id="fxLabel">
+          // ON
         </span>
       </button>
     </div>
@@ -277,10 +294,11 @@ const links: NavLink[] = [
       </div>
       <div class="mobile-footer-actions">
         <button
-          class="mobile-sound-toggle"
+          class="mobile-sound-toggle mobile-ambient-toggle"
           id="mobileSoundToggle"
           type="button"
           aria-label="Toggle atmospheric sound"
+          title="Atmospheric Sound (Click to pause/play, Double-click to switch track)"
         >
           <span class="sound-icon-wrap" aria-hidden="true">
             <span class="eq-bar bar-1"></span>
@@ -288,7 +306,23 @@ const links: NavLink[] = [
             <span class="eq-bar bar-3"></span>
           </span>
           <span class="sound-label" id="mobileSoundLabel">
-            SOUND // OFF
+            AMB // OFF
+          </span>
+        </button>
+        <button
+          class="mobile-sound-toggle mobile-fx-toggle is-active"
+          id="mobileFxToggle"
+          type="button"
+          aria-label="Toggle sound effects (FX)"
+          title="Sound Effects: FX [Active] (Click to toggle)"
+          aria-pressed="true"
+        >
+          <span class="fx-icon-wrap" aria-hidden="true">
+            <span class="fx-dot"></span>
+          </span>
+          <span class="fx-badge">FX</span>
+          <span class="sound-label" id="mobileFxLabel">
+            // ON
           </span>
         </button>
         <button class="mobile-theme-toggle" id="mobileThemeToggle" type="button">
@@ -500,4 +534,6 @@ const links: NavLink[] = [
   } else {
     initNav();
   }
+
+  document.addEventListener('astro:page-load', initNav);
 </script>

@@ -58,6 +58,8 @@ function fbm(x: number, y: number, octaves = 5): number {
 export function initTerrainScene(): void {
   const canvas = document.getElementById('scene') as HTMLCanvasElement | null;
   if (!canvas) return;
+  if (canvas.dataset.terrainInitialized === 'true') return;
+  canvas.dataset.terrainInitialized = 'true';
 
   const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
@@ -459,6 +461,16 @@ export function initTerrainScene(): void {
   const ndc = new THREE.Vector2();
 
   function onPointerDown(e: MouseEvent | TouchEvent): void {
+    const target = e.target as HTMLElement | null;
+    // Disregard clicks on interactive components (buttons, links, inputs, chips, tabs, modal close, etc.)
+    if (
+      target?.closest(
+        'button, a, input, select, textarea, [role="button"], [role="menuitem"], .theme-toggle, .mobile-nav-item, .sound-toggle, .ott-filter-chip, .media-mode-tab',
+      )
+    ) {
+      return;
+    }
+
     const clientX = 'touches' in e ? e.touches[0].clientX : e.clientX;
     const clientY = 'touches' in e ? e.touches[0].clientY : e.clientY;
 
@@ -467,12 +479,26 @@ export function initTerrainScene(): void {
     ndc.y = -((clientY - rect.top) / rect.height) * 2 + 1;
 
     raycaster.setFromCamera(ndc, camera);
+    let hitPoint: THREE.Vector3 | null = null;
     const hits = raycaster.intersectObject(terrain);
-    if (!hits.length) return;
+    if (hits.length) {
+      hitPoint = hits[0].point;
+    } else {
+      // Intersect with ground plane so clicks across the background area trigger the wave
+      const groundPlane = new THREE.Plane(new THREE.Vector3(0, 1, 0), 0);
+      const targetPoint = new THREE.Vector3();
+      if (raycaster.ray.intersectPlane(groundPlane, targetPoint)) {
+        hitPoint = targetPoint;
+      }
+    }
 
-    const p = hits[0].point;
-    uniforms.uPulseOrigin.value.set(p.x, p.z);
+    if (!hitPoint) return;
+
+    uniforms.uPulseOrigin.value.set(hitPoint.x, hitPoint.z);
     firePulse(clock.getElapsedTime(), { radial: true });
+
+    // Cue darkmatter-2.mp3 on click on background area wave effect
+    window.dispatchEvent(new CustomEvent('terrain-wave'));
   }
 
   window.addEventListener('click', onPointerDown);
@@ -507,3 +533,5 @@ if (document.readyState === 'loading') {
 } else {
   initTerrainScene();
 }
+
+document.addEventListener('astro:page-load', initTerrainScene);

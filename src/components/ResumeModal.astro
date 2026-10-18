@@ -343,6 +343,8 @@
     const closeBtn = document.getElementById('resumeModalClose');
 
     if (!overlay || !closeBtn) return;
+    if (overlay.dataset.modalBound === 'true') return;
+    overlay.dataset.modalBound = 'true';
 
     let previousActiveElement: HTMLElement | null = null;
 
@@ -405,4 +407,6 @@
   } else {
     setupResumeModal();
   }
+
+  document.addEventListener('astro:page-load', setupResumeModal);
 </script>

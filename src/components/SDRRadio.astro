@@ -1142,9 +1142,20 @@ const defaultStation: FMStation = RADIO_STATIONS[0];
   // Initialize on load
   let sdrInstance: SDRController | null = null;
   function initSDR() {
-    if (!sdrInstance) {
-      sdrInstance = new SDRController();
+    const canvas = document.getElementById('sdr-waterfall-canvas');
+    if (!canvas) {
+      if (sdrInstance) {
+        sdrInstance.destroy();
+        sdrInstance = null;
+      }
+      return;
     }
+
+    if (sdrInstance) {
+      sdrInstance.destroy();
+      sdrInstance = null;
+    }
+    sdrInstance = new SDRController();
   }
 
   if (document.readyState === 'loading') {
@@ -1152,4 +1163,6 @@ const defaultStation: FMStation = RADIO_STATIONS[0];
   } else {
     initSDR();
   }
+
+  document.addEventListener('astro:page-load', initSDR);
 </script>

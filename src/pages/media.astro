@@ -18,7 +18,7 @@ import MediaTV from '../components/MediaTV.astro';
   title="Media // Deck — Bernard Birendra Das"
   description="Curated media dashboard by Bernard Birendra Das: Software Defined Radio (SDR), Curated Cinema, and Prestige Television Series."
 >
-  <canvas id="scene" aria-hidden="true"></canvas>
+  <canvas id="scene" transition:persist="terrain-canvas" aria-hidden="true"></canvas>
 
   <ChromeNav />
 
@@ -300,6 +300,7 @@ import MediaTV from '../components/MediaTV.astro';
   <script>
     function setupMediaDeck() {
       const tabs = document.querySelectorAll<HTMLButtonElement>('.media-mode-tab');
+      if (tabs.length === 0) return;
       const views = {
         radio: document.getElementById('view-radio'),
         cinema: document.getElementById('view-cinema'),
@@ -396,7 +397,10 @@ import MediaTV from '../components/MediaTV.astro';
       }
 
       // Check audio status periodically for mini ticker
-      setInterval(updateMiniTicker, 800);
+      if ((window as any).__mediaTickerInterval) {
+        clearInterval((window as any).__mediaTickerInterval);
+      }
+      (window as any).__mediaTickerInterval = window.setInterval(updateMiniTicker, 800);
 
       // ── Tactical Search & Filter Logic for Cinema ───────────
       setupTacticalFilterMatrix('cinema');
@@ -553,5 +557,7 @@ import MediaTV from '../components/MediaTV.astro';
     } else {
       setupMediaDeck();
     }
+
+    document.addEventListener('astro:page-load', setupMediaDeck);
   </script>
 </BaseLayout>
