@@ -5,140 +5,7 @@
  * Low-Latency Inference Serving, Enterprise MLOps, Multi-Modal Edge, and Real-Time Feature Stores.
  */
 import Loader from './Loader.astro';
-
-interface Project {
-  id: string;
-  name: string;
-  category: string;
-  metric: string;
-  desc: string;
-  highlights: string[];
-  tags: string[];
-  githubUrl: string;
-}
-
-const projects: Project[] = [
-  {
-    id: 'SYS_01',
-    name: 'Autonomous Multi-Agent GraphRAG & Financial Intelligence Engine',
-    category: 'AGENTIC AI & KNOWLEDGE GRAPHS',
-    metric: '<120ms TTFT // 94.2% Multi-Hop Precision',
-    desc: 'Production-grade hierarchical multi-agent network orchestrated with DSPy and LangGraph. Ingests raw SEC 10-K/10-Q filings, earnings transcripts, and live market news feeds. Features self-correcting query decomposition, ColBERT hybrid dense-sparse retrieval, knowledge graph traversal in Neo4j, and structured JSON output verification.',
-    highlights: [
-      'Multi-hop reasoning with GraphRAG resolving complex cross-document financial dependencies',
-      'Hybrid dense-sparse reranking combining ColBERTv2 with SPLADE for high recall',
-      'Dynamic agent tooling with automatic retry and schema-constrained decoding',
-    ],
-    tags: ['LangGraph', 'DSPy', 'ColBERTv2', 'Neo4j', 'Qdrant', 'vLLM', 'SGLang', 'Docker'],
-    githubUrl: 'https://github.com/bernardbdas/agentic-graphrag-engine',
-  },
-  {
-    id: 'SYS_02',
-    name: 'Distributed 3D-Parallel Foundation Model Pre-Training & Alignment Cluster',
-    category: 'DISTRIBUTED HPC & POST-TRAINING',
-    metric: '48.2% MFU // 32x H100 Scale // 32k Long-Context',
-    desc: 'Scalable distributed training harness engineered for pre-training and alignment of a 14B Mixture-of-Experts (MoE) foundation model. Coordinates 3D parallelism across multi-node GPU clusters using PyTorch FSDP, DeepSpeed ZeRO-3, and Megatron-LM. Fine-tuned with Direct Preference Optimization (DPO) and online PPO/GRPO reinforcement learning.',
-    highlights: [
-      'Achieved 48.2% Model FLOPs Utilization (MFU) with zero gradient divergence across 32k context lengths',
-      'Automated activation checkpointing and ZeRO-Offload eliminating OOM bottlenecks',
-      'Integrated synthetic data generation and automated safety/bias evaluation benchmarks',
-    ],
-    tags: [
-      'PyTorch FSDP',
-      'DeepSpeed ZeRO-3',
-      'Megatron-LM',
-      'FlashAttention-3',
-      'Ray Train',
-      'TRL',
-      'Slurm',
-      'NCCL',
-    ],
-    githubUrl: 'https://github.com/bernardbdas/distributed-moe-cluster',
-  },
-  {
-    id: 'SYS_03',
-    name: 'Ultra-Low-Latency Real-Time LLM Serving Mesh with Speculative Decoding',
-    category: 'INFERENCE ACCEL & CUSTOM KERNELS',
-    metric: '4.2x Throughput // 68% p99 Latency Drop // 38% Cache Hit',
-    desc: 'High-throughput distributed model serving pipeline built for real-time generative workloads. Combines vLLM continuous batching and chunked prefill with speculative draft decoding (1.5B draft assisting 70B target). Features custom OpenAI Triton kernels for fused rotary embeddings and dynamic FP8/AWQ quantization.',
-    highlights: [
-      '4.2x throughput increase over baseline serving with sub-32ms per-token generation latency',
-      'Custom OpenAI Triton kernels fusing layer norms and dynamic quantization for memory bandwidth savings',
-      'Redis-backed semantic response cache reducing redundant GPU compute by 38%',
-    ],
-    tags: [
-      'vLLM',
-      'TensorRT-LLM',
-      'OpenAI Triton',
-      'CUDA C++',
-      'Redis',
-      'Prometheus',
-      'Grafana',
-      'C++20',
-    ],
-    githubUrl: 'https://github.com/bernardbdas/vllm-speculative-serving-mesh',
-  },
-  {
-    id: 'SYS_04',
-    name: 'Self-Healing Enterprise MLOps Platform & Continuous Evaluation Mesh',
-    category: 'CLOUD MLOPS & PRODUCTION INFRA',
-    metric: '99.99% Uptime // Sub-Second GPU HPA // Zero-Downtime Rollouts',
-    desc: 'Cloud-native automated MLOps platform managing the entire model lifecycle from automated data validation to zero-downtime canary deployments on Kubernetes. Features real-time feature and concept drift monitoring that automatically triggers active learning re-training pipelines, backed by automated LLM-as-a-Judge evaluation suites.',
-    highlights: [
-      'Automated drift detection via Evidently AI triggering zero-touch re-training in Argo Workflows',
-      'Sub-second Horizontal Pod Autoscaling (HPA) using custom GPU utilization metrics on KEDA',
-      'Automated rollback mechanisms preventing production degradation during model upgrades',
-    ],
-    tags: [
-      'Kubernetes',
-      'KServe',
-      'KubeRay',
-      'MLflow',
-      'Argo Workflows',
-      'Evidently AI',
-      'Langfuse',
-      'AWS SageMaker',
-    ],
-    githubUrl: 'https://github.com/bernardbdas/enterprise-mlops-platform',
-  },
-  {
-    id: 'SYS_05',
-    name: 'Multi-Modal Vision-Language Edge Perception System',
-    category: 'EDGE AI & EMBEDDED ACCELERATION',
-    metric: '60 FPS Real-Time (<18ms) // 75% Memory Cut // <25W Power',
-    desc: 'Ultra-efficient edge vision-language reasoning engine deployed on NVIDIA Jetson AGX Orin for autonomous robotics and situational awareness. Features 4-bit AWQ weight quantization, TensorRT acceleration, open-vocabulary object grounding, and temporal video stream comprehension under strict embedded power constraints.',
-    highlights: [
-      'Sub-18ms end-to-end perception latency at 60 FPS running entirely within a 25W power envelope',
-      '75% memory footprint reduction via 4-bit INT4 quantization without loss in mean Average Precision (mAP)',
-      'Direct integration with ROS2 middleware for real-time sensor fusion and spatial tracking',
-    ],
-    tags: ['PyTorch', 'TensorRT', 'AWQ', 'OpenCV', 'ONNX Runtime', 'FastSAM', 'ROS2', 'Modern C++'],
-    githubUrl: 'https://github.com/bernardbdas/edge-vlm-perception',
-  },
-  {
-    id: 'SYS_06',
-    name: 'Real-Time Streaming Feature Store & Dual-Stage Recommendation Mesh',
-    category: 'STREAMING DATA & HIGH-THROUGHPUT RECSYS',
-    metric: '<18ms p99 at 75k QPS // Feature Freshness <150ms',
-    desc: 'High-velocity personalization pipeline processing 100k+ events/sec. Dual-stage retrieval architecture: candidate generation via Two-Tower embedding indexing in ScaNN, followed by deep transformer ranking (DLRM) served through Triton Inference Server, with strict point-in-time correctness to eliminate train-serve skew.',
-    highlights: [
-      'Processes 75,000 queries per second with p99 latency strictly below 18ms',
-      'Sub-150ms real-time feature updates using Apache Kafka and Apache Flink stateful streams',
-      'Feast-managed feature registry guaranteeing zero data leakage between training and serving',
-    ],
-    tags: [
-      'Apache Kafka',
-      'Apache Flink',
-      'Feast',
-      'Redis',
-      'Triton Inference Server',
-      'PyTorch DLRM',
-      'ScaNN',
-      'DuckDB',
-    ],
-    githubUrl: 'https://github.com/bernardbdas/streaming-feature-store-recsys',
-  },
-];
+import { projects } from '../data/projects';
 ---
 
 <section class="section anim-s3" id="work" aria-labelledby="projects-heading">
@@ -200,6 +67,33 @@ const projects: Project[] = [
           {project.tags.map((tag) => (
             <span class="tag">{tag}</span>
           ))}
+        </div>
+
+        <!-- Interactive Tactical Demonstration Actions -->
+        <div class="project-actions-row">
+          <button
+            type="button"
+            class="project-demo-btn"
+            data-open-project-demo={project.id}
+            title={`Watch live demo & architecture telemetry for ${project.name}`}
+          >
+            <span class="demo-play-icon" aria-hidden="true">
+              ▶
+            </span>
+            <span>WATCH DEMO & TELEMETRY</span>
+          </button>
+          <a
+            href={project.githubUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            class="project-github-link"
+            title={`View GitHub repository for ${project.name}`}
+          >
+            <span>GITHUB REPO</span>
+            <span class="arrow" aria-hidden="true">
+              ↗
+            </span>
+          </a>
         </div>
       </article>
     ))}

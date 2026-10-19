@@ -193,7 +193,6 @@ export function initAgeCounter(): void {
     document.addEventListener('click', (e) => {
       const target = (e.target as HTMLElement | null)?.closest<HTMLElement>('.age-counter');
       if (target) {
-        e.stopPropagation();
         toggleAgeMode();
       }
     });

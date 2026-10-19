@@ -146,7 +146,13 @@ class MicroSoundsEngine {
       'click',
       (e) => {
         const target = (e.target as HTMLElement).closest<HTMLElement>(
-          'button, a, input[type="search"], .ott-filter-chip, .sdr-genre-pill, .telemetry-pill, .theme-toggle, .palette-item, .view-resume-trigger, .modal-close-btn, .media-mode-tab',
+          'button, a, input, select, textarea, ' +
+            '.age-counter, .local-clock, .clock-badge, .age-badge, ' +
+            '.ott-filter-chip, .sdr-genre-pill, .sdr-preset-btn, .sdr-station-card, .sdr-deck-btn, ' +
+            '.telemetry-pill, .theme-toggle, .palette-item, .palette-btn, [data-set-theme], ' +
+            '.view-resume-trigger, [data-open-resume-overlay], .modal-close-btn, .media-mode-tab, ' +
+            '.project-demo-btn, [data-open-project-demo], .demo-tab-btn, .video-hud-btn, .terminal-rerun-btn, ' +
+            '.tag, .skill-pill, .skill-item, .media-item-card, .contact-link-item, [role="button"]',
         );
         if (!target) return;
 
@@ -161,26 +167,44 @@ class MicroSoundsEngine {
 
         // Theme controls
         if (
-          target.matches('.theme-toggle, .palette-item, .mobile-theme-toggle, [data-set-theme]')
+          target.matches(
+            '.theme-toggle, .palette-item, .palette-btn, .mobile-theme-toggle, [data-set-theme]',
+          )
         ) {
           this.play('theme');
           return;
         }
 
-        // Resume Modal triggers
-        if (target.matches('#viewResumeBtn, .view-resume-trigger, [data-open-resume]')) {
+        // Modal Open triggers (Resume & Project Demo)
+        if (
+          target.matches(
+            '#viewResumeBtn, .view-resume-trigger, [data-open-resume], [data-open-resume-overlay], ' +
+              '.project-demo-btn, [data-open-project-demo]',
+          )
+        ) {
           this.play('modalOpen');
           return;
         }
 
-        // Modal close
-        if (target.matches('#resumeModalClose, .resume-modal-close, #resumeModalBackdrop')) {
+        // Modal Close triggers
+        if (
+          target.matches(
+            '#resumeModalClose, .resume-modal-close, #resumeModalBackdrop, ' +
+              '#demoModalClose, .demo-modal-close, .demo-modal-backdrop',
+          )
+        ) {
           this.play('modalClose');
           return;
         }
 
-        // Tabs & OTT platform chips
-        if (target.matches('.media-mode-tab, .ott-filter-chip, .sdr-genre-pill')) {
+        // Terminal Re-run benchmark
+        if (target.matches('#terminalRerunBtn, .terminal-rerun-btn')) {
+          this.play('surge');
+          return;
+        }
+
+        // Tabs, OTT chips, and Navigation mode switchers
+        if (target.matches('.media-mode-tab, .ott-filter-chip, .sdr-genre-pill, .demo-tab-btn')) {
           this.play('tab');
           return;
         }
@@ -188,6 +212,12 @@ class MicroSoundsEngine {
         // Mobile drawer toggle
         if (target.matches('#mobileNavToggle, #mobileNavClose')) {
           this.play('drawer');
+          return;
+        }
+
+        // Age Counter & Clock tactile switch
+        if (target.matches('.age-counter, .age-counter *, .local-clock, .local-clock *')) {
+          this.play('click');
           return;
         }
 
@@ -202,7 +232,10 @@ class MicroSoundsEngine {
       'mouseover',
       (e) => {
         const target = (e.target as HTMLElement).closest(
-          '.nav-link-item, .ott-filter-chip, .media-mode-tab, .theme-toggle, .mobile-nav-item, .project-card, .media-item-card, .sdr-station-card, .view-resume-trigger, .sound-toggle',
+          '.nav-link-item, .mobile-nav-item, .ott-filter-chip, .media-mode-tab, .theme-toggle, .palette-btn, ' +
+            '.project-row, .project-demo-btn, .project-github-link, .media-item-card, .sdr-station-card, ' +
+            '.sdr-preset-btn, .view-resume-trigger, .sound-toggle, .age-counter, .local-clock, .tag, ' +
+            '.skill-pill, .skill-item, .contact-link-item, .demo-tab-btn',
         );
         if (!target) return;
         this.playHover();
@@ -244,6 +277,8 @@ export class AmbientSoundController {
   private fxLabelElements: HTMLElement[] = [];
   private isFxEnabled = true;
   private hasInteracted = false;
+  private wasPlayingBeforeModal = false;
+  private lastTrackChangeTime = 0;
   private microSounds: MicroSoundsEngine;
 
   constructor() {
@@ -414,6 +449,29 @@ export class AmbientSoundController {
           .catch(() => {});
       }
     });
+
+    // Auto-duck / pause ambient sound when a demo modal opens
+    window.addEventListener('modalopen', () => {
+      if (this.isPlaying && this.audio) {
+        this.wasPlayingBeforeModal = true;
+        this.fadeTo(0, 400, () => {
+          this.audio?.pause();
+        });
+      }
+    });
+
+    // Auto-restore ambient sound when demo modal closes
+    window.addEventListener('modalclose', () => {
+      if (this.wasPlayingBeforeModal && this.audio) {
+        this.wasPlayingBeforeModal = false;
+        this.audio
+          .play()
+          .then(() => {
+            this.fadeTo(this.targetVolume, 800);
+          })
+          .catch(() => {});
+      }
+    });
   }
 
   private restoreSavedPlaybackPosition(): void {
@@ -505,7 +563,6 @@ export class AmbientSoundController {
           window.clearTimeout(clickTimeout);
           clickTimeout = null;
         }
-        this.nextTrack();
       });
     });
 
@@ -563,6 +620,10 @@ export class AmbientSoundController {
   }
 
   public nextTrack(): void {
+    const now = Date.now();
+    if (now - this.lastTrackChangeTime < 300) return;
+    this.lastTrackChangeTime = now;
+
     this.microSounds.play('surge');
 
     this.currentTrackIndex = (this.currentTrackIndex + 1) % AMBIENT_TRACKS.length;
