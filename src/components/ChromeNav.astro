@@ -257,7 +257,12 @@ const links: NavLink[] = [
     </div>
 
     <div class="mobile-theme-palette">
-      <span class="palette-title">COLOR PALETTE</span>
+      <div class="mobile-section-header">
+        <span class="palette-title">COLOR PALETTE</span>
+        <span class="palette-current" id="paletteCurrentTheme">
+          AMBER
+        </span>
+      </div>
       <div class="palette-swatches">
         <button class="palette-btn" data-set-theme="dark" type="button" aria-label="Amber theme">
           <span class="swatch-dot dot-amber"></span>
@@ -287,12 +292,11 @@ const links: NavLink[] = [
       </div>
     </div>
 
-    <div class="mobile-nav-footer">
-      <div class="mobile-nav-status">
-        <span class="status-dot"></span>
-        <span>&copy; 2026 BERNARD BIRENDRA DAS</span>
+    <div class="mobile-audio-section">
+      <div class="mobile-section-header">
+        <span class="mobile-section-title">AUDIO & INTERACTION</span>
       </div>
-      <div class="mobile-footer-actions">
+      <div class="mobile-audio-grid">
         <button
           class="mobile-sound-toggle mobile-ambient-toggle"
           id="mobileSoundToggle"
@@ -325,13 +329,15 @@ const links: NavLink[] = [
             // ON
           </span>
         </button>
-        <button class="mobile-theme-toggle" id="mobileThemeToggle" type="button">
-          <span class="theme-icon">◐</span>
-          <span class="theme-label" id="mobileThemeLabel">
-            CYCLE THEME
-          </span>
-        </button>
       </div>
+    </div>
+
+    <div class="mobile-nav-footer">
+      <div class="mobile-nav-status">
+        <span class="status-dot"></span>
+        <span>&copy; 2026 BERNARD BIRENDRA DAS</span>
+      </div>
+      <span class="mobile-sys-status">INSTRUMENT ONLINE</span>
     </div>
   </div>
 </div>
@@ -357,11 +363,13 @@ const links: NavLink[] = [
     const label = document.getElementById('themeLabel');
     const btn = document.getElementById('themeToggle');
     const mobileThemeLabel = document.getElementById('mobileThemeLabel');
+    const curThemeEl = document.getElementById('paletteCurrentTheme');
     const paletteButtons = document.querySelectorAll<HTMLElement>('[data-set-theme]');
 
     if (label) label.textContent = matched.label;
     if (btn) btn.setAttribute('title', `Color Theme: ${matched.label} (Click to cycle)`);
     if (mobileThemeLabel) mobileThemeLabel.textContent = `THEME: ${matched.label}`;
+    if (curThemeEl) curThemeEl.textContent = matched.label;
 
     paletteButtons.forEach((b) => {
       const isCur = b.getAttribute('data-set-theme') === matched.id;
