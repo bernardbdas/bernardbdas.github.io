@@ -402,153 +402,279 @@ import MediaTV from '../components/MediaTV.astro';
       }
       (window as any).__mediaTickerInterval = window.setInterval(updateMiniTicker, 800);
 
-      // ── Tactical Search & Filter Logic for Cinema ───────────
-      setupTacticalFilterMatrix('cinema');
-
-      // ── Tactical Search & Filter Logic for TV Shows ─────────
-      setupTacticalFilterMatrix('tv');
-    }
-
-    function setupTacticalFilterMatrix(category: 'cinema' | 'tv') {
-      const searchInput = document.getElementById(
-        `${category}-search-input`,
-      ) as HTMLInputElement | null;
-      const clearBtn = document.getElementById(`${category}-search-clear`);
-      const genreSelect = document.getElementById(
-        `${category}-genre-select`,
-      ) as HTMLSelectElement | null;
-      const platformChips = document.querySelectorAll<HTMLButtonElement>(
-        `#${category}-platform-pills .ott-filter-chip`,
-      );
-      const countEl = document.getElementById(`${category}-visible-count`);
-      const emptyNotice = document.getElementById(`${category}-empty-notice`);
-      const resetBtnTop = document.getElementById(`${category}-reset-filters-btn-top`);
-      const resetBtnBottom = document.getElementById(`${category}-reset-filters-btn`);
-      const grid = document.getElementById(`${category}-cards-grid`);
-
-      if (!grid) return;
-      const cards = grid.querySelectorAll<HTMLElement>('.media-item-card');
-
-      let currentPlatform = 'ALL';
-      let currentGenre = 'ALL';
-      let currentSearch = '';
-
-      function updateResetButtonsVisibility() {
-        const isFiltered =
-          currentPlatform !== 'ALL' || currentGenre !== 'ALL' || currentSearch.length > 0;
-        if (resetBtnTop) {
-          resetBtnTop.style.display = isFiltered ? 'inline-flex' : 'none';
+      function switchDeckModeAndSearch(targetCategory: 'cinema' | 'tv', query: string) {
+        switchMode(targetCategory);
+        const targetInput = document.getElementById(
+          `${targetCategory}-search-input`,
+        ) as HTMLInputElement | null;
+        const targetClear = document.getElementById(`${targetCategory}-search-clear`);
+        if (targetInput) {
+          targetInput.value = query;
+          if (targetClear) targetClear.style.display = 'inline-flex';
+          targetInput.dispatchEvent(new Event('input', { bubbles: true }));
+          setTimeout(() => {
+            targetInput.focus();
+          }, 80);
         }
       }
 
-      function applyFilters() {
-        let visible = 0;
+      function setupTacticalFilterMatrix(category: 'cinema' | 'tv') {
+        const otherCategory = category === 'cinema' ? 'tv' : 'cinema';
+        const searchInput = document.getElementById(
+          `${category}-search-input`,
+        ) as HTMLInputElement | null;
+        const clearBtn = document.getElementById(`${category}-search-clear`);
+        const genreSelect = document.getElementById(
+          `${category}-genre-select`,
+        ) as HTMLSelectElement | null;
+        const platformChips = document.querySelectorAll<HTMLButtonElement>(
+          `#${category}-platform-pills .ott-filter-chip`,
+        );
+        const countEl = document.getElementById(`${category}-visible-count`);
+        const emptyNotice = document.getElementById(`${category}-empty-notice`);
+        const resetBtnTop = document.getElementById(`${category}-reset-filters-btn-top`);
+        const resetBtnBottom = document.getElementById(`${category}-reset-filters-btn`);
+        const grid = document.getElementById(`${category}-cards-grid`);
 
-        cards.forEach((card) => {
-          const title = card.getAttribute('data-title') || '';
-          const directorOrCreator =
-            card.getAttribute('data-director') || card.getAttribute('data-creator') || '';
-          const cast = card.getAttribute('data-cast') || '';
-          const genres = (card.getAttribute('data-genres') || '')
-            .split(',')
-            .map((g) => g.trim().toLowerCase());
-          const platforms = (card.getAttribute('data-platforms') || '')
-            .split(',')
-            .map((p) => p.trim())
-            .filter(Boolean);
+        const crossHintBar = document.getElementById(`${category}-cross-hint-bar`);
+        const crossHintText = document.getElementById(`${category}-cross-hint-text`);
+        const crossHintBtn = document.getElementById(`${category}-cross-hint-btn`);
+        const crossResultsContainer = document.getElementById(`${category}-cross-deck-results`);
+        const crossHeading = document.getElementById(`${category}-cross-deck-heading`);
+        const crossSwitchBtn = document.getElementById(`${category}-cross-switch-btn`);
+        const crossCardsGrid = document.getElementById(`${category}-cross-cards-grid`);
 
-          const matchesPlatform =
-            currentPlatform === 'ALL'
-              ? true
-              : platforms.length === 1 && platforms[0] === currentPlatform;
-          const matchesGenre =
-            currentGenre === 'ALL' || genres.includes(currentGenre.toLowerCase());
+        if (!grid) return;
+        const cards = grid.querySelectorAll<HTMLElement>('.media-item-card');
 
-          const matchesSearch =
-            !currentSearch ||
-            title.includes(currentSearch) ||
-            directorOrCreator.includes(currentSearch) ||
-            cast.includes(currentSearch);
+        let currentPlatform = 'ALL';
+        let currentGenre = 'ALL';
+        let currentSearch = '';
 
-          if (matchesPlatform && matchesGenre && matchesSearch) {
-            card.style.display = 'flex';
-            visible++;
-          } else {
-            card.style.display = 'none';
+        // Cross-deck navigation handlers
+        crossHintBtn?.addEventListener('click', () => {
+          if (currentSearch) {
+            switchDeckModeAndSearch(otherCategory, currentSearch);
           }
         });
 
-        // Update count telemetry label
-        if (countEl) {
-          const entityLabel = category === 'cinema' ? 'FEATURE FILMS' : 'TELEVISION SERIES';
-          countEl.textContent = `INDEX: ${visible} ${entityLabel} VISIBLE`;
+        crossSwitchBtn?.addEventListener('click', () => {
+          if (currentSearch) {
+            switchDeckModeAndSearch(otherCategory, currentSearch);
+          }
+        });
+
+        function updateResetButtonsVisibility() {
+          const isFiltered =
+            currentPlatform !== 'ALL' || currentGenre !== 'ALL' || currentSearch.length > 0;
+          if (resetBtnTop) {
+            resetBtnTop.style.display = isFiltered ? 'inline-flex' : 'none';
+          }
         }
 
-        // Show/hide empty notice
-        if (emptyNotice) {
-          emptyNotice.style.display = visible === 0 ? 'flex' : 'none';
-        }
+        function applyFilters() {
+          let visible = 0;
 
-        updateResetButtonsVisibility();
-      }
+          cards.forEach((card) => {
+            const title = card.getAttribute('data-title') || '';
+            const directorOrCreator =
+              card.getAttribute('data-director') || card.getAttribute('data-creator') || '';
+            const cast = card.getAttribute('data-cast') || '';
+            const genres = (card.getAttribute('data-genres') || '')
+              .split(',')
+              .map((g) => g.trim().toLowerCase());
+            const platforms = (card.getAttribute('data-platforms') || '')
+              .split(',')
+              .map((p) => p.trim())
+              .filter(Boolean);
 
-      // Search input listener
-      searchInput?.addEventListener('input', (e) => {
-        currentSearch = (e.target as HTMLInputElement).value.trim().toLowerCase();
-        if (clearBtn) {
-          clearBtn.style.display = currentSearch ? 'inline-flex' : 'none';
-        }
-        applyFilters();
-      });
+            const matchesPlatform =
+              currentPlatform === 'ALL'
+                ? true
+                : platforms.length === 1 && platforms[0] === currentPlatform;
+            const matchesGenre =
+              currentGenre === 'ALL' || genres.includes(currentGenre.toLowerCase());
 
-      clearBtn?.addEventListener('click', () => {
-        if (searchInput) {
-          searchInput.value = '';
-          currentSearch = '';
-          clearBtn.style.display = 'none';
-          applyFilters();
-        }
-      });
+            const matchesSearch =
+              !currentSearch ||
+              title.includes(currentSearch) ||
+              directorOrCreator.includes(currentSearch) ||
+              cast.includes(currentSearch);
 
-      // Genre select listener
-      genreSelect?.addEventListener('change', (e) => {
-        currentGenre = (e.target as HTMLSelectElement).value;
-        applyFilters();
-      });
-
-      // Platform chip clicks
-      platformChips.forEach((chip) => {
-        chip.addEventListener('click', () => {
-          platformChips.forEach((c) => {
-            c.classList.remove('active');
-            c.setAttribute('aria-selected', 'false');
+            if (matchesPlatform && matchesGenre && matchesSearch) {
+              card.style.display = 'flex';
+              visible++;
+            } else {
+              card.style.display = 'none';
+            }
           });
-          chip.classList.add('active');
-          chip.setAttribute('aria-selected', 'true');
-          currentPlatform = chip.getAttribute('data-filter-platform') || 'ALL';
+
+          // Cross-archive lookup in the other category
+          const otherGrid = document.getElementById(`${otherCategory}-cards-grid`);
+          let matchingOtherCards: HTMLElement[] = [];
+          if (otherGrid && currentSearch.length >= 2) {
+            const otherCards = Array.from(
+              otherGrid.querySelectorAll<HTMLElement>('.media-item-card'),
+            );
+            matchingOtherCards = otherCards.filter((card) => {
+              const title = card.getAttribute('data-title') || '';
+              const creator =
+                card.getAttribute('data-creator') || card.getAttribute('data-director') || '';
+              const cast = card.getAttribute('data-cast') || '';
+              const genres = (card.getAttribute('data-genres') || '').toLowerCase();
+              return (
+                title.includes(currentSearch) ||
+                creator.includes(currentSearch) ||
+                cast.includes(currentSearch) ||
+                genres.includes(currentSearch)
+              );
+            });
+          }
+
+          const currentEntityLabel = category === 'cinema' ? 'FEATURE FILMS' : 'TELEVISION SERIES';
+          const otherEntityLabel =
+            otherCategory === 'cinema' ? 'FEATURE FILMS' : 'TELEVISION SERIES';
+          const otherShortLabel = otherCategory === 'cinema' ? 'Movies' : 'TV Shows';
+
+          if (currentSearch.length >= 2 && matchingOtherCards.length > 0) {
+            if (visible === 0) {
+              // Case 1: 0 items in current category, but matches in the other category!
+              if (emptyNotice) emptyNotice.style.display = 'none';
+              if (crossHintBar) crossHintBar.style.display = 'none';
+
+              if (crossResultsContainer) {
+                crossResultsContainer.style.display = 'block';
+              }
+              if (crossHeading) {
+                crossHeading.textContent = `NO ${currentEntityLabel} MATCHED — FOUND ${matchingOtherCards.length} ${otherEntityLabel} FOR "${currentSearch.toUpperCase()}"`;
+              }
+              if (crossSwitchBtn) {
+                crossSwitchBtn.innerHTML = `<span>SWITCH TO ${otherShortLabel.toUpperCase()} DECK (${matchingOtherCards.length})</span><span class="cross-deck-arrow" aria-hidden="true">→</span>`;
+              }
+              if (crossCardsGrid) {
+                crossCardsGrid.innerHTML = '';
+                matchingOtherCards.forEach((c) => {
+                  const clone = c.cloneNode(true) as HTMLElement;
+                  clone.style.display = 'flex';
+                  clone.classList.add('cross-deck-cloned-card');
+                  crossCardsGrid.appendChild(clone);
+                });
+              }
+            } else {
+              // Case 2: Items found in current category, and ALSO found in the other category!
+              if (crossResultsContainer) {
+                crossResultsContainer.style.display = 'none';
+                if (crossCardsGrid) crossCardsGrid.innerHTML = '';
+              }
+              if (emptyNotice) {
+                emptyNotice.style.display = 'none';
+              }
+              if (crossHintBar && crossHintText) {
+                crossHintBar.style.display = 'flex';
+                const sampleNames = matchingOtherCards
+                  .slice(0, 3)
+                  .map((c) => c.querySelector('.media-title')?.textContent?.trim() || '')
+                  .filter(Boolean)
+                  .join(', ');
+                const moreCount =
+                  matchingOtherCards.length > 3 ? ` (+${matchingOtherCards.length - 3} more)` : '';
+                crossHintText.innerHTML = `Also found <strong>${matchingOtherCards.length} matching ${otherShortLabel}</strong>: <em>${sampleNames}${moreCount}</em>`;
+              }
+              if (crossHintBtn) {
+                crossHintBtn.innerHTML = `<span>VIEW IN ${otherShortLabel.toUpperCase()} (${matchingOtherCards.length})</span><span class="cross-hint-arrow" aria-hidden="true">→</span>`;
+              }
+            }
+          } else {
+            // Case 3: No cross-category matches or search is empty
+            if (crossResultsContainer) {
+              crossResultsContainer.style.display = 'none';
+              if (crossCardsGrid) crossCardsGrid.innerHTML = '';
+            }
+            if (crossHintBar) {
+              crossHintBar.style.display = 'none';
+            }
+            if (emptyNotice) {
+              emptyNotice.style.display = visible === 0 ? 'flex' : 'none';
+            }
+          }
+
+          // Update count telemetry label
+          if (countEl) {
+            countEl.textContent = `INDEX: ${visible} ${currentEntityLabel} VISIBLE`;
+          }
+
+          updateResetButtonsVisibility();
+        }
+
+        // Search input listener
+        searchInput?.addEventListener('input', (e) => {
+          currentSearch = (e.target as HTMLInputElement).value.trim().toLowerCase();
+          if (clearBtn) {
+            clearBtn.style.display = currentSearch ? 'inline-flex' : 'none';
+          }
           applyFilters();
         });
-      });
 
-      function resetAll() {
-        if (searchInput) searchInput.value = '';
-        currentSearch = '';
-        if (clearBtn) clearBtn.style.display = 'none';
-
-        if (genreSelect) genreSelect.value = 'ALL';
-        currentGenre = 'ALL';
-
-        platformChips.forEach((c, idx) => {
-          c.classList.toggle('active', idx === 0);
-          c.setAttribute('aria-selected', idx === 0 ? 'true' : 'false');
+        clearBtn?.addEventListener('click', () => {
+          if (searchInput) {
+            searchInput.value = '';
+            currentSearch = '';
+            clearBtn.style.display = 'none';
+            applyFilters();
+            searchInput.focus();
+          }
         });
-        currentPlatform = 'ALL';
 
-        applyFilters();
+        // Genre select listener
+        genreSelect?.addEventListener('change', (e) => {
+          currentGenre = (e.target as HTMLSelectElement).value;
+          applyFilters();
+        });
+
+        // Platform chip clicks
+        platformChips.forEach((chip) => {
+          chip.addEventListener('click', () => {
+            platformChips.forEach((c) => {
+              c.classList.remove('active');
+              c.setAttribute('aria-selected', 'false');
+            });
+            chip.classList.add('active');
+            chip.setAttribute('aria-selected', 'true');
+            currentPlatform = chip.getAttribute('data-filter-platform') || 'ALL';
+            applyFilters();
+          });
+        });
+
+        function resetAll() {
+          if (searchInput) searchInput.value = '';
+          currentSearch = '';
+          if (clearBtn) clearBtn.style.display = 'none';
+
+          if (genreSelect) genreSelect.value = 'ALL';
+          currentGenre = 'ALL';
+
+          platformChips.forEach((c, idx) => {
+            c.classList.toggle('active', idx === 0);
+            c.setAttribute('aria-selected', idx === 0 ? 'true' : 'false');
+          });
+          currentPlatform = 'ALL';
+
+          if (crossResultsContainer) {
+            crossResultsContainer.style.display = 'none';
+            if (crossCardsGrid) crossCardsGrid.innerHTML = '';
+          }
+          if (crossHintBar) crossHintBar.style.display = 'none';
+
+          applyFilters();
+        }
+
+        resetBtnTop?.addEventListener('click', resetAll);
+        resetBtnBottom?.addEventListener('click', resetAll);
       }
 
-      resetBtnTop?.addEventListener('click', resetAll);
-      resetBtnBottom?.addEventListener('click', resetAll);
+      // ── Tactical Search & Filter Logic for Cinema & TV ───────────
+      setupTacticalFilterMatrix('cinema');
+      setupTacticalFilterMatrix('tv');
     }
 
     // Initialize when DOM ready

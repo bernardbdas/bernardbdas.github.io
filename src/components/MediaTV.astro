@@ -9,17 +9,25 @@ import { CURATED_TV_SHOWS, USER_OTT_PLATFORMS, type TVShowItem } from '../data/m
 const coreTVGenres = [
   'ALL',
   'Sci-Fi',
+  'Hard Sci-Fi',
+  'Space Opera',
+  'Anime',
   'Cyber-Thriller',
   'Psychological',
   'Mystery',
+  'Supernatural',
   'Drama',
   'Corporate Dystopia',
   'Corporate Satire',
   'Crime',
+  'Action',
   'History',
   'Spy Thriller',
   'Comedy',
+  'Stoner Comedy',
+  'Satire',
   'Epic',
+  'Superhero',
 ];
 ---
 
@@ -44,11 +52,15 @@ const coreTVGenres = [
           </svg>
         </span>
         <input
-          type="search"
+          type="text"
+          inputmode="search"
+          role="searchbox"
           id="tv-search-input"
           class="media-search-input"
           placeholder="FILTER TV SERIES // TITLE, CREATOR, CAST..."
           aria-label="Filter curated TV series archive"
+          autocomplete="off"
+          spellcheck="false"
         />
         <button
           type="button"
@@ -155,6 +167,20 @@ const coreTVGenres = [
     <span class="catalogue-telemetry">AUTHORIZATION // BERNARD'S CURATION</span>
   </div>
 
+  <!-- Cross-Deck Quick Hint Bar -->
+  <div class="cross-deck-hint-bar" id="tv-cross-hint-bar" style="display: none;">
+    <div class="cross-hint-content">
+      <span class="status-pulse-dot" aria-hidden="true"></span>
+      <span class="cross-hint-text" id="tv-cross-hint-text"></span>
+    </div>
+    <button type="button" class="cross-hint-action-btn" id="tv-cross-hint-btn">
+      <span>SWITCH TO MOVIES</span>
+      <span class="cross-hint-arrow" aria-hidden="true">
+        →
+      </span>
+    </button>
+  </div>
+
   <!-- TV Shows Grid -->
   <div class="media-cards-grid" id="tv-cards-grid" role="list">
     {CURATED_TV_SHOWS.map((show: TVShowItem) => (
@@ -235,6 +261,28 @@ const coreTVGenres = [
         </div>
       </article>
     ))}
+  </div>
+
+  <!-- Cross-Deck Suggestions Section (e.g. When searching a Film while in TV Shows) -->
+  <div class="cross-deck-results-container" id="tv-cross-deck-results" style="display: none;">
+    <div class="cross-deck-header-bar">
+      <div class="cross-deck-header-info">
+        <span class="status-pulse-dot" aria-hidden="true"></span>
+        <span class="cross-deck-tag">CROSS-ARCHIVE TELEMETRY</span>
+        <h4 class="cross-deck-heading" id="tv-cross-deck-heading">
+          MATCHING CINEMA FEATURE FILMS FOUND
+        </h4>
+      </div>
+      <button type="button" class="cross-deck-switch-btn" id="tv-cross-switch-btn">
+        <span>SWITCH TO MOVIES DECK</span>
+        <span class="cross-deck-arrow" aria-hidden="true">
+          →
+        </span>
+      </button>
+    </div>
+    <div class="media-cards-grid cross-cards-grid" id="tv-cross-cards-grid">
+      <!-- Cloned matching cards rendered dynamically -->
+    </div>
   </div>
 
   <!-- Empty Search Results Notice -->

@@ -17,9 +17,11 @@
     "prepare": "husky"
   },
   "dependencies": {
+    "@astrojs/check": "^0.9.11",
     "astro": "^7.3.8",
     "katex": "^0.19.0",
-    "three": "^0.186.1"
+    "three": "^0.186.1",
+    "typescript": "^6.0.3"
   },
   "devDependencies": {
     "@types/katex": "^0.16.8",
