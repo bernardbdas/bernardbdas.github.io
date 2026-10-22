@@ -54,7 +54,7 @@ const { title, description } = Astro.props;
     <script is:inline>
       (function () {
         const saved = localStorage.getItem('theme');
-        const valid = ['dark', 'blue', 'emerald', 'violet', 'light'];
+        const valid = ['dark', 'white', 'blue', 'emerald', 'violet', 'light'];
         // Amber ('dark') is the permanent default aesthetic
         const pref = saved && valid.includes(saved) ? saved : 'dark';
         document.documentElement.setAttribute('data-theme', pref);
@@ -69,7 +69,7 @@ const { title, description } = Astro.props;
     </script>
   </head>
   <body>
-    <!-- Persistent Ambient Audio Element (preserved across all page navigations via Astro transitions) -->
+    <!-- Persistent Ambient Audio & Stream Elements (preserved across all page navigations via Astro transitions) -->
     <audio
       id="ambient-audio-element"
       transition:persist="ambient-audio"
@@ -77,6 +77,14 @@ const { title, description } = Astro.props;
       preload="auto"
       aria-hidden="true"
     ></audio>
+    <div
+      id="ambient-stream-container"
+      transition:persist="ambient-stream"
+      style="position: fixed; width: 1px; height: 1px; left: -9999px; bottom: 0; opacity: 0; pointer-events: none; overflow: hidden;"
+      aria-hidden="true"
+    >
+      <div id="ambient-yt-player"></div>
+    </div>
     <slot />
   </body>
 </html>

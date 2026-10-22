@@ -114,7 +114,7 @@ export const RADIO_STATIONS: FMStation[] = [
     freq: '96.1 FM',
     freqNum: 96.1,
     name: 'ASIAN LOFI',
-    desc: 'asian lofi radio ⛩️ — Official Lofi Girl',
+    desc: 'asian lofi radio — Official Lofi Girl',
     genre: 'Lo-Fi & Study',
     origin: 'Lofi Girl Kyoto Stream',
     bitrate: '256 kbps WFM',

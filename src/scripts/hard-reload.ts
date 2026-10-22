@@ -223,11 +223,11 @@ export async function executeHardReload(_options: PurgeOptions = {}): Promise<vo
 
   await new Promise((r) => setTimeout(r, 140));
 
-  // Construct URL with cache-bust parameter while preserving current path and hash
-  const url = new URL(window.location.href);
+  // Always redirect to the home page with cache-bust parameter
+  const url = new URL('/', window.location.origin);
   url.searchParams.set('_purge', String(Date.now()));
 
-  // Hard reload from network
+  // Hard reload to home page from network
   window.location.replace(url.toString());
 }
 

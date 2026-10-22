@@ -25,6 +25,7 @@ const links: NavLink[] = [
   { label: 'Research', href: '/research' },
   { label: 'Blog', href: '/blog' },
   { label: 'Media', href: '/media' },
+  { label: 'Ikigai', href: '/ikigai' },
   { label: 'GitHub', href: 'https://github.com/bernardbdas', external: true },
   { label: 'LinkedIn', href: 'https://linkedin.com/in/bernardbdas', external: true },
 ];
@@ -140,6 +141,10 @@ const links: NavLink[] = [
           <span class="swatch-dot dot-amber"></span>
           <span>Amber</span>
         </button>
+        <button class="palette-item" data-set-theme="white" role="menuitem" type="button">
+          <span class="swatch-dot dot-white"></span>
+          <span>White</span>
+        </button>
         <button class="palette-item" data-set-theme="blue" role="menuitem" type="button">
           <span class="swatch-dot dot-blue"></span>
           <span>Blue</span>
@@ -219,7 +224,7 @@ const links: NavLink[] = [
         bernardbdas<span class="brand-suffix">.github.io</span>
       </span>
       <button class="mobile-nav-close" id="mobileNavClose" type="button" aria-label="Close menu">
-        ✕
+        &times;
       </button>
     </div>
 
@@ -267,6 +272,10 @@ const links: NavLink[] = [
         <button class="palette-btn" data-set-theme="dark" type="button" aria-label="Amber theme">
           <span class="swatch-dot dot-amber"></span>
           <span>Amber</span>
+        </button>
+        <button class="palette-btn" data-set-theme="white" type="button" aria-label="White theme">
+          <span class="swatch-dot dot-white"></span>
+          <span>White</span>
         </button>
         <button class="palette-btn" data-set-theme="blue" type="button" aria-label="Blue theme">
           <span class="swatch-dot dot-blue"></span>
@@ -375,9 +384,10 @@ const links: NavLink[] = [
 
   const THEMES = [
     { id: 'dark', label: 'AMBER' },
+    { id: 'white', label: 'WHITE' },
     { id: 'blue', label: 'BLUE' },
-    { id: 'emerald', label: 'EMERALD' },
     { id: 'violet', label: 'VIOLET' },
+    { id: 'emerald', label: 'EMERALD' },
     { id: 'light', label: 'LIGHT' },
   ] as const;
 

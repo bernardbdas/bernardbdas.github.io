@@ -61,7 +61,7 @@ import { projects } from '../data/projects';
           aria-selected="false"
           aria-controls="demoTabArchitecture"
         >
-          <span class="tab-indicator">☵</span>
+          <span class="tab-indicator">::</span>
           <span>ARCHITECTURE</span>
         </button>
       </nav>
@@ -85,7 +85,7 @@ import { projects } from '../data/projects';
           aria-label="Close demonstration overlay (Escape)"
           title="Close (ESC)"
         >
-          ✕
+          &times;
         </button>
       </div>
     </header>
@@ -150,7 +150,7 @@ import { projects } from '../data/projects';
               00:00 / 00:00
             </span>
             <button type="button" class="video-hud-btn" id="videoMute" title="Mute/Unmute (M)">
-              <span id="videoMuteIcon">🔊</span>
+              <span id="videoMuteIcon">VOL</span>
             </button>
             <button
               type="button"
@@ -161,7 +161,7 @@ import { projects } from '../data/projects';
               1.0x
             </button>
             <button type="button" class="video-hud-btn" id="videoFullscreen" title="Fullscreen (F)">
-              ⛶
+              MAX
             </button>
           </div>
         </div>
@@ -535,10 +535,10 @@ import { projects } from '../data/projects';
       function togglePlay() {
         if (player!.paused) {
           player!.play();
-          if (playIcon) playIcon.textContent = '❚❚';
+          if (playIcon) playIcon.textContent = 'PAUSE';
         } else {
           player!.pause();
-          if (playIcon) playIcon.textContent = '▶';
+          if (playIcon) playIcon.textContent = 'PLAY';
         }
       }
 
@@ -557,11 +557,11 @@ import { projects } from '../data/projects';
       });
 
       player.addEventListener('play', () => {
-        if (playIcon) playIcon.textContent = '❚❚';
+        if (playIcon) playIcon.textContent = 'PAUSE';
       });
 
       player.addEventListener('pause', () => {
-        if (playIcon) playIcon.textContent = '▶';
+        if (playIcon) playIcon.textContent = 'PLAY';
       });
 
       scrubber?.addEventListener('input', (e) => {
@@ -574,7 +574,7 @@ import { projects } from '../data/projects';
       muteBtn?.addEventListener('click', (e) => {
         e.preventDefault();
         player!.muted = !player!.muted;
-        if (muteIcon) muteIcon.textContent = player!.muted ? '🔇' : '🔊';
+        if (muteIcon) muteIcon.textContent = player!.muted ? 'MUTED' : 'VOL';
       });
 
       rateBtn?.addEventListener('click', (e) => {

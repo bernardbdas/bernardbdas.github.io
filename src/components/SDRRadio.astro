@@ -252,6 +252,17 @@ const defaultStation: FMStation = RADIO_STATIONS[0];
 
           <button
             type="button"
+            class="sdr-btn sdr-btn-mini sdr-route-ambient-btn"
+            id="sdr-route-ambient-btn"
+            aria-label="Pipe currently tuned radio stream into background ambient sound"
+            title="Route this live radio stream to persistent background ambient sound"
+          >
+            <span class="ambient-route-dot" aria-hidden="true"></span>
+            <span id="sdr-route-ambient-label">PIPE TO AMBIENT</span>
+          </button>
+
+          <button
+            type="button"
             class="sdr-btn sdr-btn-mini sdr-light-rig-btn"
             id="sdr-light-rig-btn"
             style="display: none;"
@@ -338,8 +349,22 @@ const defaultStation: FMStation = RADIO_STATIONS[0];
           </div>
 
           <div class="station-card-meta">
-            <span class="station-genre-tag">{station.genre}</span>
-            <span class="station-tune-label">TUNE IN →</span>
+            <span class="station-genre-tag" title={station.genre}>
+              {station.genre}
+            </span>
+            <div class="station-meta-actions">
+              <button
+                type="button"
+                class="station-ambient-pipe-btn"
+                data-action="make-ambient"
+                data-station-id={station.id}
+                title={`Set ${station.name} as background ambient sound`}
+                aria-label={`Set ${station.name} as background ambient sound`}
+              >
+                <span>AMBIENT</span>
+              </button>
+              <span class="station-tune-label">TUNE&nbsp;IN&nbsp;→</span>
+            </div>
           </div>
         </div>
       ))}
@@ -432,7 +457,7 @@ const defaultStation: FMStation = RADIO_STATIONS[0];
             enablejsapi: 1,
             origin: window.location.origin,
             rel: 0,
-            autoplay: 1,
+            autoplay: 0,
             modestbranding: 1,
             iv_load_policy: 3,
             fs: 0,
@@ -522,6 +547,36 @@ const defaultStation: FMStation = RADIO_STATIONS[0];
       // Mute toggle
       const muteBtn = document.getElementById('sdr-mute-btn');
       muteBtn?.addEventListener('click', () => this.toggleMute());
+
+      // Route currently tuned station to background ambient sound
+      const routeAmbientBtn = document.getElementById('sdr-route-ambient-btn');
+      routeAmbientBtn?.addEventListener('click', (e) => {
+        e.stopPropagation();
+        this.routeStationToAmbient(this.currentStation);
+      });
+
+      // Ambient pipe click on individual station cards
+      document.addEventListener('click', (e) => {
+        const target = (e.target as HTMLElement).closest<HTMLElement>(
+          '[data-action="make-ambient"]',
+        );
+        if (!target) return;
+        e.stopPropagation();
+        e.preventDefault();
+        const stationId = target.getAttribute('data-station-id');
+        const station = RADIO_STATIONS.find((s) => s.id === stationId);
+        if (station) {
+          this.routeStationToAmbient(station);
+          const span = target.querySelector('span');
+          if (span) {
+            const originalText = span.textContent;
+            span.textContent = 'ACTIVE';
+            setTimeout(() => {
+              if (span) span.textContent = originalText;
+            }, 2500);
+          }
+        }
+      });
 
       // Genre filter tabs
       const genrePills = document.querySelectorAll<HTMLButtonElement>('.sdr-genre-pill');
@@ -634,6 +689,39 @@ const defaultStation: FMStation = RADIO_STATIONS[0];
       }
       this.updateDisplay();
       this.updateClubLightingState();
+    }
+
+    private routeStationToAmbient(station: FMStation) {
+      if (this.isPlaying) {
+        this.togglePower();
+      }
+
+      let code = 'SDR';
+      const idLower = station.id.toLowerCase();
+      if (idLower.includes('piano')) code = 'PIANO';
+      else if (idLower.includes('rain')) code = 'RAIN';
+      else if (idLower.includes('fire')) code = 'HEARTH';
+      else if (idLower.includes('lofi')) code = 'LOFI';
+
+      window.dispatchEvent(
+        new CustomEvent('set-ambient-sound', {
+          detail: {
+            id: station.id,
+            name: station.name,
+            ytId: station.ytId,
+            code,
+            isPipedFromRadio: true,
+          },
+        }),
+      );
+
+      const label = document.getElementById('sdr-route-ambient-label');
+      if (label) {
+        label.textContent = 'AMBIENT ACTIVE';
+        setTimeout(() => {
+          if (label) label.textContent = 'PIPE TO AMBIENT';
+        }, 2500);
+      }
     }
 
     private tuneToStation(station: FMStation) {
