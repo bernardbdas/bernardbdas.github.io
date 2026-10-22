@@ -329,6 +329,31 @@ const links: NavLink[] = [
             // ON
           </span>
         </button>
+        <button
+          class="mobile-sound-toggle mobile-reload-toggle"
+          id="mobileHardReloadBtn"
+          type="button"
+          data-action="hard-reload"
+          aria-label="Execute nuclear cache purge and hard reload (Shift + R)"
+          title="Hard Reload / Nuclear Purge (Shift + R)"
+        >
+          <span class="reload-icon-wrap" aria-hidden="true">
+            <svg
+              class="reload-svg"
+              viewBox="0 0 14 14"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.3"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <path d="M12 2v4H8"></path>
+              <path d="M10.5 8.5A4.5 4.5 0 1 1 9.8 4.2L12 6"></path>
+            </svg>
+          </span>
+          <span class="reload-badge">HARD RELOAD</span>
+          <span class="sound-label">// PURGE</span>
+        </button>
       </div>
     </div>
 
@@ -346,6 +371,7 @@ const links: NavLink[] = [
   import '../scripts/age-counter';
   import '../scripts/local-clock';
   import '../scripts/ambient-sound';
+  import '../scripts/hard-reload';
 
   const THEMES = [
     { id: 'dark', label: 'AMBER' },

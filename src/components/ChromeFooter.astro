@@ -127,12 +127,28 @@
         </span>
       </div>
     </div>
+    <span class="hud-sep footer-reload-sep" aria-hidden="true">
+      //
+    </span>
+    <button
+      class="telemetry-pill footer-reload-btn"
+      id="footerReloadBtn"
+      type="button"
+      data-action="hard-reload"
+      aria-label="Execute nuclear cache purge and hard reload (Shift + R)"
+      title="Hard Reload / Nuclear Purge (Shift + R)"
+    >
+      <span class="pill-dot pill-dot-reload" aria-hidden="true"></span>
+      <span class="pill-label">PURGE</span>
+      <span class="pill-val">RELOAD</span>
+    </button>
   </div>
 </footer>
 
 <script>
   import '../scripts/client-telemetry';
   import '../scripts/web-vitals';
+  import '../scripts/hard-reload';
 
   // Smooth scroll to top for scrollable content container and window
   const backToTop = document.querySelector('.back-to-top');

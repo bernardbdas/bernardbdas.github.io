@@ -78,14 +78,23 @@ declare global {
 }
 
 /**
- * MicroSoundsEngine — High-performance audio pool for tactile UI sounds
+ * MicroSoundsEngine — High-performance Web Audio API engine for tactile UI sounds
+ *
+ * Architecture:
+ * - Uses AudioContext and pre-decoded in-memory AudioBuffers for instant (0ms latency) playback.
+ * - Zero thread-blocking or disk-streaming stalls when clicking or hovering.
+ * - Graceful fallback to HTML5 Audio elements if AudioContext is unavailable or restricted.
  */
 class MicroSoundsEngine {
   private enabled = true;
   private lastHoverTime = 0;
-  private readonly hoverThrottleMs = 110;
+  private readonly hoverThrottleMs = 90;
 
-  private fxPool: Record<string, HTMLAudioElement[]> = {};
+  private audioCtx: AudioContext | null = null;
+  private bufferMap: Partial<Record<keyof typeof this.fxSources, AudioBuffer>> = {};
+  private isPreloading = false;
+  private fallbackPool: Record<string, HTMLAudioElement[]> = {};
+
   private readonly fxSources = {
     click: '/audio/fx/click.mp3',
     hover: '/audio/fx/ripple-1.mp3',
@@ -99,8 +108,21 @@ class MicroSoundsEngine {
     wave: '/audio/fx/darkmatter-2.mp3',
   } as const;
 
+  private readonly volumes: Record<keyof typeof this.fxSources, number> = {
+    click: 0.22,
+    hover: 0.1,
+    drawer: 0.26,
+    modalOpen: 0.28,
+    modalClose: 0.26,
+    tab: 0.24,
+    slider: 0.22,
+    surge: 0.32,
+    theme: 0.28,
+    wave: 0.32,
+  };
+
   constructor() {
-    this.initPools();
+    this.initAudioContext();
     this.attachGlobalInteractions();
   }
 
@@ -108,28 +130,127 @@ class MicroSoundsEngine {
     this.enabled = val;
   }
 
-  private initPools(): void {
-    for (const [key, src] of Object.entries(this.fxSources)) {
-      const poolSize = key === 'wave' ? 4 : 2;
-      this.fxPool[key] = Array.from({ length: poolSize }, () => new Audio(src));
-      this.fxPool[key].forEach((a) => {
-        a.preload = 'auto';
-        a.volume = key === 'hover' ? 0.12 : key === 'click' ? 0.22 : key === 'wave' ? 0.35 : 0.28;
-      });
+  private initAudioContext(): void {
+    try {
+      const AudioCtxClass =
+        window.AudioContext ||
+        (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
+      if (AudioCtxClass) {
+        this.audioCtx = new AudioCtxClass();
+      }
+    } catch {
+      this.audioCtx = null;
     }
+
+    // Lazy load the sound buffers on first user interaction or idle callback
+    const primeAudio = () => {
+      this.resumeContext();
+      this.preloadBuffers();
+    };
+
+    if ('requestIdleCallback' in window) {
+      window.requestIdleCallback(() => this.preloadBuffers(), { timeout: 2000 });
+    } else {
+      setTimeout(() => this.preloadBuffers(), 500);
+    }
+
+    window.addEventListener('click', primeAudio, { once: true, passive: true });
+    window.addEventListener('keydown', primeAudio, { once: true, passive: true });
+    window.addEventListener('touchstart', primeAudio, { once: true, passive: true });
+  }
+
+  private async resumeContext(): Promise<void> {
+    if (this.audioCtx && this.audioCtx.state === 'suspended') {
+      try {
+        await this.audioCtx.resume();
+      } catch {
+        // Ignored
+      }
+    }
+  }
+
+  private async preloadBuffers(): Promise<void> {
+    if (this.isPreloading) return;
+    this.isPreloading = true;
+
+    if (!this.audioCtx) {
+      this.initFallbackPools();
+      return;
+    }
+
+    const loadEntries = Object.entries(this.fxSources) as [keyof typeof this.fxSources, string][];
+
+    await Promise.allSettled(
+      loadEntries.map(async ([key, url]) => {
+        try {
+          const res = await fetch(url, { cache: 'force-cache' });
+          if (!res.ok) throw new Error(`HTTP ${res.status}`);
+          const arrayBuf = await res.arrayBuffer();
+          if (this.audioCtx) {
+            const audioBuf = await this.audioCtx.decodeAudioData(arrayBuf);
+            this.bufferMap[key] = audioBuf;
+          }
+        } catch {
+          // If fetch/decode fails, ensure fallback element exists
+          this.ensureFallback(key);
+        }
+      }),
+    );
+  }
+
+  private initFallbackPools(): void {
+    for (const key of Object.keys(this.fxSources) as (keyof typeof this.fxSources)[]) {
+      this.ensureFallback(key);
+    }
+  }
+
+  private ensureFallback(name: keyof typeof this.fxSources): void {
+    if (this.fallbackPool[name]) return;
+    const src = this.fxSources[name];
+    const poolSize = name === 'wave' ? 3 : 2;
+    this.fallbackPool[name] = Array.from({ length: poolSize }, () => {
+      const a = new Audio(src);
+      a.preload = 'auto';
+      a.volume = this.volumes[name] ?? 0.2;
+      return a;
+    });
   }
 
   public play(name: keyof typeof this.fxSources): void {
     if (!this.enabled) return;
-    const pool = this.fxPool[name];
-    if (!pool) return;
 
-    const available = pool.find((a) => a.paused || a.ended) || pool[0];
-    try {
-      available.currentTime = 0;
-      available.play().catch(() => {});
-    } catch {
-      // Ignored for autoplay policy
+    // Fast path: Web Audio API AudioBufferSourceNode (Zero main-thread blocking)
+    if (this.audioCtx && this.bufferMap[name]) {
+      if (this.audioCtx.state === 'suspended') {
+        this.audioCtx.resume().catch(() => {});
+      }
+      try {
+        const source = this.audioCtx.createBufferSource();
+        source.buffer = this.bufferMap[name]!;
+
+        const gainNode = this.audioCtx.createGain();
+        gainNode.gain.value = this.volumes[name] ?? 0.25;
+
+        source.connect(gainNode);
+        gainNode.connect(this.audioCtx.destination);
+        source.start(0);
+        return;
+      } catch {
+        // Fall through to HTML5 fallback
+      }
+    }
+
+    // Fallback path: HTML5 Audio pool
+    this.ensureFallback(name);
+    const pool = this.fallbackPool[name];
+    if (pool && pool.length > 0) {
+      const available = pool.find((a) => a.paused || a.ended) || pool[0];
+      try {
+        available.currentTime = 0;
+        available.play().catch(() => {});
+      } catch {
+        // Ignored for autoplay policy
+      }
     }
   }
 
@@ -197,8 +318,12 @@ class MicroSoundsEngine {
           return;
         }
 
-        // Terminal Re-run benchmark
-        if (target.matches('#terminalRerunBtn, .terminal-rerun-btn')) {
+        // Terminal Re-run benchmark & System Hard Reload Purge
+        if (
+          target.matches(
+            '#terminalRerunBtn, .terminal-rerun-btn, #hardReloadBtn, #mobileHardReloadBtn, #footerReloadBtn, [data-action="hard-reload"]',
+          )
+        ) {
           this.play('surge');
           return;
         }
@@ -234,7 +359,7 @@ class MicroSoundsEngine {
         const target = (e.target as HTMLElement).closest(
           '.nav-link-item, .mobile-nav-item, .ott-filter-chip, .media-mode-tab, .theme-toggle, .palette-btn, ' +
             '.project-row, .project-demo-btn, .project-github-link, .media-item-card, .sdr-station-card, ' +
-            '.sdr-preset-btn, .view-resume-trigger, .sound-toggle, .age-counter, .local-clock, .tag, ' +
+            '.sdr-preset-btn, .view-resume-trigger, .sound-toggle, .reload-toggle, .footer-reload-btn, .age-counter, .local-clock, .tag, ' +
             '.skill-pill, .skill-item, .contact-link-item, .demo-tab-btn',
         );
         if (!target) return;

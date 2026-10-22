@@ -14,6 +14,8 @@ const BIRTH_MIN_UTC = 25;
 let globalRafId: number | null = null;
 let currentMode: 'standard' | 'decimal' = 'standard';
 let delegatedListenerAttached = false;
+let lastTickTime = 0;
+const TICK_INTERVAL_MS = 33; // ~30fps UI update throttle (eliminates layout thrashing)
 
 function getSavedMode(): 'standard' | 'decimal' {
   try {
@@ -49,7 +51,7 @@ function renderAllSkeletons(): void {
   containers.forEach(renderContainerSkeleton);
 }
 
-function tick(): void {
+function tick(timestamp?: number): void {
   const containers = document.querySelectorAll<HTMLElement>('.age-counter');
   if (containers.length === 0) {
     if (globalRafId !== null) {
@@ -58,6 +60,13 @@ function tick(): void {
     }
     return;
   }
+
+  // Throttle DOM mutations to ~30Hz to prevent main-thread layout thrashing
+  if (timestamp && timestamp - lastTickTime < TICK_INTERVAL_MS) {
+    globalRafId = requestAnimationFrame(tick);
+    return;
+  }
+  if (timestamp) lastTickTime = timestamp;
 
   const nowMs = Date.now();
   const now = new Date(nowMs);

@@ -26,6 +26,14 @@ const { title, description } = Astro.props;
     <link rel="dns-prefetch" href="https://fonts.gstatic.com" />
     <link rel="dns-prefetch" href="https://api4.ipify.org" />
     <link rel="dns-prefetch" href="https://ipwho.is" />
+    <!-- Preconnect to YouTube streaming domains for SDR radio instant buffering -->
+    <link rel="preconnect" href="https://www.youtube.com" crossorigin />
+    <link rel="preconnect" href="https://www.google.com" crossorigin />
+    <link rel="preconnect" href="https://googlevideo.com" crossorigin />
+    <link rel="dns-prefetch" href="https://www.youtube.com" />
+    <link rel="dns-prefetch" href="https://i.ytimg.com" />
+    <link rel="dns-prefetch" href="https://yt3.ggpht.com" />
+    <link rel="dns-prefetch" href="https://googlevideo.com" />
     <link
       rel="preload"
       as="style"
@@ -47,13 +55,16 @@ const { title, description } = Astro.props;
       (function () {
         const saved = localStorage.getItem('theme');
         const valid = ['dark', 'blue', 'emerald', 'violet', 'light'];
-        const pref =
-          saved && valid.includes(saved)
-            ? saved
-            : window.matchMedia('(prefers-color-scheme: light)').matches
-              ? 'light'
-              : 'dark';
+        // Amber ('dark') is the permanent default aesthetic
+        const pref = saved && valid.includes(saved) ? saved : 'dark';
         document.documentElement.setAttribute('data-theme', pref);
+
+        // Register high-performance asset cache service worker if supported
+        if ('serviceWorker' in navigator && window.location.protocol.startsWith('http')) {
+          window.addEventListener('load', function () {
+            navigator.serviceWorker.register('/sw.js').catch(function () {});
+          });
+        }
       })();
     </script>
   </head>
