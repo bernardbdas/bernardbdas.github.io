@@ -405,7 +405,7 @@ export function initTerrainScene(): void {
       fogColor: '#090a0c',
       baseColor: '#20242c',
       highColor: '#ffffff',
-      scanColor: '#ffffff',
+      scanColor: '#ff2a4b',
       isLight: false,
     },
     blue: {

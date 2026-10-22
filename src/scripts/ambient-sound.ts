@@ -209,6 +209,38 @@ export const THEME_AUDIO_MAP: Record<string, AmbientTrack[]> = {
   // AMBER THEME (id: 'dark'): Piano and classical music & cozy warmth
   dark: [
     {
+      id: 'beethoven-best',
+      name: 'BEETHOVEN MASTERPIECES',
+      code: 'BEETHOVEN',
+      type: 'stream',
+      ytId: 'aoQ-Ld0iFHw',
+      genre: 'Classical Masters',
+    },
+    {
+      id: 'mozart-best',
+      name: 'MOZART MASTERWORKS',
+      code: 'MOZART',
+      type: 'stream',
+      ytId: 'AodoQjrSpUg',
+      genre: 'Classical Masters',
+    },
+    {
+      id: 'beethoven-moonlight',
+      name: 'MOONLIGHT SONATA',
+      code: 'MOONLIGHT',
+      type: 'stream',
+      ytId: '525j1yJ1c4Y',
+      genre: 'Acoustic Piano',
+    },
+    {
+      id: 'chopin-nocturnes',
+      name: 'CHOPIN NOCTURNES',
+      code: 'CHOPIN',
+      type: 'stream',
+      ytId: 'IVpuTD-2SEo',
+      genre: 'Romantic Piano',
+    },
+    {
       id: 'lofi-piano',
       name: 'PEACEFUL PIANO',
       code: 'PIANO',
@@ -272,6 +304,22 @@ export const THEME_AUDIO_MAP: Record<string, AmbientTrack[]> = {
 
   // LIGHT THEME: Calming classical piano & window raindrops
   light: [
+    {
+      id: 'beethoven-best',
+      name: 'BEETHOVEN MASTERPIECES',
+      code: 'BEETHOVEN',
+      type: 'stream',
+      ytId: 'aoQ-Ld0iFHw',
+      genre: 'Classical Masters',
+    },
+    {
+      id: 'mozart-best',
+      name: 'MOZART MASTERWORKS',
+      code: 'MOZART',
+      type: 'stream',
+      ytId: 'AodoQjrSpUg',
+      genre: 'Classical Masters',
+    },
     {
       id: 'lofi-piano',
       name: 'PEACEFUL PIANO',
@@ -1190,7 +1238,7 @@ class MicroSoundsEngine {
         // Sound toggles handled by AmbientSoundController
         if (
           target.matches(
-            '#soundToggle, #mobileSoundToggle, #fxToggle, #mobileFxToggle, .sound-toggle, .mobile-sound-toggle',
+            '#soundToggle, #mobileSoundToggle, #fxToggle, #mobileFxToggle, #persistToggle, #mobilePersistToggle, .sound-toggle, .mobile-sound-toggle',
           )
         ) {
           return;
@@ -1228,12 +1276,8 @@ class MicroSoundsEngine {
           return;
         }
 
-        // Terminal Re-run benchmark & System Hard Reload Purge
-        if (
-          target.matches(
-            '#terminalRerunBtn, .terminal-rerun-btn, #hardReloadBtn, #mobileHardReloadBtn, #footerReloadBtn, [data-action="hard-reload"]',
-          )
-        ) {
+        // Terminal Re-run benchmark
+        if (target.matches('#terminalRerunBtn, .terminal-rerun-btn')) {
           this.play('surge');
           return;
         }
@@ -1309,7 +1353,10 @@ export class AmbientSoundController {
   private labelElements: HTMLElement[] = [];
   private fxToggleButtons: HTMLElement[] = [];
   private fxLabelElements: HTMLElement[] = [];
+  private persistToggleButtons: HTMLElement[] = [];
+  private persistLabelElements: HTMLElement[] = [];
   private isFxEnabled = true;
+  private isPersistenceEnabled = true;
   private hasInteracted = false;
   private wasPlayingBeforeMedia = false;
   private isMediaPlaying = false;
@@ -1393,6 +1440,10 @@ export class AmbientSoundController {
     this.isFxEnabled = fxStored !== 'disabled';
     this.microSounds.setEnabled(this.isFxEnabled);
 
+    // Master background stream persistence preference (defaults to enabled)
+    const persistStored = localStorage.getItem('ambient_persistence');
+    this.isPersistenceEnabled = persistStored !== 'disabled';
+
     const track = this.getCurrentTrack();
 
     if (track.type === 'local' && this.audio && !this.audio.paused && this.audio.currentTime > 0) {
@@ -1449,7 +1500,8 @@ export class AmbientSoundController {
     // Page visibility handling
     document.addEventListener('visibilitychange', () => {
       if (document.hidden) {
-        if (this.isPipedFromRadio && this.isPlaying) {
+        // Master persistence: keep audio stream playing across tab/window switches if enabled
+        if ((this.isPersistenceEnabled || this.isPipedFromRadio) && this.isPlaying) {
           return;
         }
         if (this.isPlaying) {
@@ -1726,6 +1778,7 @@ export class AmbientSoundController {
     this.bindUI();
     this.updateUI(this.isPlaying);
     this.updateFxUI();
+    this.updatePersistUI();
   }
 
   private bindUI(): void {
@@ -1783,8 +1836,58 @@ export class AmbientSoundController {
       });
     });
 
+    // Master Persistence (Flow) Toggles
+    this.persistToggleButtons = Array.from(
+      document.querySelectorAll<HTMLElement>('#persistToggle, #mobilePersistToggle'),
+    );
+    this.persistLabelElements = Array.from(
+      document.querySelectorAll<HTMLElement>('#persistLabel, #mobilePersistLabel'),
+    );
+
+    this.persistToggleButtons.forEach((btn) => {
+      if (btn.dataset.persistBound === 'true') return;
+      btn.dataset.persistBound = 'true';
+
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        this.togglePersistence();
+      });
+    });
+
     this.updateUI(this.isPlaying);
     this.updateFxUI();
+    this.updatePersistUI();
+  }
+
+  public togglePersistence(): void {
+    this.isPersistenceEnabled = !this.isPersistenceEnabled;
+    try {
+      localStorage.setItem(
+        'ambient_persistence',
+        this.isPersistenceEnabled ? 'enabled' : 'disabled',
+      );
+    } catch {
+      // Ignore storage errors
+    }
+    this.updatePersistUI();
+    this.microSounds.play('click');
+  }
+
+  private updatePersistUI(): void {
+    this.persistToggleButtons.forEach((btn) => {
+      btn.classList.toggle('is-active', this.isPersistenceEnabled);
+      btn.setAttribute('aria-pressed', this.isPersistenceEnabled ? 'true' : 'false');
+      btn.setAttribute(
+        'title',
+        this.isPersistenceEnabled
+          ? 'Background Audio Persistence: FLOW [Active] (Audio streams continuously across tabs & windows. Click to pause on tab switch)'
+          : 'Background Audio Persistence: FLOW [Paused on Inactive Tab] (Click to enable continuous playback across tabs & windows)',
+      );
+    });
+
+    this.persistLabelElements.forEach((lbl) => {
+      lbl.textContent = this.isPersistenceEnabled ? '// ON' : '// OFF';
+    });
   }
 
   public toggleFx(): void {

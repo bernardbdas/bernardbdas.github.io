@@ -25,7 +25,6 @@ const links: NavLink[] = [
   { label: 'Research', href: '/research' },
   { label: 'Blog', href: '/blog' },
   { label: 'Media', href: '/media' },
-  { label: 'Ikigai', href: '/ikigai' },
   { label: 'GitHub', href: 'https://github.com/bernardbdas', external: true },
   { label: 'LinkedIn', href: 'https://linkedin.com/in/bernardbdas', external: true },
 ];
@@ -198,6 +197,23 @@ const links: NavLink[] = [
           // ON
         </span>
       </button>
+
+      <button
+        class="sound-toggle persist-toggle is-active"
+        id="persistToggle"
+        type="button"
+        aria-label="Toggle background audio persistence across tabs and windows"
+        title="Background Audio Persistence: [Active] (Continuous playback across tabs/windows. Click to pause when tab is hidden)"
+        aria-pressed="true"
+      >
+        <span class="persist-icon-wrap" aria-hidden="true">
+          <span class="persist-dot"></span>
+        </span>
+        <span class="persist-badge">FLOW</span>
+        <span class="sound-label" id="persistLabel">
+          // ON
+        </span>
+      </button>
     </div>
     <button
       class="mobile-nav-toggle"
@@ -339,29 +355,20 @@ const links: NavLink[] = [
           </span>
         </button>
         <button
-          class="mobile-sound-toggle mobile-reload-toggle"
-          id="mobileHardReloadBtn"
+          class="mobile-sound-toggle mobile-persist-toggle is-active"
+          id="mobilePersistToggle"
           type="button"
-          data-action="hard-reload"
-          aria-label="Execute nuclear cache purge and hard reload (Shift + R)"
-          title="Hard Reload / Nuclear Purge (Shift + R)"
+          aria-label="Toggle background audio persistence across tabs and windows"
+          title="Background Audio Persistence: [Active] (Continuous playback across tabs/windows. Click to pause when tab is hidden)"
+          aria-pressed="true"
         >
-          <span class="reload-icon-wrap" aria-hidden="true">
-            <svg
-              class="reload-svg"
-              viewBox="0 0 14 14"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="1.3"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-            >
-              <path d="M12 2v4H8"></path>
-              <path d="M10.5 8.5A4.5 4.5 0 1 1 9.8 4.2L12 6"></path>
-            </svg>
+          <span class="persist-icon-wrap" aria-hidden="true">
+            <span class="persist-dot"></span>
           </span>
-          <span class="reload-badge">HARD RELOAD</span>
-          <span class="sound-label">// PURGE</span>
+          <span class="persist-badge">FLOW</span>
+          <span class="sound-label" id="mobilePersistLabel">
+            // ON
+          </span>
         </button>
       </div>
     </div>
