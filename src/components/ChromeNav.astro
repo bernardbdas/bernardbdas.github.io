@@ -76,8 +76,8 @@ const links: NavLink[] = [
       id="local-clock"
       role="button"
       tabindex="0"
-      title="User Local Time (Double-click for Bernard's Clock, click to copy)"
-      aria-label="Local time and date instrument readout"
+      title="User Local Time (Click to cycle clock modes: Local > Bernard's > Pomodoro)"
+      aria-label="Clock and Pomodoro flow instrument readout"
     >
       <span class="clock-badge" id="clock-badge">
         LOCAL
@@ -97,6 +97,167 @@ const links: NavLink[] = [
         </span>
         <span class="clock-tz" id="clock-tz"></span>
       </span>
+
+      <!-- Pomodoro Minimal Display (rendered when mode === 'pomodoro') -->
+      <span class="pomo-display" id="pomo-display" style="display: none;">
+        <span class="pomo-tag" id="pomo-tag">
+          WORK
+        </span>
+        <span class="clock-time pomo-time" id="pomo-time">
+          25:00
+        </span>
+        <span class="pomo-mini-actions">
+          <button
+            type="button"
+            class="pomo-mini-btn pomo-play-btn"
+            id="pomo-play-btn"
+            title="Start / Pause Flow (Space)"
+            aria-label="Start or Pause Flow"
+          >
+            <span class="pomo-btn-icon-wrap" id="pomo-play-icon">
+              <svg
+                class="pomo-svg-icon"
+                width="7"
+                height="7"
+                viewBox="0 0 24 24"
+                fill="currentColor"
+                aria-hidden="true"
+              >
+                <polygon points="6 3 20 12 6 21 6 3" />
+              </svg>
+            </span>
+          </button>
+          <button
+            type="button"
+            class="pomo-mini-btn pomo-deck-btn"
+            id="pomo-deck-btn"
+            title="Pomodoro Presets & Controls"
+            aria-label="Open Pomodoro Controls"
+          >
+            <span class="pomo-btn-icon-wrap">
+              <svg
+                class="pomo-svg-icon pomo-chevron-icon"
+                width="8"
+                height="5"
+                viewBox="0 0 8 5"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.6"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                aria-hidden="true"
+              >
+                <path d="M1 1L4 4L7 1" />
+              </svg>
+            </span>
+          </button>
+        </span>
+      </span>
+    </div>
+
+    <!-- Floating Preset & Controls Deck Popover -->
+    <div
+      class="pomo-deck-popover"
+      id="pomo-deck-popover"
+      role="region"
+      aria-label="Pomodoro Instrument Deck"
+      style="display: none;"
+    >
+      <div class="pomo-deck-header">
+        <span class="pomo-deck-title">// POMODORO FLOW INSTRUMENT</span>
+        <button
+          type="button"
+          class="pomo-deck-close"
+          id="pomo-deck-close"
+          aria-label="Close presets"
+        >
+          &times;
+        </button>
+      </div>
+
+      <div class="pomo-deck-row">
+        <span class="pomo-deck-label">FLOW PRESET</span>
+        <div class="pomo-preset-group">
+          <button
+            type="button"
+            class="pomo-preset-btn is-active"
+            data-preset="25-5"
+            id="pomo-preset-25"
+          >
+            25 / 5 CLASSIC
+          </button>
+          <button type="button" class="pomo-preset-btn" data-preset="50-10" id="pomo-preset-50">
+            50 / 10 DEEP
+          </button>
+        </div>
+      </div>
+
+      <div class="pomo-deck-row">
+        <span class="pomo-deck-label">FLOW CONTROLS</span>
+        <div class="pomo-controls-group">
+          <button type="button" class="pomo-action-btn pomo-action-play" id="pomo-action-play">
+            <span id="pomo-deck-play-text">START FLOW</span>
+          </button>
+          <button
+            type="button"
+            class="pomo-action-btn"
+            id="pomo-action-reset"
+            title="Reset timer to beginning"
+          >
+            RESET
+          </button>
+          <button
+            type="button"
+            class="pomo-action-btn"
+            id="pomo-action-skip"
+            title="Skip to next session"
+          >
+            SKIP
+          </button>
+        </div>
+      </div>
+
+      <div class="pomo-deck-row">
+        <span class="pomo-deck-label">COMPLETION CHIME</span>
+        <div class="pomo-chimes-group">
+          <div class="pomo-chime-select-wrap">
+            <select class="pomo-chime-select" id="pomo-chime-select" aria-label="Select chime tone">
+              <option value="zen">ZEN BOWL (Harmonic 528Hz)</option>
+              <option value="synth">SYNTH CHIME (Cyberpunk Shimmer)</option>
+              <option value="radar">RADAR PING (Tactical Sonar)</option>
+              <option value="beep">DIGITAL BEEP (Retro Chrono)</option>
+            </select>
+            <span class="pomo-select-arrow" aria-hidden="true">
+              <svg
+                width="8"
+                height="5"
+                viewBox="0 0 8 5"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.5"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <path d="M1 1L4 4L7 1" />
+              </svg>
+            </span>
+          </div>
+          <button
+            type="button"
+            class="pomo-test-chime-btn"
+            id="pomo-test-chime"
+            title="Test chime preview"
+          >
+            TEST ♪
+          </button>
+        </div>
+      </div>
+
+      <div class="pomo-deck-footer">
+        <button type="button" class="pomo-open-stats-btn" id="pomo-open-stats-btn">
+          DETAILED STATISTICS &amp; TELEMETRY &rarr;
+        </button>
+      </div>
     </div>
   </div>
 
@@ -379,6 +540,137 @@ const links: NavLink[] = [
       </div>
       <span class="mobile-sys-status">INSTRUMENT ONLINE</span>
     </div>
+  </div>
+</div>
+
+<!-- Pomodoro Detailed Telemetry & Statistics Modal -->
+<div
+  id="pomoStatsModal"
+  class="pomo-modal-backdrop"
+  role="dialog"
+  aria-modal="true"
+  aria-labelledby="pomoModalTitle"
+  aria-hidden="true"
+  style="display: none;"
+>
+  <div class="pomo-modal-card">
+    <header class="pomo-modal-header">
+      <div class="pomo-modal-info">
+        <span class="pomo-modal-badge">FLOW // 03</span>
+        <span class="pomo-modal-title" id="pomoModalTitle">
+          POMODORO FLOW TELEMETRY
+        </span>
+        <span class="pomo-modal-meta">// LOCAL PERSISTED AUDIT</span>
+      </div>
+      <button
+        type="button"
+        id="pomoModalClose"
+        class="pomo-modal-close"
+        aria-label="Close statistics modal (Escape)"
+        title="Close (ESC)"
+      >
+        &times;
+      </button>
+    </header>
+
+    <div class="pomo-modal-body">
+      <!-- High-Level Metric Cards -->
+      <div class="pomo-stats-grid">
+        <div class="pomo-stat-card">
+          <span class="pomo-stat-label">TOTAL FLOWS</span>
+          <span class="pomo-stat-value" id="pomo-stat-total-flows">
+            0
+          </span>
+          <span class="pomo-stat-sub">Completed focus sessions</span>
+        </div>
+        <div class="pomo-stat-card">
+          <span class="pomo-stat-label">TOTAL FOCUS TIME</span>
+          <span class="pomo-stat-value" id="pomo-stat-total-focus">
+            0m
+          </span>
+          <span class="pomo-stat-sub">Actual deep work logged</span>
+        </div>
+        <div class="pomo-stat-card">
+          <span class="pomo-stat-label">TOTAL BREAK TIME</span>
+          <span class="pomo-stat-value" id="pomo-stat-total-break">
+            0m
+          </span>
+          <span class="pomo-stat-sub">Rest and recovery time</span>
+        </div>
+        <div class="pomo-stat-card">
+          <span class="pomo-stat-label">ACTIVE PRESET</span>
+          <span class="pomo-stat-value" id="pomo-stat-active-preset">
+            25 / 5
+          </span>
+          <span class="pomo-stat-sub">Customizable in deck</span>
+        </div>
+      </div>
+
+      <!-- Time Horizon Breakdown Table -->
+      <div class="pomo-table-section">
+        <h4 class="pomo-section-title">TIME HORIZON BREAKDOWN</h4>
+        <div class="pomo-table-scroll">
+          <table class="pomo-telemetry-table">
+            <thead>
+              <tr>
+                <th>PERIOD</th>
+                <th>COMPLETED FLOWS</th>
+                <th>FOCUS TIME</th>
+                <th>BREAK TIME</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="pomo-td-period">TODAY</td>
+                <td id="pomo-td-today-flows">0</td>
+                <td id="pomo-td-today-focus">0m</td>
+                <td id="pomo-td-today-break">0m</td>
+              </tr>
+              <tr>
+                <td class="pomo-td-period">THIS WEEK (7D)</td>
+                <td id="pomo-td-week-flows">0</td>
+                <td id="pomo-td-week-focus">0m</td>
+                <td id="pomo-td-week-break">0m</td>
+              </tr>
+              <tr>
+                <td class="pomo-td-period">THIS MONTH (30D)</td>
+                <td id="pomo-td-month-flows">0</td>
+                <td id="pomo-td-month-focus">0m</td>
+                <td id="pomo-td-month-break">0m</td>
+              </tr>
+              <tr>
+                <td class="pomo-td-period">ALL TIME</td>
+                <td id="pomo-td-all-flows">0</td>
+                <td id="pomo-td-all-focus">0m</td>
+                <td id="pomo-td-all-break">0m</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Recent Completed Sessions Log -->
+      <div class="pomo-history-section">
+        <h4 class="pomo-section-title">RECENT SESSION AUDIT LOG</h4>
+        <div class="pomo-history-list" id="pomo-history-list">
+          <div class="pomo-history-empty">
+            NO COMPLETED FLOW SESSIONS RECORDED YET. START A FLOW TO LOG TELEMETRY.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <footer class="pomo-modal-footer">
+      <button type="button" class="pomo-footer-btn" id="pomoCopyReportBtn">
+        COPY TELEMETRY AUDIT
+      </button>
+      <button type="button" class="pomo-footer-btn pomo-btn-danger" id="pomoResetStatsBtn">
+        CLEAR AUDIT DATA
+      </button>
+      <button type="button" class="pomo-footer-btn pomo-btn-primary" id="pomoCloseModalBtn">
+        CLOSE [ESC]
+      </button>
+    </footer>
   </div>
 </div>
 
