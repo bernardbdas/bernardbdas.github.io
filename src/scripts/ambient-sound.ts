@@ -1580,13 +1580,18 @@ export class AmbientSoundController {
     this.currentTheme = themeId;
     this.microSounds.setTheme(themeId);
 
-    // Reset radio pipes when user chooses a new theme palette
+    // If audio is piped from radio, keep playing the piped stream across themes without shutting down!
+    if (this.isPipedFromRadio && this.customStreamTrack) {
+      this.updateUI(this.isPlaying);
+      return;
+    }
+
+    // Default to the first track of the chosen theme if not piped
     this.customStreamTrack = null;
     this.isPipedFromRadio = false;
     localStorage.removeItem('ambient_custom_track');
     localStorage.removeItem('ambient_piped_from_radio');
 
-    // Default to the first track of the chosen theme
     this.currentTrackIndex = 0;
     localStorage.setItem('ambient_track_index', '0');
 
@@ -1803,7 +1808,7 @@ export class AmbientSoundController {
         } else {
           clickTimeout = window.setTimeout(() => {
             clickTimeout = null;
-            this.togglePlayPause();
+            this.handleAmbientButtonClick();
           }, 260);
         }
       });
@@ -1921,6 +1926,35 @@ export class AmbientSoundController {
     });
   }
 
+  public handleAmbientButtonClick(): void {
+    if (this.isPipedFromRadio) {
+      // User clicked the ambient button while a piped radio stream is playing.
+      // Transition from the piped radio stream to the current theme's track sequence!
+      this.isPipedFromRadio = false;
+      this.customStreamTrack = null;
+      localStorage.removeItem('ambient_custom_track');
+      localStorage.removeItem('ambient_piped_from_radio');
+
+      if (this.ytPlayer && typeof this.ytPlayer.pauseVideo === 'function') {
+        try {
+          this.ytPlayer.pauseVideo();
+        } catch {}
+      }
+
+      // Default to track 0 of current theme and start playing
+      this.currentTrackIndex = 0;
+      localStorage.setItem('ambient_track_index', '0');
+      localStorage.setItem('ambient_sound', 'enabled');
+
+      this.microSounds.play('theme');
+      this.play();
+      return;
+    }
+
+    // Normal mode: toggle play / pause
+    this.togglePlayPause();
+  }
+
   public nextTrack(): void {
     const now = Date.now();
     if (now - this.lastTrackChangeTime < 300) return;
@@ -1932,6 +1966,12 @@ export class AmbientSoundController {
     this.isPipedFromRadio = false;
     localStorage.removeItem('ambient_custom_track');
     localStorage.removeItem('ambient_piped_from_radio');
+
+    if (this.ytPlayer && typeof this.ytPlayer.pauseVideo === 'function') {
+      try {
+        this.ytPlayer.pauseVideo();
+      } catch {}
+    }
 
     const tracks = this.getActiveThemeTracks();
     this.currentTrackIndex = (this.currentTrackIndex + 1) % tracks.length;
@@ -1954,10 +1994,24 @@ export class AmbientSoundController {
     if (detail.isPipedFromRadio) {
       this.isPipedFromRadio = true;
       localStorage.setItem('ambient_piped_from_radio', 'true');
-    } else {
-      this.isPipedFromRadio = false;
-      localStorage.removeItem('ambient_piped_from_radio');
+      this.customStreamTrack = {
+        id: detail.id || (detail.ytId ? `stream-${detail.ytId}` : 'piped-track'),
+        name: detail.name || 'RADIO STREAM',
+        code: detail.code || 'SDR',
+        type: detail.ytId ? 'stream' : detail.file ? 'local' : 'stream',
+        ytId: detail.ytId,
+        file: detail.file,
+      };
+      try {
+        localStorage.setItem('ambient_custom_track', JSON.stringify(this.customStreamTrack));
+      } catch {}
+      localStorage.setItem('ambient_sound', 'enabled');
+      this.play();
+      return;
     }
+
+    this.isPipedFromRadio = false;
+    localStorage.removeItem('ambient_piped_from_radio');
 
     if (detail.id) {
       const tracks = this.getActiveThemeTracks();
@@ -1986,6 +2040,23 @@ export class AmbientSoundController {
       } catch {}
       localStorage.setItem('ambient_sound', 'enabled');
       this.play();
+      return;
+    }
+
+    if (detail.file) {
+      this.customStreamTrack = {
+        id: detail.id || `file-${detail.code || 'CUSTOM'}`,
+        name: detail.name || 'CUSTOM AUDIO',
+        code: detail.code || 'AMB',
+        type: 'local',
+        file: detail.file,
+      };
+      try {
+        localStorage.setItem('ambient_custom_track', JSON.stringify(this.customStreamTrack));
+      } catch {}
+      localStorage.setItem('ambient_sound', 'enabled');
+      this.play();
+      return;
     }
   }
 

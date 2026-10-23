@@ -692,9 +692,16 @@ const defaultStation: FMStation = RADIO_STATIONS[0];
     }
 
     private routeStationToAmbient(station: FMStation) {
-      if (this.isPlaying) {
-        this.togglePower();
+      if (this.ytPlayer && typeof this.ytPlayer.pauseVideo === 'function') {
+        try {
+          this.ytPlayer.pauseVideo();
+        } catch {}
       }
+      this.isPlaying = false;
+      this.updateDisplay();
+      this.updateClubLightingState();
+
+      this.setStatusText(`PIPED [${station.name.toUpperCase()}] → BACKGROUND AMBIENT`);
 
       let code = 'SDR';
       const idLower = station.id.toLowerCase();
@@ -702,6 +709,13 @@ const defaultStation: FMStation = RADIO_STATIONS[0];
       else if (idLower.includes('rain')) code = 'RAIN';
       else if (idLower.includes('fire')) code = 'HEARTH';
       else if (idLower.includes('lofi')) code = 'LOFI';
+      else if (idLower.includes('mozart')) code = 'MOZART';
+      else if (idLower.includes('beethoven')) code = 'BEETHOVEN';
+      else if (idLower.includes('chopin')) code = 'CHOPIN';
+      else if (idLower.includes('rock')) code = 'ROCK';
+      else if (idLower.includes('house') || idLower.includes('dance')) code = 'HOUSE';
+      else if (station.code) code = station.code;
+      else if (station.name) code = station.name.split(' ')[0].toUpperCase();
 
       window.dispatchEvent(
         new CustomEvent('set-ambient-sound', {
