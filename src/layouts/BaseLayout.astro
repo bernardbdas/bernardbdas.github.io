@@ -54,7 +54,7 @@ const { title, description } = Astro.props;
     <script is:inline>
       (function () {
         const saved = localStorage.getItem('theme');
-        const valid = ['dark', 'white', 'blue', 'emerald', 'violet', 'light'];
+        const valid = ['dark', 'light', 'blue', 'white', 'violet', 'emerald'];
         // Amber ('dark') is the permanent default aesthetic
         const pref = saved && valid.includes(saved) ? saved : 'dark';
         document.documentElement.setAttribute('data-theme', pref);

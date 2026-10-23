@@ -926,7 +926,7 @@ const defaultStation: FMStation = RADIO_STATIONS[0];
           lightBtn.style.display = 'inline-flex';
           if (this.lightRigEnabled) {
             lightBtn.classList.add('is-active');
-            if (lightLed) lightLed.style.background = '#00f2fe';
+            if (lightLed) lightLed.style.background = 'var(--accent)';
             if (lightLabel) lightLabel.textContent = 'LIGHT RIG: ON';
           } else {
             lightBtn.classList.remove('is-active');
@@ -1082,10 +1082,10 @@ const defaultStation: FMStation = RADIO_STATIONS[0];
       this.ctx.beginPath();
       if (isClub) {
         const lineGrad = this.ctx.createLinearGradient(0, 0, w, 0);
-        lineGrad.addColorStop(0, '#00f2fe');
-        lineGrad.addColorStop(0.35, '#8a2be2');
-        lineGrad.addColorStop(0.7, '#ff007f');
-        lineGrad.addColorStop(1, '#00f2fe');
+        lineGrad.addColorStop(0, accent);
+        lineGrad.addColorStop(0.35, '#ffffff');
+        lineGrad.addColorStop(0.7, accent);
+        lineGrad.addColorStop(1, accent);
         this.ctx.strokeStyle = lineGrad;
         this.ctx.lineWidth = 1.8 + kickEnvelope * 1.2;
       } else {
@@ -1110,8 +1110,8 @@ const defaultStation: FMStation = RADIO_STATIONS[0];
       this.ctx.closePath();
       if (isClub) {
         const grad = this.ctx.createLinearGradient(0, 0, 0, spectrumH);
-        grad.addColorStop(0, `rgba(0, 242, 254, ${0.35 + kickEnvelope * 0.25})`);
-        grad.addColorStop(0.6, `rgba(255, 0, 127, ${0.15 + kickEnvelope * 0.15})`);
+        grad.addColorStop(0, `rgba(${accentRgb}, ${0.4 + kickEnvelope * 0.25})`);
+        grad.addColorStop(0.6, `rgba(${accentRgb}, ${0.15 + kickEnvelope * 0.15})`);
         grad.addColorStop(1, 'rgba(0, 0, 0, 0)');
         this.ctx.fillStyle = grad;
       } else {
@@ -1129,10 +1129,10 @@ const defaultStation: FMStation = RADIO_STATIONS[0];
       if (isClub) {
         // Laser beam shooting down carrier frequency
         this.ctx.save();
-        this.ctx.shadowColor = '#00f2fe';
+        this.ctx.shadowColor = accent;
         this.ctx.shadowBlur = 12 + kickEnvelope * 16;
         this.ctx.beginPath();
-        this.ctx.strokeStyle = `rgba(0, 242, 254, ${0.85 + kickEnvelope * 0.15})`;
+        this.ctx.strokeStyle = `rgba(${accentRgb}, ${0.85 + kickEnvelope * 0.15})`;
         this.ctx.lineWidth = 2 + kickEnvelope * 2;
         this.ctx.moveTo(curX, 0);
         this.ctx.lineTo(curX, h);
@@ -1141,7 +1141,7 @@ const defaultStation: FMStation = RADIO_STATIONS[0];
         // Horizontal laser pulse on kick
         if (kickEnvelope > 0.3) {
           this.ctx.beginPath();
-          this.ctx.strokeStyle = `rgba(255, 0, 127, ${kickEnvelope * 0.4})`;
+          this.ctx.strokeStyle = `rgba(255, 255, 255, ${kickEnvelope * 0.4})`;
           this.ctx.lineWidth = 1;
           const laserY = spectrumH * (1 - kickEnvelope * 0.8);
           this.ctx.moveTo(0, laserY);
@@ -1161,7 +1161,7 @@ const defaultStation: FMStation = RADIO_STATIONS[0];
       }
 
       // Draw small carrier cursor arrow at top
-      this.ctx.fillStyle = isClub ? '#00f2fe' : accent;
+      this.ctx.fillStyle = accent;
       this.ctx.beginPath();
       this.ctx.moveTo(curX - 4, 0);
       this.ctx.lineTo(curX + 4, 0);
@@ -1196,11 +1196,9 @@ const defaultStation: FMStation = RADIO_STATIONS[0];
               if (intensity > 0.8) {
                 this.ctx.fillStyle = `rgba(255, 255, 255, ${intensity})`;
               } else if (intensity > 0.5) {
-                this.ctx.fillStyle = `rgba(255, 0, 127, ${intensity * 0.95})`;
-              } else if (intensity > 0.3) {
-                this.ctx.fillStyle = `rgba(138, 43, 226, ${intensity * 0.85})`;
+                this.ctx.fillStyle = `rgba(${accentRgb}, ${intensity * 0.95})`;
               } else {
-                this.ctx.fillStyle = `rgba(0, 242, 254, ${intensity * 0.8})`;
+                this.ctx.fillStyle = `rgba(${accentRgb}, ${intensity * 0.75})`;
               }
             } else {
               this.ctx.fillStyle = `rgba(${accentRgb}, ${intensity * 0.9})`;
@@ -1211,7 +1209,7 @@ const defaultStation: FMStation = RADIO_STATIONS[0];
       }
 
       // Divider line between spectrum and waterfall
-      this.ctx.strokeStyle = isClub ? 'rgba(0, 242, 254, 0.3)' : 'rgba(255, 255, 255, 0.12)';
+      this.ctx.strokeStyle = isClub ? `rgba(${accentRgb}, 0.35)` : 'rgba(255, 255, 255, 0.12)';
       this.ctx.lineWidth = 1;
       this.ctx.beginPath();
       this.ctx.moveTo(0, waterfallY);

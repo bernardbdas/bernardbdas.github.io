@@ -140,25 +140,25 @@ const links: NavLink[] = [
           <span class="swatch-dot dot-amber"></span>
           <span>Amber</span>
         </button>
-        <button class="palette-item" data-set-theme="white" role="menuitem" type="button">
-          <span class="swatch-dot dot-white"></span>
-          <span>White</span>
+        <button class="palette-item" data-set-theme="light" role="menuitem" type="button">
+          <span class="swatch-dot dot-light"></span>
+          <span>Light</span>
         </button>
         <button class="palette-item" data-set-theme="blue" role="menuitem" type="button">
           <span class="swatch-dot dot-blue"></span>
           <span>Blue</span>
         </button>
-        <button class="palette-item" data-set-theme="emerald" role="menuitem" type="button">
-          <span class="swatch-dot dot-emerald"></span>
-          <span>Emerald</span>
+        <button class="palette-item" data-set-theme="white" role="menuitem" type="button">
+          <span class="swatch-dot dot-white"></span>
+          <span>White</span>
         </button>
         <button class="palette-item" data-set-theme="violet" role="menuitem" type="button">
           <span class="swatch-dot dot-violet"></span>
           <span>Violet</span>
         </button>
-        <button class="palette-item" data-set-theme="light" role="menuitem" type="button">
-          <span class="swatch-dot dot-light"></span>
-          <span>Light</span>
+        <button class="palette-item" data-set-theme="emerald" role="menuitem" type="button">
+          <span class="swatch-dot dot-emerald"></span>
+          <span>Emerald</span>
         </button>
       </div>
     </div>
@@ -289,13 +289,21 @@ const links: NavLink[] = [
           <span class="swatch-dot dot-amber"></span>
           <span>Amber</span>
         </button>
-        <button class="palette-btn" data-set-theme="white" type="button" aria-label="White theme">
-          <span class="swatch-dot dot-white"></span>
-          <span>White</span>
+        <button class="palette-btn" data-set-theme="light" type="button" aria-label="Light theme">
+          <span class="swatch-dot dot-light"></span>
+          <span>Light</span>
         </button>
         <button class="palette-btn" data-set-theme="blue" type="button" aria-label="Blue theme">
           <span class="swatch-dot dot-blue"></span>
           <span>Blue</span>
+        </button>
+        <button class="palette-btn" data-set-theme="white" type="button" aria-label="White theme">
+          <span class="swatch-dot dot-white"></span>
+          <span>White</span>
+        </button>
+        <button class="palette-btn" data-set-theme="violet" type="button" aria-label="Violet theme">
+          <span class="swatch-dot dot-violet"></span>
+          <span>Violet</span>
         </button>
         <button
           class="palette-btn"
@@ -305,14 +313,6 @@ const links: NavLink[] = [
         >
           <span class="swatch-dot dot-emerald"></span>
           <span>Emerald</span>
-        </button>
-        <button class="palette-btn" data-set-theme="violet" type="button" aria-label="Violet theme">
-          <span class="swatch-dot dot-violet"></span>
-          <span>Violet</span>
-        </button>
-        <button class="palette-btn" data-set-theme="light" type="button" aria-label="Light theme">
-          <span class="swatch-dot dot-light"></span>
-          <span>Light</span>
         </button>
       </div>
     </div>
@@ -391,11 +391,11 @@ const links: NavLink[] = [
 
   const THEMES = [
     { id: 'dark', label: 'AMBER' },
-    { id: 'white', label: 'WHITE' },
+    { id: 'light', label: 'LIGHT' },
     { id: 'blue', label: 'BLUE' },
+    { id: 'white', label: 'WHITE' },
     { id: 'violet', label: 'VIOLET' },
     { id: 'emerald', label: 'EMERALD' },
-    { id: 'light', label: 'LIGHT' },
   ] as const;
 
   function applyTheme(themeId: string): void {
