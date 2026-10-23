@@ -13,7 +13,7 @@
  *   the entire cache storage container across all origins.
  */
 
-const CACHE_NAME = 'birendra-asset-cache-v2';
+const CACHE_NAME = 'birendra-asset-cache-v3';
 
 const PRECACHE_ASSETS = [
   '/audio/fx/click.mp3',
@@ -131,12 +131,8 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // 3. /media Route & static assets: Stale-While-Revalidate for smooth local & prod restoration
-  if (
-    url.pathname === '/media' ||
-    url.pathname === '/media/' ||
-    url.pathname.includes('/_astro/')
-  ) {
+  // 3. Static hashed assets (/_astro/*): Stale-While-Revalidate
+  if (url.pathname.includes('/_astro/')) {
     event.respondWith(
       caches.match(request).then((cached) => {
         const fetchPromise = fetch(request)
