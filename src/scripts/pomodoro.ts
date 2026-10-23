@@ -1,17 +1,18 @@
 /**
  * Pomodoro Flow Instrument & Telemetry Engine
  *
- * Hidden on the 3rd cycle of the HUD clock: Local > Bernard's > Pomodoro.
- * Minimalist HUD timer display with preset flows (50-10, 25-5),
- * Web Audio synthesized chimes (Zen, Synth, Radar, Beep),
- * and persisted telemetry (flows, work/break duration, daily/weekly/monthly statistics).
+ * Minimal HUD counter with:
+ * - Animated sliding segmented toggle: FLOW vs BREAK
+ * - Clickable timer number that cycles duration presets
+ * - Immersive 3, 2, 1 start sequence with audio cues & big screen text
+ * - Web Audio API synthesized completion chimes
+ * - Detailed view with GitHub-style productivity commit graph & lifetime metrics
  */
 
 export interface FlowSession {
   id: string;
   timestamp: number;
   type: 'work' | 'break';
-  preset: '25-5' | '50-10';
   durationSeconds: number;
   completed: boolean;
 }
@@ -20,15 +21,17 @@ export interface PomodoroTelemetry {
   sessions: FlowSession[];
 }
 
-export type ChimeTune = 'zen' | 'synth' | 'radar' | 'beep';
-export type FlowPreset = '25-5' | '50-10';
 export type FlowMode = 'work' | 'break';
-export type FlowStatus = 'idle' | 'running' | 'paused';
+export type FlowStatus = 'idle' | 'running' | 'paused' | 'countdown';
+
+const WORK_PRESETS = [25 * 60, 50 * 60, 90 * 60];
+const BREAK_PRESETS = [5 * 60, 10 * 60, 15 * 60];
 
 const STORAGE_KEY_TELEMETRY = 'pomodoro_flow_telemetry_v1';
-const STORAGE_KEY_PRESET = 'pomo_preset';
 const STORAGE_KEY_MODE = 'pomo_mode';
 const STORAGE_KEY_STATUS = 'pomo_status';
+const STORAGE_KEY_WORK_DUR = 'pomo_work_duration';
+const STORAGE_KEY_BREAK_DUR = 'pomo_break_duration';
 const STORAGE_KEY_REMAINING = 'pomo_remaining';
 const STORAGE_KEY_END_TIME = 'pomo_end_time';
 const STORAGE_KEY_CHIME = 'pomo_chime';
@@ -52,13 +55,76 @@ export class ChimeSynthesizer {
     return this.ctx;
   }
 
-  public play(tune: ChimeTune): void {
+  public playCountdownTick(step: 3 | 2 | 1 | 0): void {
+    const ctx = this.getContext();
+    if (!ctx) return;
+    const now = ctx.currentTime;
+
+    if (step === 3) {
+      // Step 3: Low-mid focus resonance
+      const osc = ctx.createOscillator();
+      const g = ctx.createGain();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(440, now);
+      osc.frequency.exponentialRampToValueAtTime(330, now + 0.35);
+      g.gain.setValueAtTime(0.25, now);
+      g.gain.exponentialRampToValueAtTime(0.0001, now + 0.5);
+      osc.connect(g);
+      g.connect(ctx.destination);
+      osc.start(now);
+      osc.stop(now + 0.52);
+    } else if (step === 2) {
+      // Step 2: Mid-high harmonic step
+      const osc = ctx.createOscillator();
+      const g = ctx.createGain();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(554.37, now);
+      osc.frequency.exponentialRampToValueAtTime(440, now + 0.35);
+      g.gain.setValueAtTime(0.28, now);
+      g.gain.exponentialRampToValueAtTime(0.0001, now + 0.5);
+      osc.connect(g);
+      g.connect(ctx.destination);
+      osc.start(now);
+      osc.stop(now + 0.52);
+    } else if (step === 1) {
+      // Step 1: High crisp readiness cue
+      const osc = ctx.createOscillator();
+      const g = ctx.createGain();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(659.25, now);
+      osc.frequency.exponentialRampToValueAtTime(554.37, now + 0.35);
+      g.gain.setValueAtTime(0.3, now);
+      g.gain.exponentialRampToValueAtTime(0.0001, now + 0.5);
+      osc.connect(g);
+      g.connect(ctx.destination);
+      osc.start(now);
+      osc.stop(now + 0.52);
+    } else if (step === 0) {
+      // GO / COMMENCE: Warm expansive resonant chord
+      const freqs = [528, 659.25, 783.99, 1046.5];
+      freqs.forEach((freq, idx) => {
+        const noteStart = now + idx * 0.08;
+        const osc = ctx.createOscillator();
+        const g = ctx.createGain();
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(freq, noteStart);
+        g.gain.setValueAtTime(0.0001, noteStart);
+        g.gain.linearRampToValueAtTime(0.2, noteStart + 0.03);
+        g.gain.exponentialRampToValueAtTime(0.0001, noteStart + 1.4);
+        osc.connect(g);
+        g.connect(ctx.destination);
+        osc.start(noteStart);
+        osc.stop(noteStart + 1.5);
+      });
+    }
+  }
+
+  public play(tune: 'zen' | 'synth' | 'radar' | 'beep'): void {
     const ctx = this.getContext();
     if (!ctx) return;
     const now = ctx.currentTime;
 
     if (tune === 'zen') {
-      // Singing bowl / Tibetan harmonic gong (Solfeggio 528Hz clarity frequency)
       const master = ctx.createGain();
       master.gain.setValueAtTime(0.3, now);
       master.gain.exponentialRampToValueAtTime(0.0001, now + 2.8);
@@ -80,7 +146,6 @@ export class ChimeSynthesizer {
         osc.stop(now + 2.8);
       });
     } else if (tune === 'synth') {
-      // Cyberpunk ascending shimmer chord (Eb5, G5, Bb5, C6)
       const notes = [622.25, 783.99, 932.33, 1046.5];
       notes.forEach((freq, idx) => {
         const noteStart = now + idx * 0.11;
@@ -97,7 +162,6 @@ export class ChimeSynthesizer {
         osc.stop(noteStart + 1.3);
       });
     } else if (tune === 'radar') {
-      // Tactical sonar / radar ping with resonant drop
       const osc = ctx.createOscillator();
       const g = ctx.createGain();
       osc.type = 'sine';
@@ -110,7 +174,6 @@ export class ChimeSynthesizer {
       osc.start(now);
       osc.stop(now + 1.25);
     } else if (tune === 'beep') {
-      // Double chronometer high-precision beep
       [0, 0.13].forEach((delay) => {
         const t = now + delay;
         const osc = ctx.createOscillator();
@@ -132,16 +195,17 @@ export class PomodoroEngine {
   private static instance: PomodoroEngine | null = null;
   public chimeSynth: ChimeSynthesizer;
 
-  public preset: FlowPreset = '25-5';
   public mode: FlowMode = 'work';
   public status: FlowStatus = 'idle';
-  public remainingSeconds = 1500;
+  public workDuration = 25 * 60;
+  public breakDuration = 5 * 60;
+  public remainingSeconds = 25 * 60;
   public endTimestamp: number | null = null;
-  public chime: ChimeTune = 'zen';
+  public chime: 'zen' | 'synth' | 'radar' | 'beep' = 'zen';
 
   private timerInterval: ReturnType<typeof setInterval> | null = null;
+  private countdownTimeout: ReturnType<typeof setTimeout> | null = null;
   private telemetry: PomodoroTelemetry = { sessions: [] };
-  private sessionElapsedSeconds = 0;
 
   constructor() {
     this.chimeSynth = new ChimeSynthesizer();
@@ -149,7 +213,6 @@ export class PomodoroEngine {
     this.loadTelemetry();
     this.initInterval();
 
-    // Recover timer if page was reloaded or navigated
     if (this.status === 'running' && this.endTimestamp) {
       const now = Date.now();
       if (now >= this.endTimestamp) {
@@ -181,39 +244,38 @@ export class PomodoroEngine {
     return PomodoroEngine.instance;
   }
 
-  public getPresetSeconds(preset: FlowPreset, mode: FlowMode): number {
-    if (preset === '50-10') {
-      return mode === 'work' ? 50 * 60 : 10 * 60;
-    }
-    return mode === 'work' ? 25 * 60 : 5 * 60;
-  }
-
   private loadState(): void {
     if (typeof localStorage === 'undefined') return;
     try {
-      const savedPreset = localStorage.getItem(STORAGE_KEY_PRESET) as FlowPreset;
-      if (savedPreset === '25-5' || savedPreset === '50-10') {
-        this.preset = savedPreset;
-      }
       const savedMode = localStorage.getItem(STORAGE_KEY_MODE) as FlowMode;
       if (savedMode === 'work' || savedMode === 'break') {
         this.mode = savedMode;
       }
+      const savedWork = localStorage.getItem(STORAGE_KEY_WORK_DUR);
+      if (savedWork && !Number.isNaN(Number(savedWork))) {
+        this.workDuration = parseInt(savedWork, 10);
+      }
+      const savedBreak = localStorage.getItem(STORAGE_KEY_BREAK_DUR);
+      if (savedBreak && !Number.isNaN(Number(savedBreak))) {
+        this.breakDuration = parseInt(savedBreak, 10);
+      }
       const savedStatus = localStorage.getItem(STORAGE_KEY_STATUS) as FlowStatus;
-      if (savedStatus === 'idle' || savedStatus === 'running' || savedStatus === 'paused') {
+      if (savedStatus === 'running' || savedStatus === 'paused') {
         this.status = savedStatus;
+      } else {
+        this.status = 'idle';
       }
       const savedRemaining = localStorage.getItem(STORAGE_KEY_REMAINING);
       if (savedRemaining && !Number.isNaN(Number(savedRemaining))) {
         this.remainingSeconds = Math.max(0, parseInt(savedRemaining, 10));
       } else {
-        this.remainingSeconds = this.getPresetSeconds(this.preset, this.mode);
+        this.remainingSeconds = this.mode === 'work' ? this.workDuration : this.breakDuration;
       }
       const savedEndTime = localStorage.getItem(STORAGE_KEY_END_TIME);
       if (savedEndTime && !Number.isNaN(Number(savedEndTime))) {
         this.endTimestamp = parseInt(savedEndTime, 10);
       }
-      const savedChime = localStorage.getItem(STORAGE_KEY_CHIME) as ChimeTune;
+      const savedChime = localStorage.getItem(STORAGE_KEY_CHIME) as 'zen';
       if (['zen', 'synth', 'radar', 'beep'].includes(savedChime)) {
         this.chime = savedChime;
       }
@@ -225,9 +287,10 @@ export class PomodoroEngine {
   private saveState(): void {
     if (typeof localStorage === 'undefined') return;
     try {
-      localStorage.setItem(STORAGE_KEY_PRESET, this.preset);
       localStorage.setItem(STORAGE_KEY_MODE, this.mode);
       localStorage.setItem(STORAGE_KEY_STATUS, this.status);
+      localStorage.setItem(STORAGE_KEY_WORK_DUR, String(this.workDuration));
+      localStorage.setItem(STORAGE_KEY_BREAK_DUR, String(this.breakDuration));
       localStorage.setItem(STORAGE_KEY_REMAINING, String(this.remainingSeconds));
       if (this.endTimestamp) {
         localStorage.setItem(STORAGE_KEY_END_TIME, String(this.endTimestamp));
@@ -285,9 +348,129 @@ export class PomodoroEngine {
           return;
         }
       }
-      this.sessionElapsedSeconds++;
       this.updateUI();
     }, 1000);
+  }
+
+  /**
+   * Mode change with sliding animation
+   */
+  public setMode(newMode: FlowMode): void {
+    if (this.mode === newMode) return;
+    this.abortCountdown();
+    this.mode = newMode;
+    this.status = 'idle';
+    this.endTimestamp = null;
+    this.remainingSeconds = this.mode === 'work' ? this.workDuration : this.breakDuration;
+    this.saveState();
+    this.updateUI();
+  }
+
+  /**
+   * Cycle preset duration under the active mode
+   */
+  public cyclePresetForCurrentMode(): void {
+    this.abortCountdown();
+    if (this.mode === 'work') {
+      const idx = WORK_PRESETS.indexOf(this.workDuration);
+      const nextIdx = (idx + 1) % WORK_PRESETS.length;
+      this.workDuration = WORK_PRESETS[nextIdx];
+      this.remainingSeconds = this.workDuration;
+    } else {
+      const idx = BREAK_PRESETS.indexOf(this.breakDuration);
+      const nextIdx = (idx + 1) % BREAK_PRESETS.length;
+      this.breakDuration = BREAK_PRESETS[nextIdx];
+      this.remainingSeconds = this.breakDuration;
+    }
+    this.status = 'idle';
+    this.endTimestamp = null;
+    this.saveState();
+    this.updateUI();
+  }
+
+  /**
+   * Play / Pause toggle with 3, 2, 1 Countdown Sequence on start
+   */
+  public togglePlayPause(): void {
+    if (this.status === 'running') {
+      this.pause();
+    } else if (this.status === 'countdown') {
+      this.abortCountdown();
+    } else {
+      this.startWithCountdown();
+    }
+  }
+
+  public startWithCountdown(): void {
+    this.abortCountdown();
+    this.status = 'countdown';
+    this.updateUI();
+
+    const overlay = document.getElementById('pomoCountdownOverlay');
+    const numEl = document.getElementById('pomoCountdownNum');
+    const subEl = document.getElementById('pomoCountdownSub');
+
+    if (!overlay || !numEl) {
+      this.start();
+      return;
+    }
+
+    overlay.style.display = 'flex';
+    overlay.classList.remove('is-fading');
+    overlay.classList.toggle('is-break', this.mode === 'break');
+    document.body.style.overflow = 'hidden';
+
+    const runStep = (step: 3 | 2 | 1 | 0) => {
+      if (this.status !== 'countdown') return;
+
+      this.chimeSynth.playCountdownTick(step);
+
+      if (step > 0) {
+        numEl.textContent = String(step);
+        numEl.className = `pomo-countdown-num step-${step}`;
+        if (subEl) {
+          subEl.textContent =
+            this.mode === 'work' ? 'PREPARING FOCUS BLOCK' : 'PREPARING REST PERIOD';
+        }
+        this.countdownTimeout = setTimeout(() => {
+          runStep((step - 1) as 3 | 2 | 1 | 0);
+        }, 900);
+      } else {
+        // Step 0: COMMENCE
+        numEl.textContent = this.mode === 'work' ? 'FLOW' : 'REST';
+        numEl.className = 'pomo-countdown-num step-commence';
+        if (subEl) {
+          subEl.textContent = this.mode === 'work' ? 'DEEP WORK COMMENCED' : 'REST ACTIVE';
+        }
+
+        overlay.classList.add('is-fading');
+        this.countdownTimeout = setTimeout(() => {
+          overlay.style.display = 'none';
+          overlay.classList.remove('is-fading');
+          document.body.style.overflow = '';
+          this.start();
+        }, 450);
+      }
+    };
+
+    runStep(3);
+  }
+
+  public abortCountdown(): void {
+    if (this.countdownTimeout) {
+      clearTimeout(this.countdownTimeout);
+      this.countdownTimeout = null;
+    }
+    const overlay = document.getElementById('pomoCountdownOverlay');
+    if (overlay) {
+      overlay.style.display = 'none';
+      overlay.classList.remove('is-fading');
+      document.body.style.overflow = '';
+    }
+    if (this.status === 'countdown') {
+      this.status = 'idle';
+      this.updateUI();
+    }
   }
 
   public start(): void {
@@ -304,99 +487,39 @@ export class PomodoroEngine {
     this.updateUI();
   }
 
-  public togglePlayPause(): void {
-    if (this.status === 'running') {
-      this.pause();
-    } else {
-      this.start();
-    }
-  }
-
   public reset(): void {
+    this.abortCountdown();
     this.status = 'idle';
     this.endTimestamp = null;
-    this.remainingSeconds = this.getPresetSeconds(this.preset, this.mode);
-    this.sessionElapsedSeconds = 0;
+    this.remainingSeconds = this.mode === 'work' ? this.workDuration : this.breakDuration;
     this.saveState();
     this.updateUI();
-  }
-
-  public skip(): void {
-    this.mode = this.mode === 'work' ? 'break' : 'work';
-    this.status = 'idle';
-    this.endTimestamp = null;
-    this.remainingSeconds = this.getPresetSeconds(this.preset, this.mode);
-    this.sessionElapsedSeconds = 0;
-    this.saveState();
-    this.updateUI();
-  }
-
-  public setPreset(preset: FlowPreset): void {
-    if (this.preset === preset) return;
-    this.preset = preset;
-    this.status = 'idle';
-    this.endTimestamp = null;
-    this.remainingSeconds = this.getPresetSeconds(this.preset, this.mode);
-    this.sessionElapsedSeconds = 0;
-    this.saveState();
-    this.updateUI();
-  }
-
-  public setChime(chime: ChimeTune): void {
-    this.chime = chime;
-    this.saveState();
-  }
-
-  public testChime(): void {
-    this.chimeSynth.play(this.chime);
   }
 
   private completeSession(): void {
-    const plannedSecs = this.getPresetSeconds(this.preset, this.mode);
+    const plannedSecs = this.mode === 'work' ? this.workDuration : this.breakDuration;
 
     // Record session telemetry
     const session: FlowSession = {
       id: `flow-${Date.now()}`,
       timestamp: Date.now(),
       type: this.mode,
-      preset: this.preset,
       durationSeconds: plannedSecs,
       completed: true,
     };
     this.telemetry.sessions.unshift(session);
-    if (this.telemetry.sessions.length > 500) {
-      this.telemetry.sessions = this.telemetry.sessions.slice(0, 500);
+    if (this.telemetry.sessions.length > 800) {
+      this.telemetry.sessions = this.telemetry.sessions.slice(0, 800);
     }
     this.saveTelemetry();
 
-    // Play chime sound
     this.chimeSynth.play(this.chime);
 
-    // System Notification if authorized
-    try {
-      if (
-        typeof window !== 'undefined' &&
-        'Notification' in window &&
-        Notification.permission === 'granted'
-      ) {
-        new Notification(this.mode === 'work' ? 'Flow Session Complete' : 'Break Period Finished', {
-          body:
-            this.mode === 'work'
-              ? `You completed a ${this.preset === '50-10' ? '50m' : '25m'} focus block. Time for a well-deserved break!`
-              : 'Rest completed. Ready to step back into the flow?',
-          icon: '/favicon.svg',
-        });
-      }
-    } catch {
-      // Notification fallback
-    }
-
-    // Auto-advance mode: work -> break, break -> work
+    // Switch mode automatically
     this.mode = this.mode === 'work' ? 'break' : 'work';
     this.status = 'idle';
     this.endTimestamp = null;
-    this.remainingSeconds = this.getPresetSeconds(this.preset, this.mode);
-    this.sessionElapsedSeconds = 0;
+    this.remainingSeconds = this.mode === 'work' ? this.workDuration : this.breakDuration;
     this.saveState();
     this.updateUI();
   }
@@ -418,93 +541,33 @@ export class PomodoroEngine {
   }
 
   public getStats() {
-    const now = Date.now();
-    const ONE_DAY_MS = 24 * 60 * 60 * 1000;
-    const ONE_WEEK_MS = 7 * ONE_DAY_MS;
-    const ONE_MONTH_MS = 30 * ONE_DAY_MS;
-
-    const startOfToday = new Date();
-    startOfToday.setHours(0, 0, 0, 0);
-    const todayTimestamp = startOfToday.getTime();
-
     const sessions = this.telemetry.sessions;
+    const workSessions = sessions.filter((s) => s.type === 'work' && s.completed);
+    const breakSessions = sessions.filter((s) => s.type === 'break' && s.completed);
 
-    const allWork = sessions.filter((s) => s.type === 'work' && s.completed);
-    const allBreak = sessions.filter((s) => s.type === 'break' && s.completed);
+    const totalFlows = workSessions.length;
+    const totalWorkSeconds = workSessions.reduce((acc, s) => acc + s.durationSeconds, 0);
+    const totalBreakSeconds = breakSessions.reduce((acc, s) => acc + s.durationSeconds, 0);
 
-    const totalFlows = allWork.length;
-    const totalWorkSeconds = allWork.reduce((acc, s) => acc + s.durationSeconds, 0);
-    const totalBreakSeconds = allBreak.reduce((acc, s) => acc + s.durationSeconds, 0);
-
-    const todaySessions = sessions.filter((s) => s.timestamp >= todayTimestamp);
-    const todayWork = todaySessions.filter((s) => s.type === 'work' && s.completed);
-    const todayBreak = todaySessions.filter((s) => s.type === 'break' && s.completed);
-
-    const weekSessions = sessions.filter((s) => s.timestamp >= now - ONE_WEEK_MS);
-    const weekWork = weekSessions.filter((s) => s.type === 'work' && s.completed);
-    const weekBreak = weekSessions.filter((s) => s.type === 'break' && s.completed);
-
-    const monthSessions = sessions.filter((s) => s.timestamp >= now - ONE_MONTH_MS);
-    const monthWork = monthSessions.filter((s) => s.type === 'work' && s.completed);
-    const monthBreak = monthSessions.filter((s) => s.type === 'break' && s.completed);
+    // Group sessions by day (YYYY-MM-DD)
+    const dayMap = new Map<string, { flows: number; seconds: number }>();
+    sessions.forEach((s) => {
+      if (s.type !== 'work' || !s.completed) return;
+      const d = new Date(s.timestamp);
+      const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+      const cur = dayMap.get(key) || { flows: 0, seconds: 0 };
+      cur.flows += 1;
+      cur.seconds += s.durationSeconds;
+      dayMap.set(key, cur);
+    });
 
     return {
       totalFlows,
       totalWorkSeconds,
       totalBreakSeconds,
-      today: {
-        flows: todayWork.length,
-        workSeconds: todayWork.reduce((acc, s) => acc + s.durationSeconds, 0),
-        breakSeconds: todayBreak.reduce((acc, s) => acc + s.durationSeconds, 0),
-      },
-      week: {
-        flows: weekWork.length,
-        workSeconds: weekWork.reduce((acc, s) => acc + s.durationSeconds, 0),
-        breakSeconds: weekBreak.reduce((acc, s) => acc + s.durationSeconds, 0),
-      },
-      month: {
-        flows: monthWork.length,
-        workSeconds: monthWork.reduce((acc, s) => acc + s.durationSeconds, 0),
-        breakSeconds: monthBreak.reduce((acc, s) => acc + s.durationSeconds, 0),
-      },
+      dayMap,
       recentSessions: sessions.slice(0, 10),
     };
-  }
-
-  public generateReport(): string {
-    const stats = this.getStats();
-    const dateStr = new Date().toLocaleDateString('en-GB', {
-      day: '2-digit',
-      month: 'short',
-      year: 'numeric',
-    });
-
-    return [
-      '========================================',
-      `POMODORO FLOW AUDIT // BERNARD DAS HUD`,
-      `Generated: ${dateStr.toUpperCase()}`,
-      '========================================',
-      `ALL TIME:`,
-      `- Total Completed Flows: ${stats.totalFlows}`,
-      `- Focus Time Logged:     ${this.formatDuration(stats.totalWorkSeconds)}`,
-      `- Break Time Logged:     ${this.formatDuration(stats.totalBreakSeconds)}`,
-      '',
-      `THIS MONTH (30D):`,
-      `- Completed Flows:       ${stats.month.flows}`,
-      `- Focus Time:            ${this.formatDuration(stats.month.workSeconds)}`,
-      `- Break Time:            ${this.formatDuration(stats.month.breakSeconds)}`,
-      '',
-      `THIS WEEK (7D):`,
-      `- Completed Flows:       ${stats.week.flows}`,
-      `- Focus Time:            ${this.formatDuration(stats.week.workSeconds)}`,
-      `- Break Time:            ${this.formatDuration(stats.week.breakSeconds)}`,
-      '',
-      `TODAY:`,
-      `- Completed Flows:       ${stats.today.flows}`,
-      `- Focus Time:            ${this.formatDuration(stats.today.workSeconds)}`,
-      `- Break Time:            ${this.formatDuration(stats.today.breakSeconds)}`,
-      '========================================',
-    ].join('\n');
   }
 
   public updateUI(): void {
@@ -514,62 +577,43 @@ export class PomodoroEngine {
     const secs = this.remainingSeconds % 60;
     const timeStr = `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
 
-    // Update Minimal Nav Timer
-    const tagEl = document.getElementById('pomo-tag');
-    if (tagEl) {
-      tagEl.textContent = this.mode === 'work' ? 'WORK' : 'REST';
-      tagEl.className = `pomo-tag ${this.mode === 'work' ? 'mode-work' : 'mode-rest'}`;
-    }
-
     const timeEl = document.getElementById('pomo-time');
     if (timeEl) {
       timeEl.textContent = timeStr;
+      timeEl.title = `Preset: ${mins}m (Click to cycle preset duration)`;
     }
 
-    const playIconEl = document.getElementById('pomo-play-icon');
-    if (playIconEl) {
-      if (this.status === 'running') {
-        playIconEl.innerHTML =
-          '<svg class="pomo-svg-icon" width="7" height="7" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>';
-      } else {
-        playIconEl.innerHTML =
-          '<svg class="pomo-svg-icon" width="7" height="7" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><polygon points="6 3 20 12 6 21 6 3"/></svg>';
-      }
+    const clockContainer = document.getElementById('local-clock');
+    if (clockContainer) {
+      clockContainer.classList.toggle('is-mode-flow', this.mode === 'work');
+      clockContainer.classList.toggle('is-mode-break', this.mode === 'break');
+    }
+
+    const sliderTrack = document.getElementById('pomo-slider-track');
+    if (sliderTrack) {
+      sliderTrack.classList.toggle('is-break', this.mode === 'break');
+    }
+
+    const flowBtn = document.getElementById('pomo-flow-btn');
+    const breakBtn = document.getElementById('pomo-break-btn');
+    if (flowBtn && breakBtn) {
+      flowBtn.classList.toggle('is-active', this.mode === 'work');
+      breakBtn.classList.toggle('is-active', this.mode === 'break');
     }
 
     const playBtn = document.getElementById('pomo-play-btn');
-    if (playBtn) {
-      playBtn.setAttribute(
-        'title',
-        this.status === 'running'
-          ? 'Pause Flow'
-          : `Start ${this.mode === 'work' ? 'Flow' : 'Break'}`,
-      );
+    const playIconEl = document.getElementById('pomo-play-icon');
+    if (playBtn && playIconEl) {
       playBtn.classList.toggle('is-running', this.status === 'running');
-    }
-
-    // Update Popover Deck elements if visible
-    const deckPlayText = document.getElementById('pomo-deck-play-text');
-    if (deckPlayText) {
-      deckPlayText.textContent =
-        this.status === 'running' ? 'PAUSE' : `START ${this.mode.toUpperCase()}`;
-    }
-
-    const preset25Btn = document.getElementById('pomo-preset-25');
-    const preset50Btn = document.getElementById('pomo-preset-50');
-    if (preset25Btn && preset50Btn) {
-      preset25Btn.classList.toggle('is-active', this.preset === '25-5');
-      preset50Btn.classList.toggle('is-active', this.preset === '50-10');
-    }
-
-    const chimeSelect = document.getElementById('pomo-chime-select') as HTMLSelectElement | null;
-    if (chimeSelect && chimeSelect.value !== this.chime) {
-      chimeSelect.value = this.chime;
-    }
-
-    const skipBtn = document.getElementById('pomo-action-skip');
-    if (skipBtn) {
-      skipBtn.textContent = this.mode === 'work' ? 'SKIP TO BREAK' : 'SKIP TO WORK';
+      if (this.status === 'running') {
+        playIconEl.innerHTML =
+          '<svg class="pomo-svg-icon" width="7" height="7" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>';
+        playBtn.title = 'Pause Flow';
+      } else {
+        playIconEl.innerHTML =
+          '<svg class="pomo-svg-icon" width="7" height="7" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><polygon points="6 3 20 12 6 21 6 3"/></svg>';
+        playBtn.title = `Start ${this.mode === 'work' ? 'Flow' : 'Break'}`;
+      }
     }
   }
 
@@ -587,45 +631,50 @@ export class PomodoroEngine {
     const totalBreakEl = document.getElementById('pomo-stat-total-break');
     if (totalBreakEl) totalBreakEl.textContent = this.formatDuration(stats.totalBreakSeconds);
 
-    const activePresetEl = document.getElementById('pomo-stat-active-preset');
-    if (activePresetEl) activePresetEl.textContent = this.preset === '50-10' ? '50 / 10' : '25 / 5';
+    // Lifetime Productivity Metric
+    const lifetimeMetricEl = document.getElementById('pomo-stat-lifetime-ratio');
+    if (lifetimeMetricEl) {
+      const activeDays = stats.dayMap.size;
+      const totalHours = (stats.totalWorkSeconds / 3600).toFixed(1);
+      lifetimeMetricEl.textContent = `${totalHours} hrs / ${activeDays} active days`;
+    }
 
-    // Breakdown Table
-    const todayFlowsEl = document.getElementById('pomo-td-today-flows');
-    if (todayFlowsEl) todayFlowsEl.textContent = String(stats.today.flows);
+    // Render GitHub-style Commit Heatmap Matrix (Last 16 weeks / 112 days)
+    const commitGraphEl = document.getElementById('pomo-commit-graph');
+    if (commitGraphEl) {
+      const now = new Date();
+      const numDays = 112; // 16 weeks * 7 days
+      const days = [];
 
-    const todayFocusEl = document.getElementById('pomo-td-today-focus');
-    if (todayFocusEl) todayFocusEl.textContent = this.formatDuration(stats.today.workSeconds);
+      for (let i = numDays - 1; i >= 0; i--) {
+        const d = new Date(now);
+        d.setDate(d.getDate() - i);
+        const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+        const dayData = stats.dayMap.get(key) || { flows: 0, seconds: 0 };
+        days.push({
+          dateStr: key,
+          dayOfWeek: d.getDay(),
+          flows: dayData.flows,
+          seconds: dayData.seconds,
+        });
+      }
 
-    const todayBreakEl = document.getElementById('pomo-td-today-break');
-    if (todayBreakEl) todayBreakEl.textContent = this.formatDuration(stats.today.breakSeconds);
+      // Group into weeks
+      const cellsHtml = days
+        .map((day) => {
+          let lvl = 0;
+          if (day.seconds > 0) lvl = 1;
+          if (day.seconds >= 25 * 60) lvl = 2;
+          if (day.seconds >= 50 * 60) lvl = 3;
+          if (day.seconds >= 100 * 60) lvl = 4;
 
-    const weekFlowsEl = document.getElementById('pomo-td-week-flows');
-    if (weekFlowsEl) weekFlowsEl.textContent = String(stats.week.flows);
+          const title = `${day.dateStr}: ${day.flows} flow${day.flows === 1 ? '' : 's'} (${this.formatDuration(day.seconds)})`;
+          return `<div class="pomo-graph-cell lvl-${lvl}" title="${title}" data-date="${day.dateStr}"></div>`;
+        })
+        .join('');
 
-    const weekFocusEl = document.getElementById('pomo-td-week-focus');
-    if (weekFocusEl) weekFocusEl.textContent = this.formatDuration(stats.week.workSeconds);
-
-    const weekBreakEl = document.getElementById('pomo-td-week-break');
-    if (weekBreakEl) weekBreakEl.textContent = this.formatDuration(stats.week.breakSeconds);
-
-    const monthFlowsEl = document.getElementById('pomo-td-month-flows');
-    if (monthFlowsEl) monthFlowsEl.textContent = String(stats.month.flows);
-
-    const monthFocusEl = document.getElementById('pomo-td-month-focus');
-    if (monthFocusEl) monthFocusEl.textContent = this.formatDuration(stats.month.workSeconds);
-
-    const monthBreakEl = document.getElementById('pomo-td-month-break');
-    if (monthBreakEl) monthBreakEl.textContent = this.formatDuration(stats.month.breakSeconds);
-
-    const allFlowsEl = document.getElementById('pomo-td-all-flows');
-    if (allFlowsEl) allFlowsEl.textContent = String(stats.totalFlows);
-
-    const allFocusEl = document.getElementById('pomo-td-all-focus');
-    if (allFocusEl) allFocusEl.textContent = this.formatDuration(stats.totalWorkSeconds);
-
-    const allBreakEl = document.getElementById('pomo-td-all-break');
-    if (allBreakEl) allBreakEl.textContent = this.formatDuration(stats.totalBreakSeconds);
+      commitGraphEl.innerHTML = cellsHtml;
+    }
 
     // Recent Sessions Log
     const historyList = document.getElementById('pomo-history-list');
@@ -639,13 +688,12 @@ export class PomodoroEngine {
           const dayStr = date.toLocaleDateString([], { day: '2-digit', month: 'short' });
           const typeBadge =
             s.type === 'work'
-              ? `<span class="pomo-log-tag tag-work">FOCUS</span>`
-              : `<span class="pomo-log-tag tag-break">REST</span>`;
+              ? `<span class="pomo-log-tag tag-work">FLOW</span>`
+              : `<span class="pomo-log-tag tag-break">BREAK</span>`;
           return `
             <div class="pomo-history-row">
               <span class="pomo-log-date">${dayStr.toUpperCase()} ${timeStr}</span>
               <span class="pomo-log-type">${typeBadge}</span>
-              <span class="pomo-log-preset">${s.preset}</span>
               <span class="pomo-log-dur">${this.formatDuration(s.durationSeconds)}</span>
               <span class="pomo-log-status">✓ COMPLETED</span>
             </div>

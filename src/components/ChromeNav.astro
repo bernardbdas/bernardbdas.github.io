@@ -100,12 +100,41 @@ const links: NavLink[] = [
 
       <!-- Pomodoro Minimal Display (rendered when mode === 'pomodoro') -->
       <span class="pomo-display" id="pomo-display" style="display: none;">
-        <span class="pomo-tag" id="pomo-tag">
-          WORK
+        <!-- Slider Segmented Switch (FLOW vs BREAK) -->
+        <span class="pomo-slider-track" id="pomo-slider-track">
+          <span class="pomo-slider-pill" id="pomo-slider-pill"></span>
+          <button
+            type="button"
+            class="pomo-toggle-btn is-active"
+            id="pomo-flow-btn"
+            data-mode="work"
+            title="Switch to Flow Mode"
+          >
+            FLOW
+          </button>
+          <button
+            type="button"
+            class="pomo-toggle-btn"
+            id="pomo-break-btn"
+            data-mode="break"
+            title="Switch to Break Mode"
+          >
+            BREAK
+          </button>
         </span>
-        <span class="clock-time pomo-time" id="pomo-time">
+
+        <!-- Clickable Timer Digits (Cycles presets on click) -->
+        <span
+          class="clock-time pomo-time-clickable"
+          id="pomo-time"
+          role="button"
+          tabindex="0"
+          title="Click to cycle timer preset"
+        >
           25:00
         </span>
+
+        <!-- Mini Actions -->
         <span class="pomo-mini-actions">
           <button
             type="button"
@@ -129,135 +158,31 @@ const links: NavLink[] = [
           </button>
           <button
             type="button"
-            class="pomo-mini-btn pomo-deck-btn"
-            id="pomo-deck-btn"
-            title="Pomodoro Presets & Controls"
-            aria-label="Open Pomodoro Controls"
+            class="pomo-mini-btn pomo-stats-btn"
+            id="pomo-open-stats-btn"
+            title="View Detailed Focus Statistics & Lifetime Heatmap"
+            aria-label="View Focus Statistics"
           >
-            <span class="pomo-btn-icon-wrap">
-              <svg
-                class="pomo-svg-icon pomo-chevron-icon"
-                width="8"
-                height="5"
-                viewBox="0 0 8 5"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="1.6"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                aria-hidden="true"
-              >
-                <path d="M1 1L4 4L7 1" />
-              </svg>
-            </span>
+            <svg
+              class="pomo-svg-icon"
+              width="8"
+              height="8"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2.5"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              aria-hidden="true"
+            >
+              <rect x="3" y="3" width="7" height="7"></rect>
+              <rect x="14" y="3" width="7" height="7"></rect>
+              <rect x="14" y="14" width="7" height="7"></rect>
+              <rect x="3" y="14" width="7" height="7"></rect>
+            </svg>
           </button>
         </span>
       </span>
-    </div>
-
-    <!-- Floating Preset & Controls Deck Popover -->
-    <div
-      class="pomo-deck-popover"
-      id="pomo-deck-popover"
-      role="region"
-      aria-label="Pomodoro Instrument Deck"
-      style="display: none;"
-    >
-      <div class="pomo-deck-header">
-        <span class="pomo-deck-title">// POMODORO FLOW INSTRUMENT</span>
-        <button
-          type="button"
-          class="pomo-deck-close"
-          id="pomo-deck-close"
-          aria-label="Close presets"
-        >
-          &times;
-        </button>
-      </div>
-
-      <div class="pomo-deck-row">
-        <span class="pomo-deck-label">FLOW PRESET</span>
-        <div class="pomo-preset-group">
-          <button
-            type="button"
-            class="pomo-preset-btn is-active"
-            data-preset="25-5"
-            id="pomo-preset-25"
-          >
-            25 / 5 CLASSIC
-          </button>
-          <button type="button" class="pomo-preset-btn" data-preset="50-10" id="pomo-preset-50">
-            50 / 10 DEEP
-          </button>
-        </div>
-      </div>
-
-      <div class="pomo-deck-row">
-        <span class="pomo-deck-label">FLOW CONTROLS</span>
-        <div class="pomo-controls-group">
-          <button type="button" class="pomo-action-btn pomo-action-play" id="pomo-action-play">
-            <span id="pomo-deck-play-text">START FLOW</span>
-          </button>
-          <button
-            type="button"
-            class="pomo-action-btn"
-            id="pomo-action-reset"
-            title="Reset timer to beginning"
-          >
-            RESET
-          </button>
-          <button
-            type="button"
-            class="pomo-action-btn"
-            id="pomo-action-skip"
-            title="Skip to next session"
-          >
-            SKIP
-          </button>
-        </div>
-      </div>
-
-      <div class="pomo-deck-row">
-        <span class="pomo-deck-label">COMPLETION CHIME</span>
-        <div class="pomo-chimes-group">
-          <div class="pomo-chime-select-wrap">
-            <select class="pomo-chime-select" id="pomo-chime-select" aria-label="Select chime tone">
-              <option value="zen">ZEN BOWL (Harmonic 528Hz)</option>
-              <option value="synth">SYNTH CHIME (Cyberpunk Shimmer)</option>
-              <option value="radar">RADAR PING (Tactical Sonar)</option>
-              <option value="beep">DIGITAL BEEP (Retro Chrono)</option>
-            </select>
-            <span class="pomo-select-arrow" aria-hidden="true">
-              <svg
-                width="8"
-                height="5"
-                viewBox="0 0 8 5"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="1.5"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              >
-                <path d="M1 1L4 4L7 1" />
-              </svg>
-            </span>
-          </div>
-          <button
-            type="button"
-            class="pomo-test-chime-btn"
-            id="pomo-test-chime"
-            title="Test chime preview"
-          >
-            TEST ♪
-          </button>
-        </div>
-      </div>
-
-      <div class="pomo-deck-footer">
-        <button type="button" class="pomo-open-stats-btn" id="pomo-open-stats-btn">
-          DETAILED STATISTICS &amp; TELEMETRY &rarr;
-        </button>
-      </div>
     </div>
   </div>
 
@@ -598,11 +523,32 @@ const links: NavLink[] = [
           <span class="pomo-stat-sub">Rest and recovery time</span>
         </div>
         <div class="pomo-stat-card">
-          <span class="pomo-stat-label">ACTIVE PRESET</span>
-          <span class="pomo-stat-value" id="pomo-stat-active-preset">
-            25 / 5
+          <span class="pomo-stat-label">LIFETIME PRODUCTIVITY</span>
+          <span class="pomo-stat-value" id="pomo-stat-lifetime-ratio">
+            0 hrs
           </span>
-          <span class="pomo-stat-sub">Customizable in deck</span>
+          <span class="pomo-stat-sub">Focus consistency audit</span>
+        </div>
+      </div>
+
+      <!-- GitHub-Style Lifetime Productivity Commit Heatmap -->
+      <div class="pomo-graph-section">
+        <div class="pomo-graph-header">
+          <h4 class="pomo-section-title">LIFETIME PRODUCTIVITY HEATMAP // FOCUS MATRIX</h4>
+          <div class="pomo-graph-legend">
+            <span class="legend-label">LESS</span>
+            <span class="legend-cell lvl-0"></span>
+            <span class="legend-cell lvl-1"></span>
+            <span class="legend-cell lvl-2"></span>
+            <span class="legend-cell lvl-3"></span>
+            <span class="legend-cell lvl-4"></span>
+            <span class="legend-label">MORE</span>
+          </div>
+        </div>
+        <div class="pomo-graph-scroll">
+          <div class="pomo-commit-graph" id="pomo-commit-graph">
+            <!-- Dynamically populated 112 days (16 weeks x 7 days) -->
+          </div>
         </div>
       </div>
 
@@ -671,6 +617,23 @@ const links: NavLink[] = [
         CLOSE [ESC]
       </button>
     </footer>
+  </div>
+</div>
+
+<!-- Pomodoro 3-2-1 Big Text Countdown Overlay -->
+<div
+  id="pomoCountdownOverlay"
+  class="pomo-countdown-overlay"
+  style="display: none;"
+  aria-hidden="true"
+>
+  <div class="pomo-countdown-content">
+    <div class="pomo-countdown-num" id="pomoCountdownNum">
+      3
+    </div>
+    <div class="pomo-countdown-sub" id="pomoCountdownSub">
+      PREPARING FOCUS BLOCK
+    </div>
   </div>
 </div>
 

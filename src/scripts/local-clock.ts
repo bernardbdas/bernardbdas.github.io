@@ -4,12 +4,14 @@
  * Cycles on click:
  * Cycle 1: Local Clock
  * Cycle 2: Bernard's Clock (Asia/Kolkata IST)
- * Cycle 3: Pomodoro Clock (Minimal Flow Timer)
+ * Cycle 3: Pomodoro Flow Clock
  *
  * In Local/Bernard mode: Displays live date, time, timezone.
  * Shift-click copies the active timestamp.
- * In Pomodoro mode: Minimal HUD timer with presets (50-10, 25-5),
- * Web Audio chimes, and persistent detailed telemetry modal.
+ * In Pomodoro mode: Minimal HUD counter with animated FLOW/BREAK slider,
+ * clickable timer number that cycles duration presets,
+ * immersive 3-2-1 slow starting chime with big text on screen,
+ * and persistent detailed productivity heatmap comparison.
  */
 
 import { PomodoroEngine } from './pomodoro';
@@ -75,17 +77,10 @@ export function initLocalClock(): void {
 
   // Pomodoro HUD elements
   const pomoDisplayEl = document.getElementById('pomo-display');
-  const pomoDeckPopover = document.getElementById('pomo-deck-popover');
+  const pomoFlowBtn = document.getElementById('pomo-flow-btn');
+  const pomoBreakBtn = document.getElementById('pomo-break-btn');
+  const pomoTimeClickable = document.getElementById('pomo-time');
   const pomoPlayBtn = document.getElementById('pomo-play-btn');
-  const pomoDeckBtn = document.getElementById('pomo-deck-btn');
-  const pomoDeckClose = document.getElementById('pomo-deck-close');
-  const pomoActionPlay = document.getElementById('pomo-action-play');
-  const pomoActionReset = document.getElementById('pomo-action-reset');
-  const pomoActionSkip = document.getElementById('pomo-action-skip');
-  const pomoPreset25 = document.getElementById('pomo-preset-25');
-  const pomoPreset50 = document.getElementById('pomo-preset-50');
-  const pomoChimeSelect = document.getElementById('pomo-chime-select') as HTMLSelectElement | null;
-  const pomoTestChime = document.getElementById('pomo-test-chime');
   const pomoOpenStatsBtn = document.getElementById('pomo-open-stats-btn');
 
   // Detailed Statistics Modal elements
@@ -115,17 +110,17 @@ export function initLocalClock(): void {
     const now = new Date();
 
     if (mode === 'pomodoro') {
-      if (badgeEl) badgeEl.textContent = 'POMO';
+      if (badgeEl) badgeEl.textContent = 'POMODORO';
       container!.classList.add('mode-pomodoro');
       container!.classList.remove('mode-bernard');
       if (clockDisplayEl) clockDisplayEl.style.display = 'none';
       if (pomoDisplayEl) pomoDisplayEl.style.display = 'inline-flex';
-      container!.title = 'Pomodoro Flow Instrument (Click badge or clock to switch to Local Time)';
+      container!.title =
+        'Pomodoro Flow Instrument (Click badge or background to switch to Local Time)';
       pomoEngine.updateUI();
       return;
     }
 
-    // In non-pomodoro mode, hide pomo display and popover
     if (pomoDisplayEl) pomoDisplayEl.style.display = 'none';
     if (clockDisplayEl) clockDisplayEl.style.display = 'inline-flex';
     container!.classList.remove('mode-pomodoro');
@@ -179,7 +174,7 @@ export function initLocalClock(): void {
       if (badgeEl) badgeEl.textContent = "BERNARD'S CLOCK";
       container!.classList.add('mode-bernard');
       container!.title =
-        "Bernard's Clock — Asia/Kolkata (IST) (Click for Pomodoro Timer, Shift+Click to copy)";
+        "Bernard's Clock — Asia/Kolkata (IST) (Click for Pomodoro Flow Timer, Shift+Click to copy)";
       currentString = `Bernard's Clock (Asia/Kolkata): ${weekdayStr}, ${dateStr} ${timeStr} ${tzStr}`;
     } else {
       weekdayStr = now.toLocaleString('en-US', { weekday: 'short' }).toUpperCase();
@@ -212,7 +207,6 @@ export function initLocalClock(): void {
     if (now - lastToggleTime < 180) return;
     lastToggleTime = now;
 
-    // Sequence: local -> bernard -> pomodoro -> local
     if (mode === 'local') {
       mode = 'bernard';
     } else if (mode === 'bernard') {
@@ -221,13 +215,6 @@ export function initLocalClock(): void {
       mode = 'local';
     }
     localStorage.setItem('clock_mode', mode);
-
-    // Close popover if navigating away from pomodoro
-    if (mode !== 'pomodoro' && pomoDeckPopover) {
-      pomoDeckPopover.style.display = 'none';
-      pomoDeckBtn?.classList.remove('is-open');
-    }
-
     updateClock();
   }
 
@@ -250,14 +237,14 @@ export function initLocalClock(): void {
     }, 1500);
   };
 
-  // Clock click: Cycle modes smoothly (or copy if Shift is pressed in clock mode)
+  // Clock click: Cycle modes or handle controls
   container.addEventListener('click', (e: MouseEvent) => {
     const target = e.target as HTMLElement;
 
-    // If clicked on pomodoro control buttons inside pomo-display, let button listeners handle it
+    // Ignore cycling if interacting with pomo controls
     if (
       target.closest(
-        '#pomo-play-btn, #pomo-deck-btn, .pomo-mini-btn, .pomo-mini-actions, #pomo-play-icon',
+        '#pomo-flow-btn, #pomo-break-btn, #pomo-time, #pomo-play-btn, #pomo-open-stats-btn, .pomo-toggle-btn, .pomo-mini-btn',
       )
     ) {
       return;
@@ -288,8 +275,10 @@ export function initLocalClock(): void {
       if (
         activeEl &&
         (activeEl.id === 'pomo-play-btn' ||
-          activeEl.id === 'pomo-deck-btn' ||
-          activeEl.closest('#pomo-deck-popover'))
+          activeEl.id === 'pomo-flow-btn' ||
+          activeEl.id === 'pomo-break-btn' ||
+          activeEl.id === 'pomo-time' ||
+          activeEl.id === 'pomo-open-stats-btn')
       ) {
         return;
       }
@@ -302,70 +291,32 @@ export function initLocalClock(): void {
     }
   });
 
-  // Pomodoro Mini Controls Listeners
+  // Pomodoro Slider buttons: FLOW vs BREAK
+  pomoFlowBtn?.addEventListener('click', (e) => {
+    e.stopPropagation();
+    pomoEngine.setMode('work');
+  });
+
+  pomoBreakBtn?.addEventListener('click', (e) => {
+    e.stopPropagation();
+    pomoEngine.setMode('break');
+  });
+
+  // Clicking on the timer number cycles the preset duration under current mode
+  pomoTimeClickable?.addEventListener('click', (e) => {
+    e.stopPropagation();
+    pomoEngine.cyclePresetForCurrentMode();
+  });
+
+  // Play / Pause button
   pomoPlayBtn?.addEventListener('click', (e) => {
     e.stopPropagation();
     pomoEngine.togglePlayPause();
   });
 
-  pomoDeckBtn?.addEventListener('click', (e) => {
-    e.stopPropagation();
-    if (!pomoDeckPopover) return;
-    const isVisible = pomoDeckPopover.style.display !== 'none';
-    pomoDeckPopover.style.display = isVisible ? 'none' : 'block';
-    pomoDeckBtn.classList.toggle('is-open', !isVisible);
-    if (!isVisible) {
-      pomoEngine.updateUI();
-    }
-  });
-
-  pomoDeckClose?.addEventListener('click', (e) => {
-    e.stopPropagation();
-    if (pomoDeckPopover) pomoDeckPopover.style.display = 'none';
-    pomoDeckBtn?.classList.remove('is-open');
-  });
-
-  // Popover deck action controls
-  pomoActionPlay?.addEventListener('click', (e) => {
-    e.stopPropagation();
-    pomoEngine.togglePlayPause();
-  });
-
-  pomoActionReset?.addEventListener('click', (e) => {
-    e.stopPropagation();
-    pomoEngine.reset();
-  });
-
-  pomoActionSkip?.addEventListener('click', (e) => {
-    e.stopPropagation();
-    pomoEngine.skip();
-  });
-
-  pomoPreset25?.addEventListener('click', (e) => {
-    e.stopPropagation();
-    pomoEngine.setPreset('25-5');
-  });
-
-  pomoPreset50?.addEventListener('click', (e) => {
-    e.stopPropagation();
-    pomoEngine.setPreset('50-10');
-  });
-
-  pomoChimeSelect?.addEventListener('change', (e) => {
-    const val = (e.target as HTMLSelectElement).value as 'zen' | 'synth' | 'radar' | 'beep';
-    pomoEngine.setChime(val);
-  });
-
-  pomoTestChime?.addEventListener('click', (e) => {
-    e.stopPropagation();
-    pomoEngine.testChime();
-  });
-
   // Detailed Statistics Modal Handlers
   const openStatsModal = (e: Event) => {
     e.stopPropagation();
-    if (pomoDeckPopover) pomoDeckPopover.style.display = 'none';
-    pomoDeckBtn?.classList.remove('is-open');
     if (pomoStatsModal) {
       pomoEngine.renderStatsModal();
       pomoStatsModal.style.display = 'flex';
@@ -394,7 +345,17 @@ export function initLocalClock(): void {
 
   pomoCopyReportBtn?.addEventListener('click', async (e) => {
     e.stopPropagation();
-    const report = pomoEngine.generateReport();
+    const stats = pomoEngine.getStats();
+    const report = [
+      '========================================',
+      'POMODORO FLOW & LIFETIME AUDIT // BERNARD DAS',
+      '========================================',
+      `Total Completed Flows: ${stats.totalFlows}`,
+      `Total Focus Logged:    ${pomoEngine.formatDuration(stats.totalWorkSeconds)}`,
+      `Total Rest Logged:     ${pomoEngine.formatDuration(stats.totalBreakSeconds)}`,
+      `Active Days:           ${stats.dayMap.size}`,
+      '========================================',
+    ].join('\n');
     const ok = await copyText(report);
     if (ok && pomoCopyReportBtn) {
       const orig = pomoCopyReportBtn.textContent;
@@ -415,25 +376,13 @@ export function initLocalClock(): void {
     }
   });
 
-  // Global dismiss for popover and modal on ESC
+  // Global dismiss on ESC
   document.addEventListener('keydown', (e: KeyboardEvent) => {
     if (e.key === 'Escape') {
       if (pomoStatsModal && pomoStatsModal.style.display !== 'none') {
         closeStatsModal();
-      } else if (pomoDeckPopover && pomoDeckPopover.style.display !== 'none') {
-        pomoDeckPopover.style.display = 'none';
-        pomoDeckBtn?.classList.remove('is-open');
-      }
-    }
-  });
-
-  // Global outside click to dismiss popover
-  document.addEventListener('click', (e: MouseEvent) => {
-    if (pomoDeckPopover && pomoDeckPopover.style.display !== 'none') {
-      const target = e.target as HTMLElement;
-      if (!target.closest('#pomo-deck-popover') && !target.closest('#pomo-deck-btn')) {
-        pomoDeckPopover.style.display = 'none';
-        pomoDeckBtn?.classList.remove('is-open');
+      } else {
+        pomoEngine.abortCountdown();
       }
     }
   });
