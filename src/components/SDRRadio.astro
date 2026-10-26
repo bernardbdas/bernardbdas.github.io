@@ -398,6 +398,7 @@ const defaultStation: FMStation = RADIO_STATIONS[0];
 
     private ytPlayer: any = null;
     private ytApiReady = false;
+    private isPiping = false;
 
     // Club Stage & Ambient Lightning FX
     private isClubLighting = false;
@@ -434,7 +435,9 @@ const defaultStation: FMStation = RADIO_STATIONS[0];
         const firstScriptTag = document.getElementsByTagName('script')[0];
         firstScriptTag?.parentNode?.insertBefore(tag, firstScriptTag);
 
+        const prevReady = window.onYouTubeIframeAPIReady;
         window.onYouTubeIframeAPIReady = () => {
+          if (typeof prevReady === 'function') prevReady();
           this.ytApiReady = true;
           this.createPlayer();
         };
@@ -444,8 +447,24 @@ const defaultStation: FMStation = RADIO_STATIONS[0];
       }
     }
 
-    private createPlayer() {
+    private saveStationPosition() {
+      if (
+        this.ytPlayer &&
+        typeof this.ytPlayer.getCurrentTime === 'function' &&
+        this.currentStation
+      ) {
+        try {
+          const t = this.ytPlayer.getCurrentTime();
+          if (typeof t === 'number' && t > 0) {
+            sessionStorage.setItem(`sdr_time_${this.currentStation.id}`, String(t));
+          }
+        } catch {}
+      }
+    }
+
+    private createPlayer(startTime = 0) {
       try {
+        const startSec = startTime > 0 ? Math.floor(startTime) : 0;
         this.ytPlayer = new window.YT.Player('youtube-sdr-frame', {
           height: '100',
           width: '100',
@@ -458,6 +477,7 @@ const defaultStation: FMStation = RADIO_STATIONS[0];
             origin: window.location.origin,
             rel: 0,
             autoplay: 0,
+            start: startSec > 0 ? startSec : undefined,
             modestbranding: 1,
             iv_load_policy: 3,
             fs: 0,
@@ -466,6 +486,11 @@ const defaultStation: FMStation = RADIO_STATIONS[0];
           events: {
             onReady: () => {
               this.ytPlayer.setVolume(this.volume);
+              if (startSec > 0) {
+                try {
+                  this.ytPlayer.seekTo(startSec, true);
+                } catch {}
+              }
               if (this.isPoweredOn && this.isPlaying) {
                 this.ytPlayer.playVideo();
               }
@@ -506,13 +531,16 @@ const defaultStation: FMStation = RADIO_STATIONS[0];
         if (powerLabel) powerLabel.textContent = 'BUFFERING...';
       } else if (state === 2 || state === 0) {
         // Paused
+        this.saveStationPosition();
         this.isPlaying = false;
         mainDot?.classList.remove('is-transmitting');
         powerBtn?.classList.remove('is-active');
         if (powerLabel) powerLabel.textContent = 'RESUME AUDIO';
         this.setStatusText('RECEIVER PAUSED');
         this.updateClubLightingState();
-        window.dispatchEvent(new CustomEvent('sdr-radio-stop'));
+        if (!this.isPiping) {
+          window.dispatchEvent(new CustomEvent('sdr-radio-stop'));
+        }
       }
     }
 
@@ -669,13 +697,36 @@ const defaultStation: FMStation = RADIO_STATIONS[0];
         this.isPoweredOn = true;
         this.isPlaying = true;
         this.setStatusText('STARTING RF RECEIVER...');
+
+        let resumeTime = 0;
+        const ambientYtId = sessionStorage.getItem('ambient_stream_ytid');
+        if (ambientYtId === this.currentStation.ytId) {
+          const ambTime = parseFloat(sessionStorage.getItem('ambient_stream_time') || '0');
+          if (ambTime > 0) resumeTime = ambTime;
+        }
+        if (resumeTime <= 0) {
+          const saved = parseFloat(
+            sessionStorage.getItem(`sdr_time_${this.currentStation.id}`) || '0',
+          );
+          if (saved > 0) resumeTime = saved;
+        }
+
         if (this.ytPlayer && typeof this.ytPlayer.playVideo === 'function') {
+          if (resumeTime > 0) {
+            try {
+              const cur = this.ytPlayer.getCurrentTime?.() || 0;
+              if (Math.abs(cur - resumeTime) > 3) {
+                this.ytPlayer.seekTo(resumeTime, true);
+              }
+            } catch {}
+          }
           this.ytPlayer.playVideo();
         } else {
-          this.createPlayer();
+          this.createPlayer(resumeTime);
         }
       } else {
         if (this.isPlaying) {
+          this.saveStationPosition();
           if (this.ytPlayer && typeof this.ytPlayer.pauseVideo === 'function') {
             this.ytPlayer.pauseVideo();
           }
@@ -692,6 +743,26 @@ const defaultStation: FMStation = RADIO_STATIONS[0];
     }
 
     private routeStationToAmbient(station: FMStation) {
+      let currentTime = 0;
+      if (
+        this.ytPlayer &&
+        typeof this.ytPlayer.getCurrentTime === 'function' &&
+        this.currentStation.id === station.id
+      ) {
+        try {
+          currentTime = this.ytPlayer.getCurrentTime() || 0;
+        } catch {}
+      }
+      if (currentTime <= 0) {
+        const saved = parseFloat(sessionStorage.getItem(`sdr_time_${station.id}`) || '0');
+        if (saved > 0) currentTime = saved;
+      }
+
+      if (currentTime > 0) {
+        sessionStorage.setItem(`sdr_time_${station.id}`, String(currentTime));
+      }
+
+      this.isPiping = true;
       if (this.ytPlayer && typeof this.ytPlayer.pauseVideo === 'function') {
         try {
           this.ytPlayer.pauseVideo();
@@ -700,6 +771,9 @@ const defaultStation: FMStation = RADIO_STATIONS[0];
       this.isPlaying = false;
       this.updateDisplay();
       this.updateClubLightingState();
+      setTimeout(() => {
+        this.isPiping = false;
+      }, 600);
 
       this.setStatusText(`PIPED [${station.name.toUpperCase()}] → BACKGROUND AMBIENT`);
 
@@ -725,6 +799,7 @@ const defaultStation: FMStation = RADIO_STATIONS[0];
             ytId: station.ytId,
             code,
             isPipedFromRadio: true,
+            startTime: currentTime,
           },
         }),
       );
@@ -739,20 +814,39 @@ const defaultStation: FMStation = RADIO_STATIONS[0];
     }
 
     private tuneToStation(station: FMStation) {
+      this.saveStationPosition();
       this.currentStation = station;
       this.updateDisplay();
       this.updateClubLightingState();
 
+      let resumeTime = 0;
+      const ambientYtId = sessionStorage.getItem('ambient_stream_ytid');
+      if (ambientYtId === station.ytId) {
+        const ambTime = parseFloat(sessionStorage.getItem('ambient_stream_time') || '0');
+        if (ambTime > 0) resumeTime = ambTime;
+      }
+      if (resumeTime <= 0) {
+        const saved = parseFloat(sessionStorage.getItem(`sdr_time_${station.id}`) || '0');
+        if (saved > 0) resumeTime = saved;
+      }
+
       if (this.ytPlayer && typeof this.ytPlayer.loadVideoById === 'function') {
         this.setStatusText('TUNING // ACQUIRING CARRIER...');
-        this.ytPlayer.loadVideoById(station.ytId);
+        if (resumeTime > 0) {
+          this.ytPlayer.loadVideoById({
+            videoId: station.ytId,
+            startSeconds: Math.floor(resumeTime),
+          });
+        } else {
+          this.ytPlayer.loadVideoById(station.ytId);
+        }
         if (this.isPoweredOn) {
           this.ytPlayer.playVideo();
           this.isPlaying = true;
           this.updateClubLightingState();
         }
       } else {
-        this.createPlayer();
+        this.createPlayer(resumeTime);
       }
     }
 
@@ -1234,6 +1328,7 @@ const defaultStation: FMStation = RADIO_STATIONS[0];
     };
 
     public destroy() {
+      this.saveStationPosition();
       this.stopLightningScheduler();
       if (this.animFrameId) {
         cancelAnimationFrame(this.animFrameId);

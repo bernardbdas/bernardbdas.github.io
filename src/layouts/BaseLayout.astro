@@ -67,7 +67,7 @@ const { title, description } = Astro.props;
     <div
       id="ambient-stream-container"
       transition:persist="ambient-stream"
-      style="position: fixed; width: 1px; height: 1px; left: -9999px; bottom: 0; opacity: 0; pointer-events: none; overflow: hidden;"
+      style="position: fixed; width: 200px; height: 200px; bottom: 0; right: 0; opacity: 0.001; pointer-events: none; z-index: -9999; overflow: hidden;"
       aria-hidden="true"
     >
       <div id="ambient-yt-player"></div>

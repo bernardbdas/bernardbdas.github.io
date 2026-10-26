@@ -1359,12 +1359,17 @@ export class AmbientSoundController {
   private isPersistenceEnabled = true;
   private hasInteracted = false;
   private wasPlayingBeforeMedia = false;
+  private wasPlayingBeforeVisibilityHidden = false;
   private isMediaPlaying = false;
   private lastTrackChangeTime = 0;
   private microSounds: MicroSoundsEngine;
   private ytPlayer: any = null;
+  private currentYtVideoId: string | null = null;
   private isYtReady = false;
   private isYtInitializing = false;
+  private pendingStartTime: number | null = null;
+  private targetSeekTime: number | null = null;
+  private ytTimeTracker: number | null = null;
 
   constructor() {
     this.microSounds = new MicroSoundsEngine();
@@ -1445,6 +1450,7 @@ export class AmbientSoundController {
     this.isPersistenceEnabled = persistStored !== 'disabled';
 
     const track = this.getCurrentTrack();
+    this.restoreSavedPlaybackPosition();
 
     if (track.type === 'local' && this.audio && !this.audio.paused && this.audio.currentTime > 0) {
       this.isPlaying = true;
@@ -1452,28 +1458,19 @@ export class AmbientSoundController {
       if (track.type === 'local') {
         this.loadCurrentTrack();
         this.audio.volume = 0;
-        this.restoreSavedPlaybackPosition();
-      } else {
-        this.initYtPlayer();
       }
     }
 
+    // Always pre-warm YouTube player for seamless stream playback and radio piping
+    this.initYtPlayer();
+
     this.audio.addEventListener('timeupdate', () => {
-      if (this.audio && !this.audio.paused) {
-        sessionStorage.setItem('ambient_audio_time', String(this.audio.currentTime));
-        sessionStorage.setItem('ambient_audio_timestamp', String(Date.now()));
-      }
+      this.saveCurrentPosition();
     });
 
-    const saveCurrentPosition = () => {
-      if (this.audio && !this.audio.paused) {
-        sessionStorage.setItem('ambient_audio_time', String(this.audio.currentTime));
-        sessionStorage.setItem('ambient_audio_timestamp', String(Date.now()));
-      }
-    };
-    window.addEventListener('beforeunload', saveCurrentPosition);
-    window.addEventListener('pagehide', saveCurrentPosition);
-    document.addEventListener('astro:before-swap', saveCurrentPosition);
+    window.addEventListener('beforeunload', () => this.saveCurrentPosition());
+    window.addEventListener('pagehide', () => this.saveCurrentPosition());
+    document.addEventListener('astro:before-swap', () => this.saveCurrentPosition());
 
     this.bindUI();
 
@@ -1497,14 +1494,16 @@ export class AmbientSoundController {
       }
     }
 
-    // Page visibility handling
+    // Page visibility handling (Sync On = play across tabs/windows; Sync Off = pause when inactive)
     document.addEventListener('visibilitychange', () => {
       if (document.hidden) {
         // Master persistence: keep audio stream playing across tab/window switches if enabled
-        if ((this.isPersistenceEnabled || this.isPipedFromRadio) && this.isPlaying) {
+        if (this.isPersistenceEnabled && this.isPlaying) {
           return;
         }
         if (this.isPlaying) {
+          this.wasPlayingBeforeVisibilityHidden = true;
+          this.saveCurrentPosition();
           if (this.audio && !this.audio.paused) {
             this.fadeTo(0, 800, () => this.audio?.pause());
           }
@@ -1515,8 +1514,34 @@ export class AmbientSoundController {
           }
         }
       } else {
-        const currentPref = localStorage.getItem('ambient_sound');
-        if (currentPref !== 'disabled' && this.isPlaying && !this.isMediaPlaying) {
+        if (this.isPersistenceEnabled) {
+          return;
+        }
+        if (this.wasPlayingBeforeVisibilityHidden) {
+          this.wasPlayingBeforeVisibilityHidden = false;
+          const currentPref = localStorage.getItem('ambient_sound');
+          if (currentPref !== 'disabled' && !this.isMediaPlaying) {
+            this.play();
+          }
+        }
+      }
+    });
+
+    // Cross-tab synchronization of Sync & Ambient preferences
+    window.addEventListener('storage', (e) => {
+      if (e.key === 'ambient_persistence') {
+        this.isPersistenceEnabled = e.newValue !== 'disabled';
+        this.updatePersistUI();
+      }
+      if (e.key === 'ui_fx_sound') {
+        this.isFxEnabled = e.newValue !== 'disabled';
+        this.microSounds.setEnabled(this.isFxEnabled);
+        this.updateFxUI();
+      }
+      if (e.key === 'ambient_sound') {
+        if (e.newValue === 'disabled' && this.isPlaying) {
+          this.pause();
+        } else if (e.newValue === 'enabled' && !this.isPlaying && !this.isMediaPlaying) {
           this.play();
         }
       }
@@ -1656,6 +1681,44 @@ export class AmbientSoundController {
     }
   }
 
+  private startYtTimeTracker(): void {
+    if (this.ytTimeTracker) return;
+    this.ytTimeTracker = window.setInterval(() => {
+      this.saveCurrentPosition();
+    }, 1500);
+  }
+
+  private stopYtTimeTracker(): void {
+    if (this.ytTimeTracker) {
+      clearInterval(this.ytTimeTracker);
+      this.ytTimeTracker = null;
+    }
+  }
+
+  private saveCurrentPosition(): void {
+    if (this.audio && !this.audio.paused) {
+      sessionStorage.setItem('ambient_audio_time', String(this.audio.currentTime));
+      sessionStorage.setItem('ambient_audio_timestamp', String(Date.now()));
+    }
+    const track = this.getCurrentTrack();
+    if (
+      track.type === 'stream' &&
+      this.ytPlayer &&
+      typeof this.ytPlayer.getCurrentTime === 'function'
+    ) {
+      try {
+        const cur = this.ytPlayer.getCurrentTime();
+        if (typeof cur === 'number' && cur > 0) {
+          sessionStorage.setItem('ambient_stream_time', String(cur));
+          if (track.ytId) {
+            sessionStorage.setItem('ambient_stream_ytid', track.ytId);
+          }
+          sessionStorage.setItem('ambient_stream_timestamp', String(Date.now()));
+        }
+      } catch {}
+    }
+  }
+
   private initYtPlayer(): void {
     if (this.ytPlayer || this.isYtInitializing) return;
     this.isYtInitializing = true;
@@ -1667,11 +1730,13 @@ export class AmbientSoundController {
         if (!targetEl) return;
 
         const currentTrack = this.getCurrentTrack();
-        const initialYtId = currentTrack.ytId || 'N0snMcR6aaA';
+        const initialYtId = currentTrack.ytId || 'aoQ-Ld0iFHw';
+        const startSec = this.pendingStartTime ? Math.floor(this.pendingStartTime) : 0;
+        this.currentYtVideoId = initialYtId;
 
         this.ytPlayer = new window.YT.Player('ambient-yt-player', {
-          height: '100',
-          width: '100',
+          height: '200',
+          width: '200',
           videoId: initialYtId,
           playerVars: {
             playsinline: 1,
@@ -1680,9 +1745,10 @@ export class AmbientSoundController {
             enablejsapi: 1,
             origin: window.location.origin,
             rel: 0,
-            autoplay: 1,
+            autoplay: this.isPlaying ? 1 : 0,
             loop: 1,
             fs: 0,
+            start: startSec > 0 ? startSec : undefined,
           },
           events: {
             onReady: () => {
@@ -1690,14 +1756,57 @@ export class AmbientSoundController {
               this.isYtInitializing = false;
               if (this.ytPlayer && typeof this.ytPlayer.setVolume === 'function') {
                 this.ytPlayer.setVolume(Math.round(this.targetVolume * 100));
+                this.ytPlayer.unMute?.();
               }
               const track = this.getCurrentTrack();
               if (this.isPlaying && track.type === 'stream' && !this.isMediaPlaying) {
-                this.ytPlayer.playVideo();
+                const sTime = this.pendingStartTime ?? 0;
+                this.pendingStartTime = null;
+                if (track.ytId) {
+                  if (this.currentYtVideoId !== track.ytId) {
+                    this.currentYtVideoId = track.ytId;
+                    if (sTime > 0) {
+                      this.ytPlayer.loadVideoById({
+                        videoId: track.ytId,
+                        startSeconds: Math.floor(sTime),
+                      });
+                    } else {
+                      this.ytPlayer.loadVideoById(track.ytId);
+                    }
+                  } else {
+                    if (sTime > 0) {
+                      this.ytPlayer.seekTo(sTime, true);
+                    }
+                  }
+                  this.ytPlayer.unMute?.();
+                  this.ytPlayer.setVolume(Math.round(this.targetVolume * 100));
+                  this.ytPlayer.playVideo();
+                }
+                this.startYtTimeTracker();
               }
             },
             onStateChange: (event: any) => {
-              if (event.data === 0 && this.isPlaying && this.getCurrentTrack().type === 'stream') {
+              // 1: PLAYING, 2: PAUSED, 3: BUFFERING, 0: ENDED
+              if (event.data === 1 && this.targetSeekTime !== null) {
+                const seekTarget = this.targetSeekTime;
+                this.targetSeekTime = null;
+                try {
+                  const cur = this.ytPlayer?.getCurrentTime?.() || 0;
+                  if (Math.abs(cur - seekTarget) > 3) {
+                    this.ytPlayer?.seekTo(seekTarget, true);
+                  }
+                } catch {}
+              }
+              if (event.data === 1) {
+                this.startYtTimeTracker();
+              } else if (event.data === 2) {
+                this.stopYtTimeTracker();
+                this.saveCurrentPosition();
+              } else if (
+                event.data === 0 &&
+                this.isPlaying &&
+                this.getCurrentTrack().type === 'stream'
+              ) {
                 this.ytPlayer?.playVideo();
               }
             },
@@ -1727,24 +1836,43 @@ export class AmbientSoundController {
   }
 
   private restoreSavedPlaybackPosition(): void {
-    if (!this.audio) return;
-    const savedTime = parseFloat(sessionStorage.getItem('ambient_audio_time') || '0');
-    const savedTimestamp = parseInt(sessionStorage.getItem('ambient_audio_timestamp') || '0', 10);
-    if (savedTime && savedTimestamp) {
-      const elapsed = (Date.now() - savedTimestamp) / 1000;
-      if (elapsed < 45) {
-        const applyTime = () => {
-          if (this.audio && this.audio.duration && !isNaN(this.audio.duration)) {
-            this.audio.currentTime = (savedTime + elapsed) % this.audio.duration;
-          } else if (this.audio) {
-            this.audio.currentTime = savedTime;
-          }
-        };
+    if (this.audio) {
+      const savedTime = parseFloat(sessionStorage.getItem('ambient_audio_time') || '0');
+      const savedTimestamp = parseInt(sessionStorage.getItem('ambient_audio_timestamp') || '0', 10);
+      if (savedTime && savedTimestamp) {
+        const elapsed = (Date.now() - savedTimestamp) / 1000;
+        if (elapsed < 45) {
+          const applyTime = () => {
+            if (this.audio && this.audio.duration && !isNaN(this.audio.duration)) {
+              this.audio.currentTime = (savedTime + elapsed) % this.audio.duration;
+            } else if (this.audio) {
+              this.audio.currentTime = savedTime;
+            }
+          };
 
-        if (this.audio.readyState >= 1) {
-          applyTime();
+          if (this.audio.readyState >= 1) {
+            applyTime();
+          } else {
+            this.audio.addEventListener('loadedmetadata', applyTime, { once: true });
+          }
+        }
+      }
+    }
+
+    const track = this.getCurrentTrack();
+    if (track.type === 'stream' && track.ytId) {
+      const savedStreamTime = parseFloat(sessionStorage.getItem('ambient_stream_time') || '0');
+      const savedStreamYtId = sessionStorage.getItem('ambient_stream_ytid');
+      const savedStreamTimestamp = parseInt(
+        sessionStorage.getItem('ambient_stream_timestamp') || '0',
+        10,
+      );
+      if (savedStreamTime > 0 && savedStreamYtId === track.ytId) {
+        const elapsed = savedStreamTimestamp ? (Date.now() - savedStreamTimestamp) / 1000 : 0;
+        if (elapsed < 60) {
+          this.pendingStartTime = savedStreamTime + elapsed;
         } else {
-          this.audio.addEventListener('loadedmetadata', applyTime, { once: true });
+          this.pendingStartTime = savedStreamTime;
         }
       }
     }
@@ -1874,6 +2002,27 @@ export class AmbientSoundController {
     } catch {
       // Ignore storage errors
     }
+
+    if (!this.isPersistenceEnabled && document.hidden && this.isPlaying) {
+      this.wasPlayingBeforeVisibilityHidden = true;
+      this.saveCurrentPosition();
+      if (this.audio && !this.audio.paused) {
+        this.fadeTo(0, 800, () => this.audio?.pause());
+      }
+      if (this.ytPlayer && typeof this.ytPlayer.pauseVideo === 'function') {
+        try {
+          this.ytPlayer.pauseVideo();
+        } catch {}
+      }
+    } else if (
+      this.isPersistenceEnabled &&
+      document.hidden &&
+      this.wasPlayingBeforeVisibilityHidden
+    ) {
+      this.wasPlayingBeforeVisibilityHidden = false;
+      this.play();
+    }
+
     this.updatePersistUI();
     this.microSounds.play('click');
   }
@@ -1885,8 +2034,8 @@ export class AmbientSoundController {
       btn.setAttribute(
         'title',
         this.isPersistenceEnabled
-          ? 'Background Audio Persistence: FLOW [Active] (Audio streams continuously across tabs & windows. Click to pause on tab switch)'
-          : 'Background Audio Persistence: FLOW [Paused on Inactive Tab] (Click to enable continuous playback across tabs & windows)',
+          ? 'Background Audio Sync: SYNC [Active] (Audio streams continuously across tabs & windows. Click to pause on tab switch)'
+          : 'Background Audio Sync: SYNC [Paused on Inactive Tab] (Click to enable continuous playback across tabs & windows)',
       );
     });
 
@@ -1927,31 +2076,7 @@ export class AmbientSoundController {
   }
 
   public handleAmbientButtonClick(): void {
-    if (this.isPipedFromRadio) {
-      // User clicked the ambient button while a piped radio stream is playing.
-      // Transition from the piped radio stream to the current theme's track sequence!
-      this.isPipedFromRadio = false;
-      this.customStreamTrack = null;
-      localStorage.removeItem('ambient_custom_track');
-      localStorage.removeItem('ambient_piped_from_radio');
-
-      if (this.ytPlayer && typeof this.ytPlayer.pauseVideo === 'function') {
-        try {
-          this.ytPlayer.pauseVideo();
-        } catch {}
-      }
-
-      // Default to track 0 of current theme and start playing
-      this.currentTrackIndex = 0;
-      localStorage.setItem('ambient_track_index', '0');
-      localStorage.setItem('ambient_sound', 'enabled');
-
-      this.microSounds.play('theme');
-      this.play();
-      return;
-    }
-
-    // Normal mode: toggle play / pause
+    // Toggle play / pause for current atmospheric audio or piped radio stream
     this.togglePlayPause();
   }
 
@@ -1988,11 +2113,25 @@ export class AmbientSoundController {
     code?: string;
     file?: string;
     isPipedFromRadio?: boolean;
+    startTime?: number;
   }): void {
     this.microSounds.play('surge');
 
+    const sTime =
+      typeof detail.startTime === 'number' && detail.startTime > 0 ? detail.startTime : 0;
+    if (sTime > 0) {
+      this.pendingStartTime = sTime;
+      if (detail.ytId) {
+        sessionStorage.setItem('ambient_stream_time', String(sTime));
+        sessionStorage.setItem('ambient_stream_ytid', detail.ytId);
+        sessionStorage.setItem('ambient_stream_timestamp', String(Date.now()));
+      }
+    }
+
     if (detail.isPipedFromRadio) {
       this.isPipedFromRadio = true;
+      this.isMediaPlaying = false;
+      this.wasPlayingBeforeMedia = false;
       localStorage.setItem('ambient_piped_from_radio', 'true');
       this.customStreamTrack = {
         id: detail.id || (detail.ytId ? `stream-${detail.ytId}` : 'piped-track'),
@@ -2022,6 +2161,7 @@ export class AmbientSoundController {
         localStorage.setItem('ambient_track_index', String(foundIdx));
         localStorage.removeItem('ambient_custom_track');
         localStorage.setItem('ambient_sound', 'enabled');
+        this.isMediaPlaying = false;
         this.play();
         return;
       }
@@ -2039,6 +2179,7 @@ export class AmbientSoundController {
         localStorage.setItem('ambient_custom_track', JSON.stringify(this.customStreamTrack));
       } catch {}
       localStorage.setItem('ambient_sound', 'enabled');
+      this.isMediaPlaying = false;
       this.play();
       return;
     }
@@ -2055,6 +2196,7 @@ export class AmbientSoundController {
         localStorage.setItem('ambient_custom_track', JSON.stringify(this.customStreamTrack));
       } catch {}
       localStorage.setItem('ambient_sound', 'enabled');
+      this.isMediaPlaying = false;
       this.play();
       return;
     }
@@ -2084,15 +2226,33 @@ export class AmbientSoundController {
 
       this.initYtPlayer();
       if (this.isYtReady && this.ytPlayer && typeof this.ytPlayer.playVideo === 'function') {
-        const currentVideoUrl = this.ytPlayer.getVideoUrl?.() || '';
-        if (track.ytId && !currentVideoUrl.includes(track.ytId)) {
-          this.ytPlayer.loadVideoById(track.ytId);
-        } else {
+        const sTime = this.pendingStartTime ?? 0;
+        this.pendingStartTime = null;
+
+        if (track.ytId) {
+          if (this.currentYtVideoId !== track.ytId) {
+            this.currentYtVideoId = track.ytId;
+            if (sTime > 0) {
+              this.ytPlayer.loadVideoById({
+                videoId: track.ytId,
+                startSeconds: Math.floor(sTime),
+              });
+            } else {
+              this.ytPlayer.loadVideoById(track.ytId);
+            }
+          } else {
+            if (sTime > 0) {
+              this.ytPlayer.seekTo(sTime, true);
+            }
+          }
+          this.ytPlayer.unMute?.();
+          this.ytPlayer.setVolume(Math.round(this.targetVolume * 100));
           this.ytPlayer.playVideo();
+          this.startYtTimeTracker();
         }
-        this.ytPlayer.setVolume(Math.round(this.targetVolume * 100));
       }
     } else {
+      this.stopYtTimeTracker();
       if (this.ytPlayer && typeof this.ytPlayer.pauseVideo === 'function') {
         try {
           this.ytPlayer.pauseVideo();
@@ -2120,6 +2280,8 @@ export class AmbientSoundController {
   public pause(): void {
     this.isPlaying = false;
     this.updateUI(false);
+    this.stopYtTimeTracker();
+    this.saveCurrentPosition();
 
     if (this.audio) {
       this.fadeTo(0, 800, () => {
