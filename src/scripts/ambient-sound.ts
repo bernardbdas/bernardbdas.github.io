@@ -204,6 +204,14 @@ export const THEME_AUDIO_MAP: Record<string, AmbientTrack[]> = {
       ytId: 'd6gatp9XyGc',
       genre: 'Alternative Rock',
     },
+    {
+      id: 'queen-live',
+      name: 'QUEEN ONE VISION TV',
+      code: 'QUEEN',
+      type: 'stream',
+      ytId: 'aQFitMHcfWo',
+      genre: 'Classic Rock',
+    },
   ],
 
   // AMBER THEME (id: 'dark'): Piano and classical music & cozy warmth
@@ -346,6 +354,74 @@ export const THEME_AUDIO_MAP: Record<string, AmbientTrack[]> = {
     },
   ],
 };
+
+// Curated Christmas & New Year holiday songs and live streams
+export const HOLIDAY_AMBIENT_TRACKS: AmbientTrack[] = [
+  {
+    id: 'xmas-jazz-hearth',
+    name: 'HOLIDAY JAZZ HEARTH',
+    code: 'XMAS-JAZZ',
+    type: 'stream',
+    ytId: 'AoMlo1Tt4iY',
+    genre: 'Holiday Jazz',
+  },
+  {
+    id: 'xmas-lofi-beats',
+    name: 'XMAS HEARTH LO-FI',
+    code: 'XMAS-LOFI',
+    type: 'stream',
+    ytId: 'S15hHKNF9sg',
+    genre: 'Holiday Lo-Fi',
+  },
+  {
+    id: 'xmas-classical-carols',
+    name: 'HALIDON CHRISTMAS',
+    code: 'XMAS-CAROLS',
+    type: 'stream',
+    ytId: 'G1Eq0f5mMVQ',
+    genre: 'Classical Carols',
+  },
+  {
+    id: 'xmas-lofi-girl',
+    name: 'LOFI GIRL WINTER',
+    code: 'WINTER-LOFI',
+    type: 'stream',
+    ytId: 'wgwcBTrY9og',
+    genre: 'Winter Lo-Fi',
+  },
+  {
+    id: 'xmas-golden-classics',
+    name: 'GOLDEN ERA HOLIDAY',
+    code: 'XMAS-VINTAGE',
+    type: 'stream',
+    ytId: 'PTlEGWFOyC4',
+    genre: 'Vintage Classics',
+  },
+  {
+    id: 'nye-defected-celebration',
+    name: 'NYE DEFECTED DANCE',
+    code: 'NYE-DANCE',
+    type: 'stream',
+    ytId: 'n0MVVlf19p8',
+    genre: 'NYE Dance',
+  },
+  {
+    id: 'newyear-chillout-vibes',
+    name: 'NEW YEAR CHILLOUT',
+    code: 'NY-CHILL',
+    type: 'stream',
+    ytId: 'mkDIbQU9XsA',
+    genre: 'New Year Chillout',
+  },
+  {
+    id: 'newyear-lounge-sunset',
+    name: 'NEW YEAR LOUNGE',
+    code: 'NY-LOUNGE',
+    type: 'stream',
+    ytId: 'dpuv_ElxyMc',
+    genre: 'New Year Lounge',
+  },
+];
 
 // Default playlist for backward compatibility
 export const AMBIENT_TRACKS: AmbientTrack[] = THEME_AUDIO_MAP.dark;
@@ -1381,8 +1457,54 @@ export class AmbientSoundController {
     this.microSounds.play(name);
   }
 
+  private isHolidaySeasonActive(): boolean {
+    if (typeof window === 'undefined') return false;
+    if (localStorage.getItem('seasonal_effects_enabled') === 'false') return false;
+    const root = document.documentElement;
+    if (root.classList.contains('season-christmas') || root.classList.contains('season-newyear')) {
+      return true;
+    }
+    const override = localStorage.getItem('seasonal_override');
+    if (override === 'christmas' || override === 'newyear') return true;
+    if (override === 'off') return false;
+
+    const now = new Date();
+    const m = now.getMonth();
+    const d = now.getDate();
+    return (m === 11 && d >= 15) || (m === 0 && d <= 5);
+  }
+
+  private getHolidaySeasonType(): 'christmas' | 'newyear' | 'holiday' {
+    if (typeof window === 'undefined') return 'holiday';
+    const root = document.documentElement;
+    if (root.classList.contains('season-christmas')) return 'christmas';
+    if (root.classList.contains('season-newyear')) return 'newyear';
+    const override = localStorage.getItem('seasonal_override');
+    if (override === 'christmas') return 'christmas';
+    if (override === 'newyear') return 'newyear';
+
+    const now = new Date();
+    const m = now.getMonth();
+    const d = now.getDate();
+    if (m === 11 && d >= 15 && d <= 26) return 'christmas';
+    if ((m === 11 && d >= 27) || (m === 0 && d <= 5)) return 'newyear';
+    return 'holiday';
+  }
+
   public getActiveThemeTracks(): AmbientTrack[] {
-    return THEME_AUDIO_MAP[this.currentTheme] || THEME_AUDIO_MAP['dark'];
+    const baseTracks = THEME_AUDIO_MAP[this.currentTheme] || THEME_AUDIO_MAP['dark'];
+    if (this.isHolidaySeasonActive()) {
+      const type = this.getHolidaySeasonType();
+      if (type === 'christmas') {
+        const xmasTracks = HOLIDAY_AMBIENT_TRACKS.filter((t) => t.id.startsWith('xmas-'));
+        return [...xmasTracks, ...baseTracks];
+      } else if (type === 'newyear') {
+        const nyTracks = HOLIDAY_AMBIENT_TRACKS.filter((t) => !t.id.startsWith('xmas-'));
+        return [...nyTracks, ...baseTracks];
+      }
+      return [...HOLIDAY_AMBIENT_TRACKS, ...baseTracks];
+    }
+    return baseTracks;
   }
 
   public getCurrentTrack(): AmbientTrack {
@@ -1545,6 +1667,11 @@ export class AmbientSoundController {
           this.play();
         }
       }
+    });
+
+    // Seasonal holiday change coordination
+    window.addEventListener('seasonchange', () => {
+      this.updateUI();
     });
 
     // Universal media cutoff coordination

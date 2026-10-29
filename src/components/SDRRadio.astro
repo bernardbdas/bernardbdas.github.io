@@ -9,6 +9,7 @@ import { RADIO_STATIONS, type FMStation } from '../data/radio-stations';
 
 const genres = [
   'ALL',
+  'Holiday & Seasonal',
   'Flow & Nature Sounds',
   'Lo-Fi & Study',
   'Classic Rock',
@@ -289,24 +290,32 @@ const defaultStation: FMStation = RADIO_STATIONS[0];
     </div>
 
     <div class="sdr-genre-pills" role="tablist" aria-label="Filter stations by genre">
-      {genres.map((genre) => (
-        <button
-          type="button"
-          class:list={['sdr-genre-pill', { active: genre === 'ALL' }]}
-          data-genre={genre}
-          role="tab"
-          aria-selected={genre === 'ALL' ? 'true' : 'false'}
-        >
-          <span>{genre}</span>
-          <span class="genre-count">
-            (
-            {genre === 'ALL'
-              ? RADIO_STATIONS.length
-              : RADIO_STATIONS.filter((s) => s.genre === genre).length}
-            )
-          </span>
-        </button>
-      ))}
+      {genres.map((genre) => {
+        const isHoliday = genre === 'Holiday & Seasonal';
+        return (
+          <button
+            type="button"
+            class:list={[
+              'sdr-genre-pill',
+              { active: genre === 'ALL', 'sdr-holiday-pill': isHoliday },
+            ]}
+            data-genre={genre}
+            data-holiday-filter={isHoliday ? 'true' : undefined}
+            role="tab"
+            aria-selected={genre === 'ALL' ? 'true' : 'false'}
+          >
+            {isHoliday && <span class="holiday-pill-dot" aria-hidden="true" />}
+            <span>{isHoliday ? 'HOLIDAY SPECIALS' : genre}</span>
+            <span class="genre-count">
+              (
+              {genre === 'ALL'
+                ? RADIO_STATIONS.length
+                : RADIO_STATIONS.filter((s) => s.genre === genre).length}
+              )
+            </span>
+          </button>
+        );
+      })}
     </div>
   </div>
 
@@ -418,6 +427,7 @@ const defaultStation: FMStation = RADIO_STATIONS[0];
       this.initYouTube();
       this.attachEvents();
       this.updateDisplay();
+      this.updateHolidayFilterVisibility();
     }
 
     private initDom() {
@@ -690,6 +700,33 @@ const defaultStation: FMStation = RADIO_STATIONS[0];
           }
         }
       });
+
+      // Seasonal holiday mode updates
+      window.addEventListener('seasonchange', () => {
+        this.updateHolidayFilterVisibility();
+      });
+    }
+
+    private updateHolidayFilterVisibility() {
+      const holidayPill = document.querySelector<HTMLButtonElement>('.sdr-holiday-pill');
+      if (!holidayPill) return;
+
+      const root = document.documentElement;
+      const override = localStorage.getItem('seasonal_override');
+      const isEnabled = localStorage.getItem('seasonal_effects_enabled') !== 'false';
+      const now = new Date();
+      const m = now.getMonth();
+      const d = now.getDate();
+      const isDateHoliday = (m === 11 && d >= 15) || (m === 0 && d <= 5);
+      const isHoliday =
+        isEnabled &&
+        (root.classList.contains('season-christmas') ||
+          root.classList.contains('season-newyear') ||
+          override === 'christmas' ||
+          override === 'newyear' ||
+          (override !== 'off' && isDateHoliday));
+
+      holidayPill.classList.toggle('is-visible', isHoliday);
     }
 
     private togglePower() {
@@ -788,6 +825,7 @@ const defaultStation: FMStation = RADIO_STATIONS[0];
       else if (idLower.includes('chopin')) code = 'CHOPIN';
       else if (idLower.includes('rock')) code = 'ROCK';
       else if (idLower.includes('house') || idLower.includes('dance')) code = 'HOUSE';
+      else if (idLower.includes('queen')) code = 'QUEEN';
       else if (station.code) code = station.code;
       else if (station.name) code = station.name.split(' ')[0].toUpperCase();
 

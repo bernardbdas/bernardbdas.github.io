@@ -1,5 +1,6 @@
 ---
 import { ClientRouter } from 'astro:transitions';
+import WeatherDashboard from '../components/WeatherDashboard.astro';
 
 export interface Props {
   title: string;
@@ -40,11 +41,59 @@ const { title, description } = Astro.props;
     />
     <script is:inline>
       (function () {
-        const saved = localStorage.getItem('theme');
-        const valid = ['dark', 'light', 'blue', 'white', 'violet', 'emerald'];
-        // Amber ('dark') is the permanent default aesthetic
-        const pref = saved && valid.includes(saved) ? saved : 'dark';
-        document.documentElement.setAttribute('data-theme', pref);
+        function getSolarDefault() {
+          try {
+            var lat = parseFloat(localStorage.getItem('client_geo_lat') || '');
+            var lon = parseFloat(localStorage.getItem('client_geo_lon') || '');
+            var now = new Date();
+            var hours = now.getHours() + now.getMinutes() / 60;
+            var sunrise = 6;
+            var sunset = 18;
+
+            if (!isNaN(lat) && !isNaN(lon)) {
+              var start = new Date(now.getFullYear(), 0, 0);
+              var diff = now - start;
+              var dayOfYear = Math.floor(diff / 86400000);
+              var declination =
+                -23.44 * Math.cos(((2 * Math.PI) / 365) * (dayOfYear + 10)) * (Math.PI / 180);
+              var latRad = lat * (Math.PI / 180);
+              var cosH =
+                (Math.sin((-0.833 * Math.PI) / 180) - Math.sin(latRad) * Math.sin(declination)) /
+                (Math.cos(latRad) * Math.cos(declination));
+              if (cosH >= -1 && cosH <= 1) {
+                var hDeg = Math.acos(cosH) * (180 / Math.PI);
+                var noon = 12 - lon / 15 - now.getTimezoneOffset() / 60;
+                var half = hDeg / 15;
+                var sr = noon - half;
+                var ss = noon + half;
+                if (sr >= 0 && ss <= 24 && sr < ss) {
+                  sunrise = sr;
+                  sunset = ss;
+                }
+              }
+            }
+            // Sunrise to Sunset: Light
+            // Sunset to Sunrise: Amber ('dark')
+            return hours >= sunrise && hours < sunset ? 'light' : 'dark';
+          } catch {
+            var h = new Date().getHours();
+            return h >= 6 && h < 18 ? 'light' : 'dark';
+          }
+        }
+
+        var saved = localStorage.getItem('theme');
+        var manual = localStorage.getItem('theme_manual') === 'true';
+        var valid = ['dark', 'light', 'blue', 'white', 'violet', 'emerald'];
+
+        var activeTheme;
+        if (manual && saved && valid.includes(saved) && saved !== 'auto') {
+          activeTheme = saved;
+        } else {
+          // Dynamic default based upon local solar time of the user
+          activeTheme = getSolarDefault();
+        }
+
+        document.documentElement.setAttribute('data-theme', activeTheme);
 
         // Register high-performance asset cache service worker if supported
         if ('serviceWorker' in navigator && window.location.protocol.startsWith('http')) {
@@ -72,6 +121,15 @@ const { title, description } = Astro.props;
     >
       <div id="ambient-yt-player"></div>
     </div>
+    <!-- Seasonal Holiday Visual Effects Canvas (Christmas Snowfall & New Year Celebration Sparks) -->
+    <canvas
+      id="seasonal-canvas"
+      transition:persist="seasonal-canvas"
+      class="seasonal-canvas"
+      aria-hidden="true"
+    ></canvas>
+    <!-- Atmospheric Weather HUD (Customizable, Draggable, Pinnable) -->
+    <WeatherDashboard />
     <slot />
   </body>
 </html>

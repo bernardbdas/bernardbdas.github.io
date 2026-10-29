@@ -4,7 +4,7 @@
 
 <footer class="chrome-bottom anim-chrome">
   <div class="chrome-bottom-left">
-    <span>
+    <span class="footer-copyright">
       &copy; 2026{' '}
       <span class="author-name">
         <span class="author-full">Bernard Birendra Das</span>
@@ -64,6 +64,45 @@
   </div>
 
   <div class="chrome-bottom-right">
+    <div class="footer-hud-controls" role="group" aria-label="HUD Feature Toggles">
+      <button
+        type="button"
+        class="telemetry-pill footer-toggle-pill is-active"
+        id="seasonalFxToggle"
+        role="switch"
+        aria-checked="true"
+        aria-label="Toggle seasonal effects"
+        title="Toggle seasonal holiday visual effects (Christmas & New Year)"
+        style="display: none;"
+      >
+        <span class="pill-dot pill-dot-season" aria-hidden="true"></span>
+        <span class="pill-label">SEASON FX</span>
+        <span class="pill-val" id="seasonalFxStatus">
+          ON
+        </span>
+      </button>
+
+      <button
+        type="button"
+        class="telemetry-pill footer-toggle-pill is-active"
+        id="weatherHudToggle"
+        role="switch"
+        aria-checked="true"
+        aria-label="Toggle atmospheric weather HUD"
+        title="Toggle atmospheric weather HUD"
+      >
+        <span class="pill-dot pill-dot-weather" aria-hidden="true"></span>
+        <span class="pill-label">WEATHER HUD</span>
+        <span class="pill-val" id="weatherHudStatus">
+          ON
+        </span>
+      </button>
+    </div>
+
+    <span class="hud-sep" aria-hidden="true">
+      //
+    </span>
+
     <a href="#top" class="back-to-top" aria-label="Scroll back to top">
       TOP ↑
     </a>
@@ -138,6 +177,7 @@
   import '../scripts/client-telemetry';
   import '../scripts/web-vitals';
   import '../scripts/hard-reload';
+  import '../scripts/seasonal-effects';
 
   // Smooth scroll to top for scrollable content container and window
   const backToTop = document.querySelector('.back-to-top');

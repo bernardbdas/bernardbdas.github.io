@@ -652,10 +652,61 @@ const links: NavLink[] = [
     { id: 'emerald', label: 'EMERALD' },
   ] as const;
 
-  function applyTheme(themeId: string): void {
-    const matched = THEMES.find((t) => t.id === themeId) || THEMES[0];
+  function getDynamicSolarTheme(): 'light' | 'dark' {
+    try {
+      const lat = parseFloat(localStorage.getItem('client_geo_lat') || '');
+      const lon = parseFloat(localStorage.getItem('client_geo_lon') || '');
+      const now = new Date();
+      const hours = now.getHours() + now.getMinutes() / 60;
+      let sunrise = 6;
+      let sunset = 18;
+
+      if (!isNaN(lat) && !isNaN(lon)) {
+        const start = new Date(now.getFullYear(), 0, 0);
+        const diff = now.getTime() - start.getTime();
+        const dayOfYear = Math.floor(diff / 86400000);
+        const declination =
+          -23.44 * Math.cos(((2 * Math.PI) / 365) * (dayOfYear + 10)) * (Math.PI / 180);
+        const latRad = lat * (Math.PI / 180);
+        const cosH =
+          (Math.sin((-0.833 * Math.PI) / 180) - Math.sin(latRad) * Math.sin(declination)) /
+          (Math.cos(latRad) * Math.cos(declination));
+        if (cosH >= -1 && cosH <= 1) {
+          const hDeg = Math.acos(cosH) * (180 / Math.PI);
+          const noon = 12 - lon / 15 - now.getTimezoneOffset() / 60;
+          const half = hDeg / 15;
+          const sr = noon - half;
+          const ss = noon + half;
+          if (sr >= 0 && ss <= 24 && sr < ss) {
+            sunrise = sr;
+            sunset = ss;
+          }
+        }
+      }
+      // Sunrise to Sunset: Light
+      // Sunset to Sunrise: Amber ('dark')
+      return hours >= sunrise && hours < sunset ? 'light' : 'dark';
+    } catch {
+      const h = new Date().getHours();
+      return h >= 6 && h < 18 ? 'light' : 'dark';
+    }
+  }
+
+  function applyTheme(themeId: string, isManual = false): void {
+    let resolvedId = themeId;
+
+    if (isManual) {
+      localStorage.setItem('theme_manual', 'true');
+      localStorage.setItem('theme', themeId);
+    } else {
+      const userManual = localStorage.getItem('theme_manual') === 'true';
+      if (!userManual) {
+        resolvedId = getDynamicSolarTheme();
+      }
+    }
+
+    const matched = THEMES.find((t) => t.id === resolvedId) || THEMES[0];
     document.documentElement.setAttribute('data-theme', matched.id);
-    localStorage.setItem('theme', matched.id);
 
     const label = document.getElementById('themeLabel');
     const btn = document.getElementById('themeToggle');
@@ -663,13 +714,15 @@ const links: NavLink[] = [
     const curThemeEl = document.getElementById('paletteCurrentTheme');
     const paletteButtons = document.querySelectorAll<HTMLElement>('[data-set-theme]');
 
-    if (label) label.textContent = matched.label;
-    if (btn) btn.setAttribute('title', `Color Theme: ${matched.label} (Click to cycle)`);
-    if (mobileThemeLabel) mobileThemeLabel.textContent = `THEME: ${matched.label}`;
-    if (curThemeEl) curThemeEl.textContent = matched.label;
+    const displayLabel = matched.label;
+    if (label) label.textContent = displayLabel;
+    if (btn) btn.setAttribute('title', `Color Theme: ${displayLabel} (Click to cycle)`);
+    if (mobileThemeLabel) mobileThemeLabel.textContent = `THEME: ${displayLabel}`;
+    if (curThemeEl) curThemeEl.textContent = displayLabel;
 
     paletteButtons.forEach((b) => {
-      const isCur = b.getAttribute('data-set-theme') === matched.id;
+      const val = b.getAttribute('data-set-theme');
+      const isCur = val === matched.id;
       b.classList.toggle('active', isCur);
     });
 
@@ -679,8 +732,8 @@ const links: NavLink[] = [
   function cycleTheme(): void {
     const current = document.documentElement.getAttribute('data-theme') || 'dark';
     const curIndex = THEMES.findIndex((t) => t.id === current);
-    const nextIndex = (curIndex + 1) % THEMES.length;
-    applyTheme(THEMES[nextIndex].id);
+    const nextIndex = curIndex >= 0 ? (curIndex + 1) % THEMES.length : 0;
+    applyTheme(THEMES[nextIndex].id, true);
   }
 
   function openMobileMenu(): void {
@@ -712,14 +765,47 @@ const links: NavLink[] = [
   }
 
   let navEventsBound = false;
+  let solarCheckTimer: number | null = null;
 
   function initNav(): void {
-    // Synchronize active theme from storage or DOM attribute
-    const initialTheme =
-      document.documentElement.getAttribute('data-theme') ||
-      localStorage.getItem('theme') ||
-      'dark';
-    applyTheme(initialTheme);
+    // Synchronize active theme from storage or dynamic solar time default
+    const isManual = localStorage.getItem('theme_manual') === 'true';
+    const saved = localStorage.getItem('theme');
+
+    let initialTheme: string;
+    if (isManual && saved && THEMES.some((t) => t.id === saved)) {
+      initialTheme = saved;
+    } else {
+      initialTheme = getDynamicSolarTheme();
+    }
+    applyTheme(initialTheme, isManual);
+
+    // Dynamic solar theme monitor: checks every 60s if theme is in default dynamic mode
+    if (solarCheckTimer === null) {
+      solarCheckTimer = window.setInterval(() => {
+        const userManual = localStorage.getItem('theme_manual') === 'true';
+        if (!userManual) {
+          const expected = getDynamicSolarTheme();
+          const current = document.documentElement.getAttribute('data-theme');
+          if (expected !== current) {
+            applyTheme(expected, false);
+          }
+        }
+      }, 60000);
+
+      document.addEventListener('visibilitychange', () => {
+        if (!document.hidden) {
+          const userManual = localStorage.getItem('theme_manual') === 'true';
+          if (!userManual) {
+            const expected = getDynamicSolarTheme();
+            const current = document.documentElement.getAttribute('data-theme');
+            if (expected !== current) {
+              applyTheme(expected, false);
+            }
+          }
+        }
+      });
+    }
 
     // Ensure mobile drawer is closed on route load
     closeMobileMenu();
@@ -798,7 +884,7 @@ const links: NavLink[] = [
         if (targetTheme) {
           e.preventDefault();
           e.stopPropagation();
-          applyTheme(targetTheme);
+          applyTheme(targetTheme, true);
         }
         return;
       }

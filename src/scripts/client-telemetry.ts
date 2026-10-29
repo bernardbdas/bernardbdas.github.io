@@ -262,6 +262,10 @@ export function initClientTelemetry(): void {
     // Update Location
     let locStr = 'ONLINE';
     if (geo && typeof geo.latitude === 'number' && typeof geo.longitude === 'number') {
+      try {
+        localStorage.setItem('client_geo_lat', String(geo.latitude));
+        localStorage.setItem('client_geo_lon', String(geo.longitude));
+      } catch {}
       const coordStr = formatCoord(geo.latitude, geo.longitude);
       const cityStr = geo.city ? ` [${geo.city.toUpperCase()}]` : '';
       locStr = `${coordStr}${cityStr}`;

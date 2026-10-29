@@ -13,7 +13,8 @@ export type SDRGenre =
   | 'Deep House & Dance'
   | 'Jazz & Bossa Nova'
   | 'Classical & Piano'
-  | '90s Hip Hop';
+  | '90s Hip Hop'
+  | 'Holiday & Seasonal';
 
 export interface FMStation {
   id: string;
@@ -682,6 +683,17 @@ export const RADIO_STATIONS: FMStation[] = [
     bitrate: '320 kbps WFM',
   },
   {
+    id: 'queen-live',
+    ytId: 'aQFitMHcfWo',
+    freq: '97.1 FM',
+    freqNum: 97.1,
+    name: 'QUEEN (ONE VISION TV)',
+    desc: 'Official 24/7 Queen Channel — Hits, Concerts & Archival Footage',
+    genre: 'Classic Rock',
+    origin: 'London, UK / Queen Official',
+    bitrate: '320 kbps WFM',
+  },
+  {
     id: 'ccr-rock',
     ytId: 'FtiM1Qtz700',
     freq: '97.5 FM',
@@ -734,6 +746,96 @@ export const RADIO_STATIONS: FMStation[] = [
     desc: '70s & 80s Rock Anthems',
     genre: 'Classic Rock',
     origin: 'UK/US Heritage',
+    bitrate: '320 kbps WFM',
+  },
+
+  // ── Holiday & Seasonal (Christmas Classics, Hearth Fires, Winter Lofi & New Year) ──
+  {
+    id: 'xmas-jazz-hearth',
+    ytId: 'AoMlo1Tt4iY',
+    freq: '89.9 FM',
+    freqNum: 89.9,
+    name: 'HOLIDAY JAZZ HEARTH',
+    desc: 'Smooth Christmas Jazz Instrumental by the Fireplace — Cozy Winter Focus',
+    genre: 'Holiday & Seasonal',
+    origin: 'Winter Jazz Lounge',
+    bitrate: '320 kbps WFM',
+  },
+  {
+    id: 'xmas-lofi-beats',
+    ytId: 'S15hHKNF9sg',
+    freq: '91.5 FM',
+    freqNum: 91.5,
+    name: 'XMAS HEARTH LO-FI',
+    desc: 'Christmas Lofi Chill Beats & Crackling Fireplace — Winter Study & Flow',
+    genre: 'Holiday & Seasonal',
+    origin: 'Snowy Cabin Studio',
+    bitrate: '320 kbps WFM',
+  },
+  {
+    id: 'xmas-classical-carols',
+    ytId: 'G1Eq0f5mMVQ',
+    freq: '92.8 FM',
+    freqNum: 92.8,
+    name: 'HALIDON CHRISTMAS',
+    desc: 'Instrumental Christmas Carols & Classical Orchestra — Peaceful Symphony',
+    genre: 'Holiday & Seasonal',
+    origin: 'Halidon Symphonic Hall',
+    bitrate: '320 kbps WFM',
+  },
+  {
+    id: 'xmas-lofi-girl',
+    ytId: 'wgwcBTrY9og',
+    freq: '94.5 FM',
+    freqNum: 94.5,
+    name: 'LOFI GIRL WINTER',
+    desc: 'Official Lofi Girl Christmas Holiday Beats — Cozy Snowfall & Mellow Flow',
+    genre: 'Holiday & Seasonal',
+    origin: 'Lofi Girl Winter HQ',
+    bitrate: '256 kbps WFM',
+  },
+  {
+    id: 'xmas-golden-classics',
+    ytId: 'PTlEGWFOyC4',
+    freq: '95.1 FM',
+    freqNum: 95.1,
+    name: 'GOLDEN ERA HOLIDAY',
+    desc: 'Classic Christmas Vintage Jazz & Nostalgic Standards (Sinatra & Nat King Cole)',
+    genre: 'Holiday & Seasonal',
+    origin: 'Vintage Heritage Broadcast',
+    bitrate: '320 kbps WFM',
+  },
+  {
+    id: 'nye-defected-celebration',
+    ytId: 'n0MVVlf19p8',
+    freq: '96.3 FM',
+    freqNum: 96.3,
+    name: 'NYE DEFECTED DANCE',
+    desc: 'Defected Records New Year Celebration Live Mix — House & Club Anthems',
+    genre: 'Holiday & Seasonal',
+    origin: 'Ministry of Sound Live',
+    bitrate: '320 kbps WFM',
+  },
+  {
+    id: 'newyear-chillout-vibes',
+    ytId: 'mkDIbQU9XsA',
+    freq: '97.8 FM',
+    freqNum: 97.8,
+    name: 'NEW YEAR CHILLOUT',
+    desc: 'New Year Deep Atmospheric Chillout & Midnight Ambient Flow',
+    genre: 'Holiday & Seasonal',
+    origin: 'Metropolitan Midnight Rig',
+    bitrate: '320 kbps WFM',
+  },
+  {
+    id: 'newyear-lounge-sunset',
+    ytId: 'dpuv_ElxyMc',
+    freq: '98.2 FM',
+    freqNum: 98.2,
+    name: 'NEW YEAR LOUNGE',
+    desc: 'Welcome New Year Sunset Lounge & Melodic Festive Beats',
+    genre: 'Holiday & Seasonal',
+    origin: 'Ibiza Sunset Sanctuary',
     bitrate: '320 kbps WFM',
   },
 ];
