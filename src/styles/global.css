@@ -4446,6 +4446,118 @@ html.season-newyear .sdr-genre-pill.sdr-holiday-pill,
   }
 }
 
+/* ── Holiday Sub-Genre Selector Matrix Strip ─────────────────── */
+.sdr-subgenre-wrapper {
+  display: none;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  padding: 8px 12px;
+  margin-top: 10px;
+  background: rgba(var(--bg-rgb), 0.7);
+  border: 1px dashed rgba(56, 189, 248, 0.35);
+  border-radius: 4px;
+}
+
+.sdr-subgenre-wrapper.is-visible {
+  display: flex !important;
+}
+
+.sdr-subgenre-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  font-family: var(--font-mono);
+  font-size: 8.5px;
+  letter-spacing: 0.12em;
+  color: #38bdf8;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.sdr-subgenre-pills {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.sdr-subgenre-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 3px 8px;
+  background: rgba(var(--bg-rgb), 0.7);
+  border: 1px solid var(--hairline);
+  color: var(--ink-dim);
+  cursor: pointer;
+  transition: all 0.15s ease;
+  user-select: none;
+  white-space: nowrap;
+}
+
+.sdr-subgenre-pill:hover {
+  border-color: rgba(56, 189, 248, 0.6);
+  color: var(--ink);
+  background: rgba(56, 189, 248, 0.08);
+}
+
+.sdr-subgenre-pill.active {
+  border-color: #38bdf8;
+  color: #ffffff;
+  background: rgba(56, 189, 248, 0.22);
+  box-shadow: 0 0 10px rgba(56, 189, 248, 0.35);
+  font-weight: 600;
+}
+
+.sdr-subgenre-pill .subgenre-count {
+  font-size: 8px;
+  opacity: 0.7;
+}
+
+html[data-theme='light'] .sdr-subgenre-wrapper {
+  border-color: rgba(2, 132, 199, 0.35);
+}
+
+html[data-theme='light'] .sdr-subgenre-label {
+  color: #0369a1;
+}
+
+html[data-theme='light'] .sdr-subgenre-pill.active {
+  border-color: #0284c7;
+  color: #0369a1;
+  background: rgba(2, 132, 199, 0.14);
+  box-shadow: 0 0 8px rgba(2, 132, 199, 0.2);
+}
+
+/* Card Sub-Genre Tag */
+.station-subgenre-tag {
+  font-family: var(--font-mono);
+  font-size: 8px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  padding: 1px 6px;
+  border-radius: 2px;
+  background: rgba(56, 189, 248, 0.12);
+  border: 1px solid rgba(56, 189, 248, 0.4);
+  color: #38bdf8;
+  white-space: nowrap;
+  max-width: 140px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-transform: uppercase;
+}
+
+html[data-theme='light'] .station-subgenre-tag {
+  background: rgba(2, 132, 199, 0.12);
+  border-color: rgba(2, 132, 199, 0.45);
+  color: #0369a1;
+}
+
 /* ── Stations Grid Rack ──────────────────────────────────────── */
 .sdr-stations-grid {
   display: grid;
@@ -4485,6 +4597,7 @@ html.season-newyear .sdr-genre-pill.sdr-holiday-pill,
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 8px;
 }
 
 .station-freq-badge {

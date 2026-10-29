@@ -5,7 +5,12 @@
  * YouTube IFrame live stream playback engine, frequency tuner, and genre matrix.
  */
 import Loader from './Loader.astro';
-import { RADIO_STATIONS, type FMStation } from '../data/radio-stations';
+import {
+  RADIO_STATIONS,
+  HOLIDAY_SUBGENRES,
+  type FMStation,
+  type HolidaySubgenre,
+} from '../data/radio-stations';
 
 const genres = [
   'ALL',
@@ -317,6 +322,41 @@ const defaultStation: FMStation = RADIO_STATIONS[0];
         );
       })}
     </div>
+
+    <!-- Holiday Sub-Genre Matrix Strip -->
+    <div class="sdr-subgenre-wrapper" id="sdr-subgenre-wrapper" aria-label="Holiday Subgenres">
+      <div class="sdr-subgenre-label">
+        <span class="subgenre-bracket">[</span>
+        <span class="subgenre-title">SUB-GENRE // SELECTION</span>
+        <span class="subgenre-bracket">]</span>
+      </div>
+      <div
+        class="sdr-subgenre-pills"
+        role="tablist"
+        aria-label="Filter holiday stations by sub-genre"
+      >
+        {HOLIDAY_SUBGENRES.map((subgenre) => {
+          const isAll = subgenre === 'ALL HOLIDAY';
+          const count = isAll
+            ? RADIO_STATIONS.filter((s) => s.genre === 'Holiday & Seasonal').length
+            : RADIO_STATIONS.filter(
+                (s) => s.genre === 'Holiday & Seasonal' && s.subgenre === subgenre,
+              ).length;
+          return (
+            <button
+              type="button"
+              class:list={['sdr-subgenre-pill', { active: isAll }]}
+              data-subgenre={subgenre}
+              role="tab"
+              aria-selected={isAll ? 'true' : 'false'}
+            >
+              <span class="subgenre-name">{subgenre.toUpperCase()}</span>
+              <span class="subgenre-count">({count})</span>
+            </button>
+          );
+        })}
+      </div>
+    </div>
   </div>
 
   <!-- ══════════════════════════════════════════════════════════
@@ -336,6 +376,7 @@ const defaultStation: FMStation = RADIO_STATIONS[0];
           data-name={station.name}
           data-desc={station.desc}
           data-genre={station.genre}
+          data-subgenre={station.subgenre || ''}
           data-bitrate={station.bitrate || '256 kbps WFM'}
           data-origin={station.origin || 'Broadcast'}
           role="listitem"
@@ -345,6 +386,11 @@ const defaultStation: FMStation = RADIO_STATIONS[0];
             <div class="station-freq-badge">
               <span class="freq-tag">{station.freq}</span>
             </div>
+            {station.subgenre && (
+              <span class="station-subgenre-tag" title={station.subgenre}>
+                {station.subgenre}
+              </span>
+            )}
             <div class="station-live-eq" aria-hidden="true">
               <span class="eq-bar"></span>
               <span class="eq-bar"></span>
@@ -358,8 +404,11 @@ const defaultStation: FMStation = RADIO_STATIONS[0];
           </div>
 
           <div class="station-card-meta">
-            <span class="station-genre-tag" title={station.genre}>
-              {station.genre}
+            <span
+              class="station-genre-tag"
+              title={station.subgenre ? `${station.genre} // ${station.subgenre}` : station.genre}
+            >
+              {station.subgenre ? `${station.genre} // ${station.subgenre}` : station.genre}
             </span>
             <div class="station-meta-actions">
               <button
@@ -404,6 +453,7 @@ const defaultStation: FMStation = RADIO_STATIONS[0];
     private volume = 80;
     private isMuted = false;
     private currentGenre = 'ALL';
+    private currentSubgenre = 'ALL HOLIDAY';
 
     private ytPlayer: any = null;
     private ytApiReady = false;
@@ -622,6 +672,15 @@ const defaultStation: FMStation = RADIO_STATIONS[0];
         pill.addEventListener('click', () => {
           const genre = pill.getAttribute('data-genre') || 'ALL';
           this.filterGenre(genre);
+        });
+      });
+
+      // Holiday Sub-Genre filter tabs
+      const subgenrePills = document.querySelectorAll<HTMLButtonElement>('.sdr-subgenre-pill');
+      subgenrePills.forEach((pill) => {
+        pill.addEventListener('click', () => {
+          const subgenre = pill.getAttribute('data-subgenre') || 'ALL HOLIDAY';
+          this.filterSubgenre(subgenre);
         });
       });
 
@@ -961,11 +1020,34 @@ const defaultStation: FMStation = RADIO_STATIONS[0];
 
     private filterGenre(genre: string) {
       this.currentGenre = genre;
+      this.currentSubgenre = 'ALL HOLIDAY';
 
       // Update pills active state
       document.querySelectorAll('.sdr-genre-pill').forEach((pill) => {
         const pGenre = pill.getAttribute('data-genre');
         if (pGenre === genre) {
+          pill.classList.add('active');
+          pill.setAttribute('aria-selected', 'true');
+        } else {
+          pill.classList.remove('active');
+          pill.setAttribute('aria-selected', 'false');
+        }
+      });
+
+      // Toggle sub-genre matrix bar visibility when Holiday & Seasonal is selected
+      const subgenreWrapper = document.getElementById('sdr-subgenre-wrapper');
+      if (subgenreWrapper) {
+        if (genre === 'Holiday & Seasonal') {
+          subgenreWrapper.classList.add('is-visible');
+        } else {
+          subgenreWrapper.classList.remove('is-visible');
+        }
+      }
+
+      // Reset sub-genre pills active state
+      document.querySelectorAll('.sdr-subgenre-pill').forEach((pill) => {
+        const pSub = pill.getAttribute('data-subgenre');
+        if (pSub === 'ALL HOLIDAY') {
           pill.classList.add('active');
           pill.setAttribute('aria-selected', 'true');
         } else {
@@ -993,8 +1075,51 @@ const defaultStation: FMStation = RADIO_STATIONS[0];
       }
     }
 
+    private filterSubgenre(subgenre: string) {
+      this.currentSubgenre = subgenre;
+
+      // Update sub-genre pills active state
+      document.querySelectorAll('.sdr-subgenre-pill').forEach((pill) => {
+        const pSub = pill.getAttribute('data-subgenre');
+        if (pSub === subgenre) {
+          pill.classList.add('active');
+          pill.setAttribute('aria-selected', 'true');
+        } else {
+          pill.classList.remove('active');
+          pill.setAttribute('aria-selected', 'false');
+        }
+      });
+
+      // Filter station cards by subgenre within Holiday & Seasonal
+      const cards = document.querySelectorAll<HTMLElement>('.sdr-station-card');
+      let visibleCount = 0;
+      cards.forEach((card) => {
+        const cardGenre = card.getAttribute('data-genre');
+        const cardSubgenre = card.getAttribute('data-subgenre');
+        if (
+          cardGenre === 'Holiday & Seasonal' &&
+          (subgenre === 'ALL HOLIDAY' || cardSubgenre === subgenre)
+        ) {
+          card.style.display = 'flex';
+          visibleCount++;
+        } else {
+          card.style.display = 'none';
+        }
+      });
+
+      const countBadge = document.getElementById('sdr-station-count');
+      if (countBadge) {
+        countBadge.textContent = `${visibleCount} STATIONS VISIBLE`;
+      }
+    }
+
     private getFilteredStations(): FMStation[] {
       if (this.currentGenre === 'ALL') return this.stations;
+      if (this.currentGenre === 'Holiday & Seasonal' && this.currentSubgenre !== 'ALL HOLIDAY') {
+        return this.stations.filter(
+          (s) => s.genre === 'Holiday & Seasonal' && s.subgenre === this.currentSubgenre,
+        );
+      }
       return this.stations.filter((s) => s.genre === this.currentGenre);
     }
 
@@ -1009,7 +1134,11 @@ const defaultStation: FMStation = RADIO_STATIONS[0];
       if (freqVal) freqVal.textContent = this.currentStation.freqNum.toFixed(1);
       if (stationTitle) stationTitle.textContent = this.currentStation.name;
       if (stationDesc) stationDesc.textContent = this.currentStation.desc;
-      if (genreBadge) genreBadge.textContent = this.currentStation.genre;
+      if (genreBadge) {
+        genreBadge.textContent = this.currentStation.subgenre
+          ? `${this.currentStation.genre} // ${this.currentStation.subgenre}`
+          : this.currentStation.genre;
+      }
       if (bitrateVal) bitrateVal.textContent = this.currentStation.bitrate || '256 kbps WFM';
 
       // Update RSSI based on frequency (simulated RF field)

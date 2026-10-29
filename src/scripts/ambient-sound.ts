@@ -31,6 +31,7 @@ export interface AmbientTrack {
   file?: string;
   ytId?: string;
   genre?: string;
+  subgenre?: string;
 }
 
 export const THEME_AUDIO_MAP: Record<string, AmbientTrack[]> = {
@@ -355,15 +356,81 @@ export const THEME_AUDIO_MAP: Record<string, AmbientTrack[]> = {
   ],
 };
 
-// Curated Christmas & New Year holiday songs and live streams
+// Curated Christmas & New Year holiday songs and live streams across fine-grained subgenres:
+// 1. Classical Christmas Carols
+// 2. American Classics & Standards (Rudolph, Drummer Boy, White Christmas, Sinatra)
+// 3. Country Christmas (Johnny Cash, Dolly Parton, Kenny Rogers, Alan Jackson)
+// 4. Celtic & Irish Christmas Carols (Wexford Carol, Irish folk, tin whistle & pipes)
+// 5. British Traditional Carols (Choir of King's College Cambridge, British Victorian Carols)
+// 6. Jesus, Holy & Sacred Mass Songs (Gregorian Chants, Vatican Midnight Mass)
+// 7. New Year Party & Dance Music
+// 8. New Year 60s, 70s, 80s, 90s, 2000s Retro Synth & Disco
 export const HOLIDAY_AMBIENT_TRACKS: AmbientTrack[] = [
+  // ── Classical Christmas Carols ──
+  {
+    id: 'xmas-halidon-carols',
+    name: 'HALIDON CHRISTMAS',
+    code: 'CAROLS',
+    type: 'stream',
+    ytId: 'G1Eq0f5mMVQ',
+    genre: 'Classical Carols',
+    subgenre: 'Classical Carols',
+  },
+  {
+    id: 'xmas-sacred-hymns',
+    name: 'CATHEDRAL CAROLS',
+    code: 'CATHEDRAL',
+    type: 'stream',
+    ytId: 'VuToZKzOrec',
+    genre: 'Classical Carols',
+    subgenre: 'Classical Carols',
+  },
+
+  // ── American Classics & Standards (Rudolph, Little Drummer Boy, Bing Crosby) ──
+  {
+    id: 'xmas-rudolph-autry',
+    name: 'RUDOLPH & CLASSICS',
+    code: 'RUDOLPH',
+    type: 'stream',
+    ytId: 'UvVlqUv4nKo',
+    genre: 'American Classics',
+    subgenre: 'American Classics',
+  },
+  {
+    id: 'xmas-drummer-crosby',
+    name: 'THE LITTLE DRUMMER BOY',
+    code: 'DRUMMER-BOY',
+    type: 'stream',
+    ytId: '7oTdKkytYK8',
+    genre: 'American Classics',
+    subgenre: 'American Classics',
+  },
+  {
+    id: 'xmas-white-crosby',
+    name: 'BING CROSBY & FRIENDS',
+    code: 'CROSBY-XMAS',
+    type: 'stream',
+    ytId: 'HeznaFDOPZM',
+    genre: 'American Classics',
+    subgenre: 'American Classics',
+  },
+  {
+    id: 'xmas-golden-classics',
+    name: 'GOLDEN ERA HOLIDAY',
+    code: 'XMAS-VINT',
+    type: 'stream',
+    ytId: 'PTlEGWFOyC4',
+    genre: 'American Classics',
+    subgenre: 'American Classics',
+  },
   {
     id: 'xmas-jazz-hearth',
     name: 'HOLIDAY JAZZ HEARTH',
     code: 'XMAS-JAZZ',
     type: 'stream',
     ytId: 'AoMlo1Tt4iY',
-    genre: 'Holiday Jazz',
+    genre: 'American Classics',
+    subgenre: 'American Classics',
   },
   {
     id: 'xmas-lofi-beats',
@@ -371,15 +438,8 @@ export const HOLIDAY_AMBIENT_TRACKS: AmbientTrack[] = [
     code: 'XMAS-LOFI',
     type: 'stream',
     ytId: 'S15hHKNF9sg',
-    genre: 'Holiday Lo-Fi',
-  },
-  {
-    id: 'xmas-classical-carols',
-    name: 'HALIDON CHRISTMAS',
-    code: 'XMAS-CAROLS',
-    type: 'stream',
-    ytId: 'G1Eq0f5mMVQ',
-    genre: 'Classical Carols',
+    genre: 'American Classics',
+    subgenre: 'American Classics',
   },
   {
     id: 'xmas-lofi-girl',
@@ -387,39 +447,182 @@ export const HOLIDAY_AMBIENT_TRACKS: AmbientTrack[] = [
     code: 'WINTER-LOFI',
     type: 'stream',
     ytId: 'wgwcBTrY9og',
-    genre: 'Winter Lo-Fi',
+    genre: 'American Classics',
+    subgenre: 'American Classics',
+  },
+
+  // ── Country Christmas (Kenny Rogers, Dolly Parton, Alan Jackson) ──
+  {
+    id: 'xmas-country-classics',
+    name: 'COUNTRY XMAS CLASSICS',
+    code: 'COUNTRY-XMAS',
+    type: 'stream',
+    ytId: '0K4NPPicGNY',
+    genre: 'Country Christmas',
+    subgenre: 'Country Christmas',
   },
   {
-    id: 'xmas-golden-classics',
-    name: 'GOLDEN ERA HOLIDAY',
-    code: 'XMAS-VINTAGE',
+    id: 'xmas-country-carols',
+    name: 'MERRY COUNTRY XMAS',
+    code: 'COUNTRY-CAROL',
     type: 'stream',
-    ytId: 'PTlEGWFOyC4',
-    genre: 'Vintage Classics',
+    ytId: 'TiTZvAgsXiw',
+    genre: 'Country Christmas',
+    subgenre: 'Country Christmas',
   },
+  {
+    id: 'xmas-country-hearth',
+    name: 'COUNTRY HEARTH GUITAR',
+    code: 'HEARTH-GUITAR',
+    type: 'stream',
+    ytId: 'K7v0l9uVt1w',
+    genre: 'Country Christmas',
+    subgenre: 'Country Christmas',
+  },
+
+  // ── Celtic & Irish Carols (Traditional Irish Folk, Pipes, Harps) ──
+  {
+    id: 'xmas-celtic-carols',
+    name: 'CELTIC CHRISTMAS CAROLS',
+    code: 'CELTIC-CAROLS',
+    type: 'stream',
+    ytId: 'c9gcr9Kqdvk',
+    genre: 'Celtic & Irish Carols',
+    subgenre: 'Celtic & Irish Carols',
+  },
+  {
+    id: 'xmas-irish-scottish',
+    name: 'IRISH & CELTIC HOLIDAYS',
+    code: 'IRISH-FOLK',
+    type: 'stream',
+    ytId: 'UROpXybOZKc',
+    genre: 'Celtic & Irish Carols',
+    subgenre: 'Celtic & Irish Carols',
+  },
+  {
+    id: 'xmas-irish-peaceful',
+    name: 'PEACEFUL IRISH CAROLS',
+    code: 'IRISH-PEACE',
+    type: 'stream',
+    ytId: '_ndHgWIDlpU',
+    genre: 'Celtic & Irish Carols',
+    subgenre: 'Celtic & Irish Carols',
+  },
+
+  // ── British Traditional Carols (Choir of King's College Cambridge) ──
+  {
+    id: 'xmas-kings-college',
+    name: "CAROLS FROM KING'S",
+    code: 'KINGS-CHOIR',
+    type: 'stream',
+    ytId: 'RVguSWYwSsA',
+    genre: 'British Traditional',
+    subgenre: 'British Traditional',
+  },
+  {
+    id: 'xmas-kings-fireplace',
+    name: "KING'S COLLEGE HEARTH",
+    code: 'KINGS-HEARTH',
+    type: 'stream',
+    ytId: 'Ch3PM4l8daE',
+    genre: 'British Traditional',
+    subgenre: 'British Traditional',
+  },
+  {
+    id: 'xmas-kings-baroque',
+    name: 'BRITISH CHAPEL CHOIR',
+    code: 'BRITISH-CHAPEL',
+    type: 'stream',
+    ytId: 'x1rYTWV7OII',
+    genre: 'British Traditional',
+    subgenre: 'British Traditional',
+  },
+
+  // ── Jesus, Holy & Sacred Mass Songs ──
+  {
+    id: 'xmas-gregorian-chants',
+    name: 'GREGORIAN CHANTS',
+    code: 'GREGORIAN',
+    type: 'stream',
+    ytId: 'WWDox8II_9Y',
+    genre: 'Holy & Sacred Mass',
+    subgenre: 'Holy & Sacred Mass',
+  },
+  {
+    id: 'xmas-vatican-mass',
+    name: 'VATICAN MIDNIGHT MASS',
+    code: 'HOLY-MASS',
+    type: 'stream',
+    ytId: 'juPzuawmFfY',
+    genre: 'Holy & Sacred Mass',
+    subgenre: 'Holy & Sacred Mass',
+  },
+
+  // ── New Year Party & Dance Music ──
   {
     id: 'nye-defected-celebration',
     name: 'NYE DEFECTED DANCE',
     code: 'NYE-DANCE',
     type: 'stream',
     ytId: 'n0MVVlf19p8',
-    genre: 'NYE Dance',
+    genre: 'New Year Party & Dance',
+    subgenre: 'New Year Party & Dance',
   },
   {
-    id: 'newyear-chillout-vibes',
+    id: 'nye-club-dance',
+    name: 'NYE CLUB PARTY',
+    code: 'NYE-CLUB',
+    type: 'stream',
+    ytId: 'XL8V37LDmu0',
+    genre: 'New Year Party & Dance',
+    subgenre: 'New Year Party & Dance',
+  },
+  {
+    id: 'nye-chillout-vibes',
     name: 'NEW YEAR CHILLOUT',
     code: 'NY-CHILL',
     type: 'stream',
     ytId: 'mkDIbQU9XsA',
-    genre: 'New Year Chillout',
+    genre: 'New Year Party & Dance',
+    subgenre: 'New Year Party & Dance',
+  },
+
+  // ── New Year 60s, 70s, 80s, 90s, 2000s Retro Synth & Disco ──
+  {
+    id: 'nye-80s-retrowave',
+    name: '80S RETROWAVE XMAS',
+    code: '80S-RETRO',
+    type: 'stream',
+    ytId: 'pfMfwPYS6Dg',
+    genre: 'Retro Synth & Disco',
+    subgenre: 'Retro Synth & Disco',
   },
   {
-    id: 'newyear-lounge-sunset',
-    name: 'NEW YEAR LOUNGE',
-    code: 'NY-LOUNGE',
+    id: 'nye-1985-synth',
+    name: '1985 RETRO SYNTH',
+    code: '1985-SYNTH',
     type: 'stream',
-    ytId: 'dpuv_ElxyMc',
-    genre: 'New Year Lounge',
+    ytId: '06bmzwBcFJM',
+    genre: 'Retro Synth & Disco',
+    subgenre: 'Retro Synth & Disco',
+  },
+  {
+    id: 'nye-disco-fever',
+    name: 'FOREVER DISCO 70S 80S',
+    code: '70S-DISCO',
+    type: 'stream',
+    ytId: 'ILH3yoLW3LE',
+    genre: 'Retro Synth & Disco',
+    subgenre: 'Retro Synth & Disco',
+  },
+  {
+    id: 'nye-synthwave-live',
+    name: 'SYNTHWAVE 24/7',
+    code: 'SYNTH-LIVE',
+    type: 'stream',
+    ytId: '4xDzrJKXOOY',
+    genre: 'Retro Synth & Disco',
+    subgenre: 'Retro Synth & Disco',
   },
 ];
 
@@ -2565,8 +2768,8 @@ export class AmbientSoundController {
       btn.setAttribute(
         'title',
         playing
-          ? `Atmospheric Ambient Sound: [${track.genre || this.currentTheme.toUpperCase()}] ${track.code} — ${track.name} [Active] (Click to Pause, Double-Click to Switch Track)`
-          : `Atmospheric Ambient Sound: [${track.genre || this.currentTheme.toUpperCase()}] ${track.code} — ${track.name} [Muted] (Click to Play, Double-Click to Switch Track)`,
+          ? `Atmospheric Ambient Sound: [${track.subgenre || track.genre || this.currentTheme.toUpperCase()}] ${track.code} — ${track.name} [Active] (Click to Pause, Double-Click to Switch Track)`
+          : `Atmospheric Ambient Sound: [${track.subgenre || track.genre || this.currentTheme.toUpperCase()}] ${track.code} — ${track.name} [Muted] (Click to Play, Double-Click to Switch Track)`,
       );
     });
 
