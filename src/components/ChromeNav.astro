@@ -250,12 +250,12 @@ const links: NavLink[] = [
     </div>
     <div class="sound-toggle-wrap">
       <button
-        class="sound-toggle ambient-toggle"
+        class="sound-toggle ambient-toggle is-playing"
         id="soundToggle"
         type="button"
         aria-label="Toggle atmospheric background audio (Dark soundscape)"
-        title="Atmospheric Sound (Click to pause/play, Double-click to switch track)"
-        aria-pressed="false"
+        title="Atmospheric Sound: [BEETHOVEN] (Click to Pause, Double-Click to Switch Track)"
+        aria-pressed="true"
       >
         <span class="sound-icon-wrap" aria-hidden="true">
           <span class="eq-bar bar-1"></span>
@@ -263,7 +263,7 @@ const links: NavLink[] = [
           <span class="eq-bar bar-3"></span>
         </span>
         <span class="sound-label" id="soundLabel">
-          AMB // OFF
+          AMB // BEETHOVEN
         </span>
       </button>
 
@@ -409,11 +409,12 @@ const links: NavLink[] = [
       </div>
       <div class="mobile-audio-grid">
         <button
-          class="mobile-sound-toggle mobile-ambient-toggle"
+          class="mobile-sound-toggle mobile-ambient-toggle is-playing"
           id="mobileSoundToggle"
           type="button"
           aria-label="Toggle atmospheric sound"
-          title="Atmospheric Sound (Click to pause/play, Double-click to switch track)"
+          title="Atmospheric Sound: [BEETHOVEN] (Click to Pause, Double-Click to Switch Track)"
+          aria-pressed="true"
         >
           <span class="sound-icon-wrap" aria-hidden="true">
             <span class="eq-bar bar-1"></span>
@@ -421,7 +422,7 @@ const links: NavLink[] = [
             <span class="eq-bar bar-3"></span>
           </span>
           <span class="sound-label" id="mobileSoundLabel">
-            AMB // OFF
+            AMB // BEETHOVEN
           </span>
         </button>
         <button

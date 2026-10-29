@@ -29,19 +29,30 @@ export type SeasonalOverride = 'auto' | 'christmas' | 'newyear' | 'off';
 
 export function isHolidaySeason(): boolean {
   if (typeof window === 'undefined') return false;
-  if (localStorage.getItem('seasonal_effects_enabled') === 'false') return false;
-  const root = document.documentElement;
-  if (root.classList.contains('season-christmas') || root.classList.contains('season-newyear')) {
-    return true;
-  }
-  const override = localStorage.getItem('seasonal_override');
-  if (override === 'christmas' || override === 'newyear') return true;
-  if (override === 'off') return false;
 
+  // Check URL param test mode (?season=...)
+  try {
+    const params = new URLSearchParams(window.location.search);
+    const season = params.get('season')?.toLowerCase();
+    if (season === 'christmas' || season === 'xmas' || season === 'newyear' || season === 'ny') {
+      return true;
+    }
+  } catch {}
+
+  // Check stored override
+  try {
+    const override = localStorage.getItem('seasonal_override');
+    if (override === 'christmas' || override === 'newyear') return true;
+  } catch {}
+
+  // Pre-decided holiday dates (Dec 15 - Jan 5)
   const now = new Date();
   const m = now.getMonth();
   const d = now.getDate();
-  return (m === 11 && d >= 15) || (m === 0 && d <= 5);
+  const isChristmas = m === 11 && d >= 15 && d <= 26;
+  const isNewYear = (m === 11 && d >= 27) || (m === 0 && d <= 5);
+
+  return isChristmas || isNewYear;
 }
 
 interface SnowFlake {
@@ -1142,13 +1153,6 @@ export class SeasonalEffectsEngine {
   public setEnabled(enabled: boolean): void {
     this.isEnabled = enabled;
     localStorage.setItem('seasonal_effects_enabled', enabled ? 'true' : 'false');
-    if (!enabled && (this.currentOverride === 'christmas' || this.currentOverride === 'newyear')) {
-      this.currentOverride = 'off';
-      localStorage.setItem('seasonal_override', 'off');
-    } else if (enabled && this.currentOverride === 'off') {
-      this.currentOverride = 'auto';
-      localStorage.setItem('seasonal_override', 'auto');
-    }
     this.playChime();
     this.updateToggleUI();
     this.updateState();
@@ -1160,10 +1164,25 @@ export class SeasonalEffectsEngine {
 
   public shouldShowToggle(): boolean {
     if (typeof window === 'undefined') return false;
-    // Display exclusively on test URLs or during decided holiday seasonal dates
-    const params = new URLSearchParams(window.location.search);
-    if (params.has('season')) return true;
 
+    // 1. Test URLs (?season=...)
+    try {
+      const params = new URLSearchParams(window.location.search);
+      if (params.has('season')) return true;
+    } catch {}
+
+    // 2. Active or stored test mode override
+    if (this.currentOverride === 'christmas' || this.currentOverride === 'newyear') {
+      return true;
+    }
+    try {
+      const stored = localStorage.getItem('seasonal_override');
+      if (stored === 'christmas' || stored === 'newyear') return true;
+    } catch {}
+
+    // 3. Pre-decided holiday seasonal dates:
+    // Christmas Season: December 15 (00:00) through December 26 (23:59)
+    // New Year Season: December 27 (00:00) through January 5 (23:59)
     const now = new Date();
     const m = now.getMonth(); // 11 = December, 0 = January
     const d = now.getDate();

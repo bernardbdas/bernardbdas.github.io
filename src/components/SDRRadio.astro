@@ -711,20 +711,20 @@ const defaultStation: FMStation = RADIO_STATIONS[0];
       const holidayPill = document.querySelector<HTMLButtonElement>('.sdr-holiday-pill');
       if (!holidayPill) return;
 
-      const root = document.documentElement;
       const override = localStorage.getItem('seasonal_override');
-      const isEnabled = localStorage.getItem('seasonal_effects_enabled') !== 'false';
+      let isTest = false;
+      try {
+        const params = new URLSearchParams(window.location.search);
+        const s = params.get('season')?.toLowerCase();
+        if (s === 'christmas' || s === 'xmas' || s === 'newyear' || s === 'ny') isTest = true;
+      } catch {}
+
       const now = new Date();
       const m = now.getMonth();
       const d = now.getDate();
       const isDateHoliday = (m === 11 && d >= 15) || (m === 0 && d <= 5);
       const isHoliday =
-        isEnabled &&
-        (root.classList.contains('season-christmas') ||
-          root.classList.contains('season-newyear') ||
-          override === 'christmas' ||
-          override === 'newyear' ||
-          (override !== 'off' && isDateHoliday));
+        isTest || override === 'christmas' || override === 'newyear' || isDateHoliday;
 
       holidayPill.classList.toggle('is-visible', isHoliday);
     }

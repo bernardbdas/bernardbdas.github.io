@@ -1459,15 +1459,23 @@ export class AmbientSoundController {
 
   private isHolidaySeasonActive(): boolean {
     if (typeof window === 'undefined') return false;
-    if (localStorage.getItem('seasonal_effects_enabled') === 'false') return false;
-    const root = document.documentElement;
-    if (root.classList.contains('season-christmas') || root.classList.contains('season-newyear')) {
-      return true;
-    }
-    const override = localStorage.getItem('seasonal_override');
-    if (override === 'christmas' || override === 'newyear') return true;
-    if (override === 'off') return false;
 
+    // Check query params (?season=...)
+    try {
+      const params = new URLSearchParams(window.location.search);
+      const s = params.get('season')?.toLowerCase();
+      if (s === 'christmas' || s === 'xmas' || s === 'newyear' || s === 'ny') return true;
+    } catch {}
+
+    // Check stored test override
+    try {
+      const override = localStorage.getItem('seasonal_override');
+      if (override === 'christmas' || override === 'newyear') return true;
+    } catch {}
+
+    // Pre-decided holiday calendar dates:
+    // Christmas Season: Dec 15 through Dec 26
+    // New Year Season: Dec 27 through Jan 5
     const now = new Date();
     const m = now.getMonth();
     const d = now.getDate();
@@ -1476,12 +1484,19 @@ export class AmbientSoundController {
 
   private getHolidaySeasonType(): 'christmas' | 'newyear' | 'holiday' {
     if (typeof window === 'undefined') return 'holiday';
-    const root = document.documentElement;
-    if (root.classList.contains('season-christmas')) return 'christmas';
-    if (root.classList.contains('season-newyear')) return 'newyear';
-    const override = localStorage.getItem('seasonal_override');
-    if (override === 'christmas') return 'christmas';
-    if (override === 'newyear') return 'newyear';
+
+    try {
+      const params = new URLSearchParams(window.location.search);
+      const s = params.get('season')?.toLowerCase();
+      if (s === 'christmas' || s === 'xmas') return 'christmas';
+      if (s === 'newyear' || s === 'ny') return 'newyear';
+    } catch {}
+
+    try {
+      const override = localStorage.getItem('seasonal_override');
+      if (override === 'christmas') return 'christmas';
+      if (override === 'newyear') return 'newyear';
+    } catch {}
 
     const now = new Date();
     const m = now.getMonth();
@@ -1558,9 +1573,10 @@ export class AmbientSoundController {
     this.audio.loop = true;
     this.audio.preload = 'auto';
 
-    // Play/mute preference
+    // Play/mute preference (defaults to enabled)
     const stored = localStorage.getItem('ambient_sound');
     const isExplicitlyDisabled = stored === 'disabled';
+    this.isPlaying = !isExplicitlyDisabled;
 
     // FX preference
     const fxStored = localStorage.getItem('ui_fx_sound');
@@ -1574,14 +1590,34 @@ export class AmbientSoundController {
     const track = this.getCurrentTrack();
     this.restoreSavedPlaybackPosition();
 
-    if (track.type === 'local' && this.audio && !this.audio.paused && this.audio.currentTime > 0) {
-      this.isPlaying = true;
-    } else {
-      if (track.type === 'local') {
+    if (track.type === 'local') {
+      if (!this.audio.src || this.audio.paused) {
         this.loadCurrentTrack();
         this.audio.volume = 0;
       }
     }
+
+    // Direct synchronization listeners on HTML5 audio element
+    this.audio.addEventListener('play', () => {
+      this.isPlaying = true;
+      this.updateUI(true);
+    });
+    this.audio.addEventListener('playing', () => {
+      this.isPlaying = true;
+      this.updateUI(true);
+    });
+    this.audio.addEventListener('pause', () => {
+      if (
+        this.getCurrentTrack().type === 'local' &&
+        !this.isMediaPlaying &&
+        !this.wasPlayingBeforeVisibilityHidden
+      ) {
+        if (localStorage.getItem('ambient_sound') === 'disabled') {
+          this.isPlaying = false;
+          this.updateUI(false);
+        }
+      }
+    });
 
     // Always pre-warm YouTube player for seamless stream playback and radio piping
     this.initYtPlayer();
@@ -1597,7 +1633,7 @@ export class AmbientSoundController {
     this.bindUI();
 
     // Autoplay attempt / gesture fallback
-    if (!isExplicitlyDisabled && !this.isPlaying) {
+    if (!isExplicitlyDisabled) {
       if (track.type === 'local') {
         const startPromise = this.audio.play();
         if (startPromise !== undefined) {
@@ -1612,8 +1648,11 @@ export class AmbientSoundController {
             });
         }
       } else {
+        // Stream track (YouTube)
         this.setupFirstInteractionListener();
       }
+    } else {
+      this.updateUI(false);
     }
 
     // Page visibility handling (Sync On = play across tabs/windows; Sync Off = pause when inactive)
@@ -1908,6 +1947,7 @@ export class AmbientSoundController {
                   this.ytPlayer.unMute?.();
                   this.ytPlayer.setVolume(Math.round(this.targetVolume * 100));
                   this.ytPlayer.playVideo();
+                  this.updateUI(true);
                 }
                 this.startYtTimeTracker();
               }
@@ -1925,8 +1965,16 @@ export class AmbientSoundController {
                 } catch {}
               }
               if (event.data === 1) {
+                this.isPlaying = true;
+                this.updateUI(true);
                 this.startYtTimeTracker();
               } else if (event.data === 2) {
+                if (this.getCurrentTrack().type === 'stream' && !this.isMediaPlaying) {
+                  if (localStorage.getItem('ambient_sound') === 'disabled') {
+                    this.isPlaying = false;
+                    this.updateUI(false);
+                  }
+                }
                 this.stopYtTimeTracker();
                 this.saveCurrentPosition();
               } else if (
@@ -2030,15 +2078,54 @@ export class AmbientSoundController {
       this.audio = audioEl;
     }
 
+    const isExplicitlyDisabled = localStorage.getItem('ambient_sound') === 'disabled';
     const track = this.getCurrentTrack();
+
+    // Default to playing unless explicitly muted by user
+    if (!isExplicitlyDisabled && !this.isMediaPlaying) {
+      this.isPlaying = true;
+    } else {
+      this.isPlaying = false;
+    }
+
     if (track.type === 'local' && this.audio && !this.audio.paused) {
       this.isPlaying = true;
+    } else if (track.type === 'stream' && this.ytPlayer) {
+      try {
+        if (typeof this.ytPlayer.getPlayerState === 'function') {
+          const ytState = this.ytPlayer.getPlayerState();
+          if (ytState === 1 || ytState === 3) {
+            this.isPlaying = true;
+          }
+        }
+      } catch {}
     }
 
     this.bindUI();
     this.updateUI(this.isPlaying);
     this.updateFxUI();
     this.updatePersistUI();
+
+    // If active and audio stopped/paused, resume
+    if (this.isPlaying && !this.isMediaPlaying) {
+      if (track.type === 'local') {
+        if (this.audio && this.audio.paused) {
+          const p = this.audio.play();
+          if (p !== undefined) {
+            p.catch(() => this.setupFirstInteractionListener());
+          }
+        }
+      } else if (track.type === 'stream') {
+        if (this.ytPlayer && this.isYtReady && typeof this.ytPlayer.playVideo === 'function') {
+          try {
+            this.ytPlayer.playVideo();
+          } catch {}
+        } else {
+          this.initYtPlayer();
+          this.setupFirstInteractionListener();
+        }
+      }
+    }
   }
 
   private bindUI(): void {

@@ -1,13 +1,16 @@
 /**
- * weather-dashboard.ts — Atmospheric Weather HUD Engine
+ * weather-dashboard.ts — Atmospheric Weather Telemetry Engine (Overlay Modal)
  *
  * Capabilities:
- * - Dynamic Liquid Glass Lighting: Real-time cursor tracking and ambient orbiting specular sheen.
- * - Resizable Cards: Height adjustments via corner grip and S/M/L presets, remembered on every visit via localStorage cache.
- * - Drag and Drop Reordering: Re-arrange cards with live swap and persistent order caching.
- * - Pin/Unpin Widgets: Keep priority telemetry at top.
+ * - Overlay Modal Controller: Opens via WEATHER HUD footer button, closes via ESC, backdrop, or close button.
+ * - Dynamic Liquid Glass Lighting: Real-time cursor tracking and ambient specular sheen on cards.
+ * - Hyper-Realistic Animated ASCII Doppler Radar: Live 60 FPS ASCII atmospheric fluid visualizer with
+ *   colorful thermal heat waves, precipitation reflectivity radar, and aerodynamic wind streamline vectors.
+ * - Drag and Drop Reordering: Re-arrange cards in grid with live swap and persistent order caching.
+ * - Pin/Unpin Modules: Keep priority telemetry pinned at top.
  * - Live Atmospheric Telemetry: Open-Meteo API integration with client geolocation.
- * - Zero Emoji Policy: Crisp SVG vector icons.
+ * - High-Contrast Neo-Brutalist Layout: Ample font sizes (12px–15px body, 52px hero temp) for effortless readability.
+ * - Zero Emoji Policy: Pure SVG vector icons.
  */
 
 export interface HourlyForecastItem {
@@ -52,7 +55,6 @@ export interface WeatherTelemetryState {
   daily: DailyForecastItem[];
 }
 
-// Initial reference baseline state
 const DEFAULT_WEATHER_STATE: WeatherTelemetryState = {
   city: 'Bengaluru',
   temp: 25,
@@ -67,8 +69,8 @@ const DEFAULT_WEATHER_STATE: WeatherTelemetryState = {
   humidity: 48,
   dewPoint: 13,
   pressure: 758,
-  uvIndex: 0,
-  uvCategory: 'LOW',
+  uvIndex: 8,
+  uvCategory: 'VERY HIGH',
   aqi: 136,
   aqiCategory: 'MODERATE',
   sunrise: '06:12',
@@ -100,26 +102,25 @@ const DEFAULT_WEATHER_STATE: WeatherTelemetryState = {
   ],
 };
 
-const CARD_SIZE_PRESETS: Record<string, { S: number; M: number; L: number }> = {
-  'card-current': { S: 145, M: 185, L: 235 },
-  'card-hourly': { S: 95, M: 120, L: 160 },
-  'card-forecast': { S: 190, M: 240, L: 300 },
-  'card-atmosphere': { S: 110, M: 135, L: 175 },
-  'card-solar-lunar': { S: 110, M: 135, L: 175 },
-  'card-air-uv': { S: 95, M: 120, L: 160 },
-};
+interface WindParticle {
+  x: number;
+  y: number;
+  speed: number;
+  len: number;
+  hue: number;
+}
 
 export class WeatherDashboardController {
-  private dock: HTMLElement | null = null;
+  private modal: HTMLElement | null = null;
+  private modalCard: HTMLElement | null = null;
   private rail: HTMLElement | null = null;
   private state: WeatherTelemetryState = { ...DEFAULT_WEATHER_STATE };
-  private isEnabled: boolean = true;
+  private isOpen: boolean = false;
   private activeHourlyMode: 'temp' | 'rain' | 'wind' = 'temp';
 
   // Persistence caches
   private pinnedCards: Set<string> = new Set();
   private cardOrder: string[] = [];
-  private cardDimensions: Record<string, number> = {};
 
   // Dynamic Liquid Glass Lighting state
   private shineFrameId: number | null = null;
@@ -129,21 +130,30 @@ export class WeatherDashboardController {
   private targetLightY = 0;
   private isPointerInside = false;
   private orbitAngle = 0;
-  private resizeObserver: ResizeObserver | null = null;
-  private resizeDebounceTimer: number | null = null;
+
+  // Hyper-Realistic Animated ASCII Doppler Radar state
+  private asciiCanvas: HTMLCanvasElement | null = null;
+  private asciiCtx: CanvasRenderingContext2D | null = null;
+  private asciiFrameId: number | null = null;
+  private radarSweepAngle: number = 0;
+  private readonly radarSweepSpeed: number = 0.024;
+  private radarMouseX: number = -100;
+  private radarMouseY: number = -100;
+  private windStreamlines: WindParticle[] = [];
+  private lastFpsTime: number = 0;
+  private frameCount: number = 0;
+  private currentFps: number = 60;
 
   constructor() {
     this.loadCachedPreferences();
     this.initDOM();
     this.initDynamicLiquidGlass();
+    this.initAsciiRadar();
     this.fetchLiveTelemetry();
   }
 
   private loadCachedPreferences(): void {
     try {
-      const storedEnabled = localStorage.getItem('weather_dashboard_enabled');
-      this.isEnabled = storedEnabled !== 'false';
-
       const storedPinned = localStorage.getItem('weather_card_pinned');
       if (storedPinned) {
         this.pinnedCards = new Set(JSON.parse(storedPinned));
@@ -153,30 +163,26 @@ export class WeatherDashboardController {
       if (storedOrder) {
         this.cardOrder = JSON.parse(storedOrder);
       }
-
-      const storedDimensions = localStorage.getItem('weather_card_dimensions');
-      if (storedDimensions) {
-        this.cardDimensions = JSON.parse(storedDimensions);
-      }
     } catch {
-      this.isEnabled = true;
+      this.pinnedCards = new Set();
+      this.cardOrder = [];
     }
   }
 
   public onPageLoad(): void {
     this.initDOM();
+    this.initAsciiRadar();
     this.applyVisibility();
-    this.applyCachedDimensions();
     this.applyCachedOrder();
     this.renderTelemetry();
   }
 
   public initDOM(): void {
-    this.dock = document.getElementById('weatherDashboard');
+    this.modal = document.getElementById('weatherDashboardModal');
+    this.modalCard = document.getElementById('weatherModalCard');
     this.rail = document.getElementById('weatherCardsRail');
     this.bindDOM();
     this.applyVisibility();
-    this.initResizeObserver();
   }
 
   private bindDOM(): void {
@@ -186,7 +192,7 @@ export class WeatherDashboardController {
     const toggleSwitch = document.getElementById('weatherHudToggle');
     const handleSwitch = (e: Event) => {
       e.stopPropagation();
-      this.toggleMasterSwitch();
+      this.toggleModal();
     };
 
     if (toggleSwitch && toggleSwitch.dataset.weatherBound !== 'true') {
@@ -194,11 +200,34 @@ export class WeatherDashboardController {
       toggleSwitch.addEventListener('click', handleSwitch);
     }
 
-    // Dock Close / Minimize Button
-    const closeBtn = document.getElementById('weatherCloseDockBtn');
+    // Modal Close Button
+    const closeBtn = document.getElementById('weatherModalClose');
     if (closeBtn && closeBtn.dataset.closeBound !== 'true') {
       closeBtn.dataset.closeBound = 'true';
-      closeBtn.addEventListener('click', () => this.toggleMasterSwitch());
+      closeBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        this.closeModal();
+      });
+    }
+
+    // Backdrop click to close (when clicking outside the modal card)
+    if (this.modal && this.modal.dataset.backdropBound !== 'true') {
+      this.modal.dataset.backdropBound = 'true';
+      this.modal.addEventListener('click', (e) => {
+        if (e.target === this.modal) {
+          this.closeModal();
+        }
+      });
+    }
+
+    // Keyboard ESC key listener
+    if (typeof window !== 'undefined' && !window.__weatherEscBound) {
+      window.__weatherEscBound = true;
+      window.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && this.isOpen) {
+          this.closeModal();
+        }
+      });
     }
 
     // Reset Layout Button
@@ -235,117 +264,56 @@ export class WeatherDashboardController {
       }
     });
 
-    // Card Size Preset buttons (S / M / L)
-    const sizeBtns = document.querySelectorAll<HTMLButtonElement>('.card-size-btn');
-    sizeBtns.forEach((btn) => {
-      if (btn.dataset.sizeBound !== 'true') {
-        btn.dataset.sizeBound = 'true';
-        btn.addEventListener('click', (e) => {
-          e.stopPropagation();
-          const card = btn.closest<HTMLElement>('.weather-card');
-          if (card && card.id) {
-            this.cycleCardSize(card.id, btn);
-          }
-        });
-      }
-    });
-
     this.bindDragAndDrop();
   }
 
-  // ── Card Resizability & Dimensions Cache ───────────────────────
-  private initResizeObserver(): void {
-    if (typeof ResizeObserver === 'undefined') return;
-
-    if (this.resizeObserver) {
-      this.resizeObserver.disconnect();
-    }
-
-    this.resizeObserver = new ResizeObserver((entries) => {
-      for (const entry of entries) {
-        const card = entry.target as HTMLElement;
-        const id = card.id;
-        if (!id) continue;
-        const h = Math.round(entry.contentRect.height);
-        if (h > 60) {
-          this.cardDimensions[id] = h;
-          this.updateSizeIndicator(id, h);
-        }
-      }
-
-      if (this.resizeDebounceTimer !== null) {
-        window.clearTimeout(this.resizeDebounceTimer);
-      }
-      this.resizeDebounceTimer = window.setTimeout(() => {
-        try {
-          localStorage.setItem('weather_card_dimensions', JSON.stringify(this.cardDimensions));
-        } catch {}
-      }, 200);
-    });
-
-    const cards = document.querySelectorAll<HTMLElement>('.weather-card');
-    cards.forEach((card) => {
-      this.resizeObserver?.observe(card);
-    });
+  // ── Modal Visibility ──────────────────────────────────────────
+  public openModal(): void {
+    this.isOpen = true;
+    this.applyVisibility();
+    this.updateMasterSwitchUI();
+    this.startAsciiRadar();
   }
 
-  private applyCachedDimensions(): void {
-    for (const [id, height] of Object.entries(this.cardDimensions)) {
-      const card = document.getElementById(id);
-      if (card && typeof height === 'number' && height > 60) {
-        card.style.height = `${height}px`;
-        this.updateSizeIndicator(id, height);
-      }
-    }
+  public closeModal(): void {
+    this.isOpen = false;
+    this.applyVisibility();
+    this.updateMasterSwitchUI();
+    this.stopAsciiRadar();
   }
 
-  private cycleCardSize(cardId: string, btnEl?: HTMLElement): void {
-    const card = document.getElementById(cardId);
-    if (!card) return;
-
-    const presets = CARD_SIZE_PRESETS[cardId] || { S: 120, M: 160, L: 220 };
-    const currentH = card.offsetHeight;
-
-    let nextH: number;
-    let nextLabel: 'S' | 'M' | 'L';
-
-    if (currentH < presets.M - 15) {
-      nextH = presets.M;
-      nextLabel = 'M';
-    } else if (currentH < presets.L - 15) {
-      nextH = presets.L;
-      nextLabel = 'L';
+  public toggleModal(): void {
+    if (this.isOpen) {
+      this.closeModal();
     } else {
-      nextH = presets.S;
-      nextLabel = 'S';
+      this.openModal();
     }
-
-    card.style.height = `${nextH}px`;
-    this.cardDimensions[cardId] = nextH;
-
-    try {
-      localStorage.setItem('weather_card_dimensions', JSON.stringify(this.cardDimensions));
-    } catch {}
-
-    const indicator = btnEl
-      ? btnEl.querySelector<HTMLElement>('.size-indicator')
-      : card.querySelector<HTMLElement>('.size-indicator');
-    if (indicator) indicator.textContent = nextLabel;
   }
 
-  private updateSizeIndicator(cardId: string, currentH: number): void {
-    const card = document.getElementById(cardId);
-    if (!card) return;
-    const presets = CARD_SIZE_PRESETS[cardId] || { S: 120, M: 160, L: 220 };
-    const indicator = card.querySelector<HTMLElement>('.size-indicator');
-    if (!indicator) return;
+  public updateMasterSwitchUI(): void {
+    const toggleSwitch = document.getElementById('weatherHudToggle');
+    const status = document.getElementById('weatherHudStatus');
 
-    if (currentH <= presets.S + 15) {
-      indicator.textContent = 'S';
-    } else if (currentH <= presets.M + 25) {
-      indicator.textContent = 'M';
+    if (toggleSwitch) {
+      toggleSwitch.classList.toggle('is-active', this.isOpen);
+      toggleSwitch.setAttribute('aria-checked', this.isOpen ? 'true' : 'false');
+    }
+    if (status) {
+      status.textContent = this.isOpen ? 'OPEN' : 'OFF';
+    }
+  }
+
+  private applyVisibility(): void {
+    if (!this.modal) return;
+    this.modal.classList.toggle('is-open', this.isOpen);
+    this.modal.setAttribute('aria-hidden', this.isOpen ? 'false' : 'true');
+
+    if (this.isOpen) {
+      document.body.classList.add('weather-modal-open');
+      this.startAsciiRadar();
     } else {
-      indicator.textContent = 'L';
+      document.body.classList.remove('weather-modal-open');
+      this.stopAsciiRadar();
     }
   }
 
@@ -468,12 +436,10 @@ export class WeatherDashboardController {
     try {
       localStorage.removeItem('weather_card_order');
       localStorage.removeItem('weather_card_pinned');
-      localStorage.removeItem('weather_card_dimensions');
     } catch {}
 
     this.pinnedCards.clear();
     this.cardOrder = [];
-    this.cardDimensions = {};
 
     const defaultIds = [
       'card-current',
@@ -489,49 +455,18 @@ export class WeatherDashboardController {
         const card = document.getElementById(id);
         if (card) {
           card.classList.remove('is-pinned');
-          card.style.height = '';
           const pinBtn = card.querySelector<HTMLElement>('.widget-pin-btn');
           if (pinBtn) pinBtn.classList.remove('active');
-          const indicator = card.querySelector<HTMLElement>('.size-indicator');
-          if (indicator) indicator.textContent = 'M';
           this.rail?.appendChild(card);
         }
       });
     }
   }
 
-  // ── Master Switch ─────────────────────────────────────────────
-  public toggleMasterSwitch(): void {
-    this.isEnabled = !this.isEnabled;
-    try {
-      localStorage.setItem('weather_dashboard_enabled', this.isEnabled ? 'true' : 'false');
-    } catch {}
-
-    this.applyVisibility();
-    this.updateMasterSwitchUI();
-  }
-
-  public updateMasterSwitchUI(): void {
-    const toggleSwitch = document.getElementById('weatherHudToggle');
-    const status = document.getElementById('weatherHudStatus');
-    const label = this.isEnabled ? 'ON' : 'OFF';
-
-    if (toggleSwitch) {
-      toggleSwitch.classList.toggle('is-active', this.isEnabled);
-      toggleSwitch.setAttribute('aria-checked', this.isEnabled ? 'true' : 'false');
-    }
-    if (status) status.textContent = label;
-  }
-
-  private applyVisibility(): void {
-    if (!this.dock) return;
-    this.dock.classList.toggle('is-active', this.isEnabled);
-  }
-
   // ── Dynamic Liquid Glass Lighting Engine ──────────────────────
   private initDynamicLiquidGlass(): void {
-    this.targetLightX = window.innerWidth * 0.82;
-    this.targetLightY = window.innerHeight * 0.35;
+    this.targetLightX = window.innerWidth * 0.5;
+    this.targetLightY = window.innerHeight * 0.4;
     this.lightX = this.targetLightX;
     this.lightY = this.targetLightY;
 
@@ -553,9 +488,9 @@ export class WeatherDashboardController {
       if (!this.isPointerInside) {
         // Dynamic ambient light source orbit
         this.orbitAngle += 0.016;
-        const radius = 160;
-        const cx = window.innerWidth * 0.84;
-        const cy = window.innerHeight * 0.38;
+        const radius = 220;
+        const cx = window.innerWidth * 0.5;
+        const cy = window.innerHeight * 0.4;
         this.targetLightX = cx + Math.cos(this.orbitAngle) * radius;
         this.targetLightY = cy + Math.sin(this.orbitAngle * 0.8) * (radius * 0.7);
       }
@@ -582,6 +517,276 @@ export class WeatherDashboardController {
     }
   }
 
+  // ── Hyper-Realistic Animated ASCII Doppler Radar Engine ──────
+  private initAsciiRadar(): void {
+    this.asciiCanvas = document.getElementById('asciiRadarCanvas') as HTMLCanvasElement | null;
+    if (!this.asciiCanvas) return;
+
+    this.asciiCtx = this.asciiCanvas.getContext('2d');
+
+    // Generate streamline wind particles
+    this.windStreamlines = [];
+    for (let i = 0; i < 44; i++) {
+      this.windStreamlines.push({
+        x: Math.random() * 60,
+        y: Math.random() * 14,
+        speed: 0.35 + Math.random() * 0.55,
+        len: 3 + Math.floor(Math.random() * 5),
+        hue: Math.random(),
+      });
+    }
+
+    const updateCanvasSize = () => {
+      if (!this.asciiCanvas) return;
+      const rect = this.asciiCanvas.getBoundingClientRect();
+      if (rect.width > 40) {
+        this.asciiCanvas.width = Math.floor(rect.width);
+        this.asciiCanvas.height = Math.floor(rect.height || 135);
+      }
+    };
+    updateCanvasSize();
+    window.addEventListener('resize', updateCanvasSize, { passive: true });
+
+    // Interactive cursor radar wave disturbance
+    this.asciiCanvas.addEventListener('mousemove', (e) => {
+      const rect = this.asciiCanvas!.getBoundingClientRect();
+      this.radarMouseX = e.clientX - rect.left;
+      this.radarMouseY = e.clientY - rect.top;
+    });
+    this.asciiCanvas.addEventListener('mouseleave', () => {
+      this.radarMouseX = -100;
+      this.radarMouseY = -100;
+    });
+
+    if (this.isOpen) {
+      this.startAsciiRadar();
+    }
+  }
+
+  private startAsciiRadar(): void {
+    if (this.asciiFrameId !== null) return;
+    const animate = (timestamp: number) => {
+      this.renderAsciiRadar(timestamp);
+      this.asciiFrameId = requestAnimationFrame(animate);
+    };
+    this.asciiFrameId = requestAnimationFrame(animate);
+  }
+
+  private stopAsciiRadar(): void {
+    if (this.asciiFrameId !== null) {
+      cancelAnimationFrame(this.asciiFrameId);
+      this.asciiFrameId = null;
+    }
+  }
+
+  private renderAsciiRadar(timestamp: number): void {
+    if (!this.asciiCanvas || !this.asciiCtx) return;
+    const ctx = this.asciiCtx;
+    const canvas = this.asciiCanvas;
+
+    // Track FPS
+    this.frameCount++;
+    if (timestamp - this.lastFpsTime >= 1000) {
+      this.currentFps = Math.round((this.frameCount * 1000) / (timestamp - this.lastFpsTime));
+      this.frameCount = 0;
+      this.lastFpsTime = timestamp;
+      const fpsEl = document.getElementById('asciiRadarFps');
+      if (fpsEl) fpsEl.textContent = `${this.currentFps} FPS`;
+    }
+
+    const width = canvas.width;
+    const height = canvas.height;
+
+    // Deep dark phosphor terminal background
+    ctx.fillStyle = '#06090e';
+    ctx.fillRect(0, 0, width, height);
+
+    // Dynamic grid dimensions
+    const charW = 8;
+    const charH = 11;
+    const cols = Math.floor(width / charW);
+    const rows = Math.floor(height / charH);
+
+    const centerX = cols / 2;
+    const centerY = rows / 2;
+
+    this.radarSweepAngle = (this.radarSweepAngle + this.radarSweepSpeed) % (Math.PI * 2);
+    const azimuthDeg = Math.round((this.radarSweepAngle * 180) / Math.PI);
+    const azimuthEl = document.getElementById('asciiRadarAzimuth');
+    if (azimuthEl) {
+      azimuthEl.textContent = `AZ: ${azimuthDeg.toString().padStart(3, '0')}°`;
+    }
+
+    ctx.font = '700 9.5px "JetBrains Mono", ui-monospace, Menlo, Monaco, monospace';
+    ctx.textBaseline = 'top';
+
+    const time = timestamp * 0.001;
+    const GLYPHS = [' ', '·', ':', '+', 'x', '*', '#', '%', '@', '█'];
+
+    if (this.activeHourlyMode === 'temp') {
+      // ════════════════════════════════════════════════════════════
+      // THERMAL FLUID SPECTRUM (Hyper-Realistic Neon Gradient)
+      // ════════════════════════════════════════════════════════════
+      for (let r = 0; r < rows; r++) {
+        for (let c = 0; c < cols; c++) {
+          const dx = c - centerX;
+          const dy = (r - centerY) * 1.5;
+          const dist = Math.sqrt(dx * dx + dy * dy);
+          const cellAngle = (Math.atan2(dy, dx) + Math.PI * 2) % (Math.PI * 2);
+
+          // Angle distance to sweep beam
+          const angleDiff = (this.radarSweepAngle - cellAngle + Math.PI * 2) % (Math.PI * 2);
+          const sweepGlow = Math.exp(-angleDiff * 3.6);
+
+          // Multi-harmonic thermal fluid simulation
+          const fluid =
+            Math.sin(c * 0.12 + time * 1.8) * 0.32 +
+            Math.cos(r * 0.22 - time * 1.3) * 0.26 +
+            Math.sin((c + r) * 0.09 + time * 1.5) * 0.24 +
+            Math.cos(dist * 0.16 - time * 2.1) * 0.18;
+
+          let val = 0.5 + fluid * 0.5;
+
+          // Interactive cursor heat disturbance
+          if (this.radarMouseX >= 0) {
+            const mdx = c * charW - this.radarMouseX;
+            const mdy = r * charH - this.radarMouseY;
+            const mdist = Math.sqrt(mdx * mdx + mdy * mdy);
+            if (mdist < 75) {
+              val += (1 - mdist / 75) * 0.45 * Math.sin(mdist * 0.3 - time * 8);
+            }
+          }
+
+          val = Math.min(Math.max(val + sweepGlow * 0.32, 0), 1);
+          const glyphIdx = Math.floor(val * (GLYPHS.length - 1));
+          const char = GLYPHS[glyphIdx];
+          if (char === ' ') continue;
+
+          // Hyper-Realistic Vivid Thermal Palette:
+          // Cyan (#00f5ff) -> Electric Blue (#3b82f6) -> Bright Gold (#ffb700) -> Plasma Orange (#ff5500) -> Infrared Magenta (#ff007f)
+          let col = '#00f5ff';
+          if (val > 0.84) col = '#ff007f';
+          else if (val > 0.68) col = '#ff4500';
+          else if (val > 0.52) col = '#ffb700';
+          else if (val > 0.35) col = '#38bdf8';
+          else col = '#3b82f6';
+
+          ctx.fillStyle = col;
+          ctx.shadowColor = col;
+          ctx.shadowBlur = val > 0.7 ? 6 : 0;
+          ctx.fillText(char, c * charW, r * charH);
+        }
+      }
+    } else if (this.activeHourlyMode === 'rain') {
+      // ════════════════════════════════════════════════════════════
+      // DOPPLER PRECIPITATION REFLECTIVITY RADAR
+      // ════════════════════════════════════════════════════════════
+      const stormCells = [
+        {
+          x: centerX - 12 + Math.cos(time * 0.6) * 4,
+          y: centerY - 2 + Math.sin(time * 0.5) * 3,
+          intensity: 0.95,
+        },
+        {
+          x: centerX + 14 + Math.sin(time * 0.4) * 5,
+          y: centerY + 2 + Math.cos(time * 0.7) * 2,
+          intensity: 0.75,
+        },
+        {
+          x: centerX - 4 + Math.cos(time * 0.3) * 6,
+          y: centerY + 4 + Math.sin(time * 0.8) * 3,
+          intensity: 0.85,
+        },
+      ];
+
+      for (let r = 0; r < rows; r++) {
+        for (let c = 0; c < cols; c++) {
+          const dx = c - centerX;
+          const dy = (r - centerY) * 1.5;
+          const dist = Math.sqrt(dx * dx + dy * dy);
+          const cellAngle = (Math.atan2(dy, dx) + Math.PI * 2) % (Math.PI * 2);
+
+          const angleDiff = (this.radarSweepAngle - cellAngle + Math.PI * 2) % (Math.PI * 2);
+          const sweepGlow = Math.exp(-angleDiff * 4.2);
+
+          let rainVal = 0;
+          for (const cell of stormCells) {
+            const cdx = c - cell.x;
+            const cdy = r - cell.y;
+            const cdist = Math.sqrt(cdx * cdx + cdy * cdy);
+            if (cdist < 14) {
+              const falloff = 1 - cdist / 14;
+              rainVal += falloff * falloff * cell.intensity;
+            }
+          }
+
+          const noise =
+            (Math.sin(c * 0.4 + r * 0.3 + time * 3) + Math.cos(c * 0.2 - r * 0.5 - time * 2)) *
+            0.14;
+          const val = Math.min(Math.max(rainVal + noise + sweepGlow * 0.38, 0), 1);
+
+          // Range rings
+          const isRing =
+            Math.abs(dist - 10) < 0.6 || Math.abs(dist - 20) < 0.6 || Math.abs(dist - 30) < 0.6;
+          if (isRing && val < 0.2) {
+            ctx.fillStyle = 'rgba(56, 189, 248, 0.25)';
+            ctx.shadowBlur = 0;
+            ctx.fillText('·', c * charW, r * charH);
+            continue;
+          }
+
+          const glyphIdx = Math.floor(val * (GLYPHS.length - 1));
+          const char = GLYPHS[glyphIdx];
+          if (char === ' ') continue;
+
+          // Doppler Precipitation Scale:
+          // Cyan (#06b6d4) -> Emerald (#10b981) -> Yellow (#facc15) -> Crimson (#ef4444) -> Hail Purple (#d946ef)
+          let col = '#10b981';
+          if (val > 0.85) col = '#d946ef';
+          else if (val > 0.68) col = '#ef4444';
+          else if (val > 0.48) col = '#facc15';
+          else if (val > 0.28) col = '#22c55e';
+          else col = '#06b6d4';
+
+          ctx.fillStyle = col;
+          ctx.shadowColor = col;
+          ctx.shadowBlur = val > 0.6 ? 5 : 0;
+          ctx.fillText(char, c * charW, r * charH);
+        }
+      }
+    } else {
+      // ════════════════════════════════════════════════════════════
+      // AERODYNAMIC VECTOR STREAMLINES (Wind Field)
+      // ════════════════════════════════════════════════════════════
+      for (const p of this.windStreamlines) {
+        p.x += p.speed;
+        if (p.x > cols) {
+          p.x = 0;
+          p.y = Math.random() * rows;
+        }
+
+        const waveY = p.y + Math.sin(p.x * 0.15 + time * 2) * 1.5;
+        const c = Math.floor(p.x);
+        const r = Math.floor(waveY);
+        if (c >= 0 && c < cols && r >= 0 && r < rows) {
+          for (let l = 0; l < p.len; l++) {
+            const tc = c - l;
+            if (tc >= 0 && tc < cols) {
+              const col = l === 0 ? '#ffffff' : p.hue > 0.5 ? '#38bdf8' : '#4ade80';
+              ctx.fillStyle = col;
+              ctx.shadowColor = col;
+              ctx.shadowBlur = l === 0 ? 8 : 2;
+              const ch = l === 0 ? '>' : l === 1 ? '=' : '-';
+              ctx.fillText(ch, tc * charW, r * charH);
+            }
+          }
+        }
+      }
+    }
+
+    ctx.shadowBlur = 0;
+  }
+
   // ── Hourly Mode Switch ─────────────────────────────────────────
   public setHourlyMode(mode: 'temp' | 'rain' | 'wind'): void {
     this.activeHourlyMode = mode;
@@ -589,10 +794,37 @@ export class WeatherDashboardController {
     tabs.forEach((tab) => {
       tab.classList.toggle('active', tab.getAttribute('data-tab') === mode);
     });
+
+    const modeLabel = document.getElementById('asciiRadarModeLabel');
+    const metricRange = document.getElementById('asciiMetricRange');
+    const metricReflectivity = document.getElementById('asciiMetricReflectivity');
+    const metricTurbulence = document.getElementById('asciiMetricTurbulence');
+    const metricCells = document.getElementById('asciiMetricCells');
+
+    if (mode === 'temp') {
+      if (modeLabel) modeLabel.textContent = 'ASCII RADAR // THERMAL FLUID SPECTRUM';
+      if (metricRange) metricRange.textContent = 'RANGE: 160 KM';
+      if (metricReflectivity) metricReflectivity.textContent = 'SENSOR: INFRARED [IR]';
+      if (metricTurbulence) metricTurbulence.textContent = 'TURBULENCE: NOMINAL';
+      if (metricCells) metricCells.textContent = '4 THERMAL CELLS';
+    } else if (mode === 'rain') {
+      if (modeLabel) modeLabel.textContent = 'DOPPLER RADAR // PRECIPITATION REFLECTIVITY';
+      if (metricRange) metricRange.textContent = 'RANGE: 120 KM';
+      if (metricReflectivity) metricReflectivity.textContent = 'REFLECTIVITY: 46 dBZ';
+      if (metricTurbulence) metricTurbulence.textContent = 'VORTICITY: 0.12 s⁻¹';
+      if (metricCells) metricCells.textContent = '6 RAIN CELLS ACTIVE';
+    } else if (mode === 'wind') {
+      if (modeLabel) modeLabel.textContent = 'AERODYNAMIC RADAR // VECTOR STREAMLINES';
+      if (metricRange) metricRange.textContent = 'RANGE: 200 KM';
+      if (metricReflectivity) metricReflectivity.textContent = 'VELOCITY: 18 m/s';
+      if (metricTurbulence) metricTurbulence.textContent = 'SHEAR: 4.2 kts';
+      if (metricCells) metricCells.textContent = 'VORTEX: STABLE';
+    }
+
     this.renderHourlyRail();
   }
 
-  // ── Telemetry Fetch & Rendering ────────────────────────────────
+  // ── Telemetry Fetch & Parsing ──────────────────────────────────
   private async fetchLiveTelemetry(): Promise<void> {
     try {
       let lat = 12.9716;
@@ -642,7 +874,7 @@ export class WeatherDashboardController {
     const windGusts = Math.round(cur.wind_gusts_10m ?? 14);
     const humidity = Math.round(cur.relative_humidity_2m ?? 48);
     const pressure = Math.round((cur.surface_pressure ?? 1010) * 0.750062);
-    const uv = Math.round(dly.uv_index_max?.[0] ?? 0);
+    const uv = Math.round(dly.uv_index_max?.[0] ?? 8);
 
     const dewPoint = Math.round(temp - (100 - humidity) / 5);
 
@@ -816,48 +1048,48 @@ export class WeatherDashboardController {
   private getIconGlyph(icon: string): string {
     switch (icon) {
       case 'sunny':
-        return `<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8">
+        return `<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8">
           <circle cx="12" cy="12" r="4" fill="var(--accent)"/>
           <path d="M12 2v2m0 16v2M4.93 4.93l1.41 1.41m11.32 11.32l1.41 1.41M2 12h2m16 0h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/>
         </svg>`;
       case 'clear-night':
-        return `<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8">
+        return `<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8">
           <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" fill="var(--accent)"/>
         </svg>`;
       case 'partly-cloudy':
-        return `<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8">
+        return `<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8">
           <path d="M12 3v2m4.24 1.76l1.42-1.42M19 10h2" stroke-linecap="round"/>
-          <path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9z" fill="rgba(var(--accent-rgb), 0.15)"/>
+          <path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9z" fill="rgba(var(--accent-rgb), 0.2)"/>
         </svg>`;
       case 'partly-cloudy-night':
-        return `<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8">
-          <path d="M16 4a5 5 0 0 0-3.8 8.2A6 6 0 1 0 16 18h1.5a3.5 3.5 0 0 0 0-7A5 5 0 0 0 16 4z" fill="rgba(var(--accent-rgb), 0.15)"/>
+        return `<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8">
+          <path d="M16 4a5 5 0 0 0-3.8 8.2A6 6 0 1 0 16 18h1.5a3.5 3.5 0 0 0 0-7A5 5 0 0 0 16 4z" fill="rgba(var(--accent-rgb), 0.2)"/>
         </svg>`;
       case 'cloudy':
-        return `<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8">
-          <path d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z" fill="rgba(var(--ink-rgb), 0.1)"/>
+        return `<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8">
+          <path d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z" fill="rgba(var(--ink-rgb), 0.12)"/>
         </svg>`;
       case 'rain':
-        return `<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8">
+        return `<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8">
           <path d="M16 13v6m-4-6v6m-4-6v6" stroke="var(--accent)" stroke-linecap="round"/>
           <path d="M20 16.58A5 5 0 0 0 18 7h-1.26A8 8 0 1 0 4 15.25" stroke-linecap="round"/>
         </svg>`;
       case 'snow':
-        return `<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8">
+        return `<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8">
           <path d="M20 17.58A5 5 0 0 0 18 8h-1.26A8 8 0 1 0 4 16.25"/>
           <path d="M8 15h.01M8 19h.01M12 17h.01M12 21h.01M16 15h.01M16 19h.01" stroke-width="2.5" stroke-linecap="round"/>
         </svg>`;
       case 'storm':
-        return `<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8">
+        return `<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8">
           <path d="M19 16.9A5 5 0 0 0 18 7h-1.26A8 8 0 1 0 4 15.25"/>
           <polyline points="13 11 9 17 15 17 11 23" fill="var(--accent)"/>
         </svg>`;
       case 'fog':
-        return `<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8">
+        return `<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8">
           <path d="M4 14h16M4 18h16M4 10h16M8 6h8" stroke-linecap="round"/>
         </svg>`;
       default:
-        return `<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8">
+        return `<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8">
           <circle cx="12" cy="12" r="5" fill="var(--accent)"/>
         </svg>`;
     }
@@ -874,16 +1106,20 @@ export class WeatherDashboardController {
     };
 
     setText('weatherCity', s.city.toUpperCase());
+    setText('weatherStationHeaderTag', `// STATION MET-01 [${s.city.toUpperCase()}]`);
     setText('weatherBigTemp', s.temp);
     setText('weatherCondition', `[ STATUS: ${s.condition.toUpperCase()} ]`);
-    setText('weatherHigh', `H:${s.high}°`);
-    setText('weatherLow', `L:${s.low}°`);
+    setText('weatherHigh', `HIGH ${s.high}°C`);
+    setText('weatherLow', `LOW ${s.low}°C`);
     setText('weatherFeelsLike', `${s.feelsLike}°C`);
     setText('weatherWindSpeed', `${s.windSpeed} km/h`);
     setText('weatherWindSpeedCard', `${s.windSpeed} km/h`);
     setText('weatherWindDirText', s.windDirText);
+    setText('weatherWindGusts', `GUSTS ${s.windGusts} km/h`);
     setText('weatherHumidity', `${s.humidity}%`);
+    setText('weatherPressureVal', `${s.pressure} mmHg`);
     setText('weatherPressure', s.pressure);
+    setText('weatherDewPointVal', `${s.dewPoint}°C`);
     setText('weatherSunrise', s.sunrise);
     setText('weatherSunset', s.sunset);
     setText('moonPhaseName', s.moonPhase.toUpperCase());
@@ -893,7 +1129,7 @@ export class WeatherDashboardController {
     setText('weatherUvVal', s.uvIndex);
     setText('weatherUvCategory', s.uvCategory);
 
-    // Weather Condition Glyph
+    // Weather Condition Hero Glyph
     const glyphWrap = el('weatherConditionGlyph');
     if (glyphWrap) {
       glyphWrap.innerHTML = this.getIconGlyph(
@@ -905,20 +1141,20 @@ export class WeatherDashboardController {
       );
     }
 
-    // Compass Needle Rotation (Center: 42 42)
+    // Compass Needle Rotation (Center: 50 50)
     const needle = el('windNeedleGroup');
     if (needle) {
-      needle.setAttribute('transform', `rotate(${s.windDirection} 42 42)`);
+      needle.setAttribute('transform', `rotate(${s.windDirection} 50 50)`);
     }
 
     // Pressure Gauge Arc Fill
     const pressureArc = el('pressureArcFill');
     if (pressureArc) {
-      const fillLen = Math.min(Math.max(((s.pressure - 700) / 100) * 160, 20), 160);
-      pressureArc.setAttribute('stroke-dasharray', `${fillLen.toFixed(0)} 220`);
+      const fillLen = Math.min(Math.max(((s.pressure - 700) / 100) * 190, 25), 190);
+      pressureArc.setAttribute('stroke-dasharray', `${fillLen.toFixed(0)} 260`);
     }
 
-    // Solar Arc Dot Position (ViewBox 0 0 110 46)
+    // Solar Arc Dot Position (ViewBox 0 0 140 56)
     const solarDot = el('solarDot');
     if (solarDot) {
       const now = new Date();
@@ -936,8 +1172,8 @@ export class WeatherDashboardController {
       } else {
         pct = 0;
       }
-      const x = 8 + pct * 94;
-      const y = 36 - Math.sin(pct * Math.PI) * 30;
+      const x = 10 + pct * 120;
+      const y = (1 - pct) * (1 - pct) * 44 + 2 * (1 - pct) * pct * 4 + pct * pct * 44;
       solarDot.setAttribute('cx', x.toFixed(1));
       solarDot.setAttribute('cy', y.toFixed(1));
     }
@@ -945,14 +1181,14 @@ export class WeatherDashboardController {
     // AQI Pip Position
     const aqiPip = el('weatherAqiPip');
     if (aqiPip) {
-      const pct = Math.min(Math.max((s.aqi / 300) * 100, 2), 98);
+      const pct = Math.min(Math.max((s.aqi / 300) * 100, 4), 96);
       aqiPip.style.left = `${pct}%`;
     }
 
     // UV Pip Position
     const uvPip = el('weatherUvPip');
     if (uvPip) {
-      const pct = Math.min(Math.max((s.uvIndex / 12) * 100, 3), 97);
+      const pct = Math.min(Math.max((s.uvIndex / 12) * 100, 4), 96);
       uvPip.style.left = `${pct}%`;
     }
 
@@ -973,7 +1209,7 @@ export class WeatherDashboardController {
       if (this.activeHourlyMode === 'rain') {
         readOut = `${item.precipPct}%`;
       } else if (this.activeHourlyMode === 'wind') {
-        readOut = `${item.windSpeed}`;
+        readOut = `${item.windSpeed} km/h`;
       }
 
       col.innerHTML = `
@@ -999,7 +1235,7 @@ export class WeatherDashboardController {
       row.className = 'forecast-row';
 
       const leftPct = Math.round(((item.min - minAll) / rangeAll) * 100);
-      const widthPct = Math.max(Math.round(((item.max - item.min) / rangeAll) * 100), 12);
+      const widthPct = Math.max(Math.round(((item.max - item.min) / rangeAll) * 100), 14);
 
       row.innerHTML = `
         <span class="f-day">${item.day}</span>
@@ -1015,10 +1251,11 @@ export class WeatherDashboardController {
   }
 }
 
-// Global initialization & View Transitions preservation
+// Global window declarations
 declare global {
   interface Window {
     __weatherDashboardController?: WeatherDashboardController;
+    __weatherEscBound?: boolean;
   }
 }
 

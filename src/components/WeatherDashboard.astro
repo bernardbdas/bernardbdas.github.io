@@ -1,877 +1,802 @@
 ---
 /**
- * WeatherDashboard.astro — Neo-Brutalist Atmospheric Telemetry Deck
+ * WeatherDashboard.astro — Atmospheric Telemetry Console (Overlay Modal)
  *
- * Tactical, transparent neo-brutalist weather instrumentation docked on the right rail:
- * - Corner bracket accents, monospace terminal typography, hairline tactical borders.
- * - Dynamic liquid glass specular reflection that adapts to cursor and light source.
- * - Seamless theme integration (Amber, Light, Blue, White, Violet, Emerald).
- * - Compact, functional widgets with zero clipping or text overflow:
- *   1. Primary Atmosphere Station Readout
- *   2. 24-Hour Horizon Tape
- *   3. 7-Day Synoptic Forecast
- *   4. Aerodynamics & Barometric Chamber
- *   5. Astronomical Ephemeris (Solar & Lunar)
- *   6. Environmental Radiance & AQI Spectrum
- * - Resizable cards (corner drag + S/M/L presets) with persistent localStorage caching.
- * - HTML5 drag-and-drop customization.
+ * Tactical neo-brutalist weather instrumentation modal overlay:
+ * - Triggered via the WEATHER HUD button in the bottom status bar or keyboard shortcut.
+ * - Full-featured, high-contrast, comfortable font sizes (12px–15px body, 44px hero temp) for effortless readability.
+ * - 6 tactical telemetry modules in a responsive multi-column dashboard grid.
+ * - Dynamic liquid glass specular reflection, hairline brutalist borders, corner bracket accents.
+ * - Closes via ESC key, clicking outside modal, or close button.
  */
 ---
 
-<aside
-  id="weatherDashboard"
-  class="weather-hud-dock is-active"
-  aria-label="Atmospheric Telemetry Deck"
+<div
+  id="weatherDashboardModal"
+  class="weather-modal-backdrop"
+  role="dialog"
+  aria-modal="true"
+  aria-labelledby="weatherConsoleTitle"
+  aria-hidden="true"
   transition:persist="weather-dashboard"
 >
-  <!-- Console Deck Toolbar -->
-  <div class="weather-hud-toolbar">
-    <div class="hud-brand">
-      <span class="hud-live-dot" aria-hidden="true"></span>
-      <span class="hud-title">METEOROLOGY // TELEMETRY DECK</span>
-    </div>
-    <div class="hud-controls">
-      <button
-        type="button"
-        class="hud-tool-btn"
-        id="weatherResetLayoutBtn"
-        title="Reset widgets to default layout"
-        aria-label="Reset layout"
-      >
-        <svg
-          viewBox="0 0 16 16"
-          width="10"
-          height="10"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="1.8"
-        >
-          <path d="M2.5 8a5.5 5.5 0 1 0 5.5-5.5A5.5 5.5 0 0 0 4 4.5L2 2.5" />
-          <path d="M2 5.5h3.5V2" />
-        </svg>
-        <span>RESET</span>
-      </button>
-      <button
-        type="button"
-        class="hud-tool-btn hud-close-btn"
-        id="weatherCloseDockBtn"
-        title="Minimize Telemetry Deck"
-        aria-label="Minimize Telemetry Deck"
-      >
-        <svg
-          viewBox="0 0 16 16"
-          width="10"
-          height="10"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="2"
-        >
-          <line x1="12" y1="4" x2="4" y2="12"></line>
-          <line x1="4" y1="4" x2="12" y2="12"></line>
-        </svg>
-      </button>
-    </div>
-  </div>
+  <div class="weather-modal-card" id="weatherModalCard">
+    <div class="dev-card-corner-tl" aria-hidden="true"></div>
+    <div class="dev-card-corner-br" aria-hidden="true"></div>
 
-  <!-- Scrollable Cards Rail -->
-  <div class="weather-cards-rail" id="weatherCardsRail">
-    <!-- Card 1: Primary Atmospheric Station -->
-    <section class="weather-card" id="card-current" draggable="true" data-card-id="card-current">
-      <div class="dev-card-corner-tl" aria-hidden="true"></div>
-      <div class="dev-card-corner-br" aria-hidden="true"></div>
-
-      <div class="card-header">
-        <div class="card-drag-handle" title="Drag to reorder" aria-label="Drag handle">
-          <svg viewBox="0 0 16 16" width="11" height="11" fill="currentColor">
-            <circle cx="5" cy="4" r="1.2" />
-            <circle cx="11" cy="4" r="1.2" />
-            <circle cx="5" cy="8" r="1.2" />
-            <circle cx="11" cy="8" r="1.2" />
-            <circle cx="5" cy="12" r="1.2" />
-            <circle cx="11" cy="12" r="1.2" />
-          </svg>
-        </div>
-        <span class="card-title">SYS // 01 • CURRENT ATMOSPHERE</span>
-        <div class="card-actions">
-          <button
-            type="button"
-            class="card-action-btn card-size-btn"
-            title="Cycle size: S / M / L"
-            aria-label="Change card size"
-          >
-            <span class="size-indicator">M</span>
-          </button>
-          <button
-            type="button"
-            class="card-action-btn widget-pin-btn"
-            title="Pin widget to top"
-            aria-label="Pin widget"
-          >
-            <svg
-              viewBox="0 0 24 24"
-              width="10"
-              height="10"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-            >
-              <path d="M12 17v5M9 2h6l-1 7h3l-4 8-1-5H8l-1-7h2z" />
-            </svg>
-          </button>
-        </div>
+    <!-- Console Tactical Header Bar -->
+    <div class="weather-modal-bar">
+      <div class="weather-modal-info">
+        <span class="weather-status-led" aria-hidden="true"></span>
+        <span class="weather-modal-title" id="weatherConsoleTitle">
+          METEOROLOGICAL TELEMETRY CONSOLE
+        </span>
+        <span class="weather-station-tag" id="weatherStationHeaderTag">
+          // STATION MET-01 [BENGALURU]
+        </span>
       </div>
 
-      <div class="card-content current-content">
-        <div class="current-top-panel">
-          <div class="current-primary-data">
-            <div class="station-meta-pill">
-              <span class="loc-dot" aria-hidden="true"></span>
-              <span class="loc-text" id="weatherCity">
-                BENGALURU
-              </span>
-              <span class="loc-sub">[MET-01]</span>
-            </div>
-            <div class="digital-temp-readout">
-              <span class="digit-temp-val" id="weatherBigTemp">
-                25
-              </span>
-              <span class="digit-temp-deg">.0°</span>
-              <span class="digit-temp-unit">C</span>
-            </div>
-            <div class="status-condition-badge" id="weatherCondition">
-              [ STATUS: PARTLY CLOUDY ]
-            </div>
-          </div>
-          <div class="current-glyph-col">
-            <div class="current-weather-glyph" id="weatherConditionGlyph">
-              <svg
-                viewBox="0 0 24 24"
-                width="42"
-                height="42"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="1.6"
-              >
-                <path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9z" />
-                <path d="M12 3v2m4.24 1.76l1.42-1.42M19 10h2" stroke-linecap="round" />
+      <div class="weather-modal-controls">
+        <button
+          type="button"
+          class="weather-modal-btn"
+          id="weatherResetLayoutBtn"
+          title="Reset telemetry widgets"
+          aria-label="Reset telemetry widgets"
+        >
+          <svg
+            viewBox="0 0 16 16"
+            width="11"
+            height="11"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.8"
+          >
+            <path d="M2.5 8a5.5 5.5 0 1 0 5.5-5.5A5.5 5.5 0 0 0 4 4.5L2 2.5" />
+            <path d="M2 5.5h3.5V2" />
+          </svg>
+          <span>RESET</span>
+        </button>
+
+        <button
+          type="button"
+          id="weatherModalClose"
+          class="weather-modal-close"
+          aria-label="Close weather console (Escape)"
+          title="Close (ESC)"
+        >
+          <svg
+            viewBox="0 0 24 24"
+            width="14"
+            height="14"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+          <span class="close-key-tag">ESC</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Console Body (Scrollable Dashboard Grid) -->
+    <div class="weather-modal-body">
+      <div class="weather-dashboard-grid" id="weatherCardsRail">
+        <!-- Module 1: Primary Atmospheric Station Readout -->
+        <section
+          class="weather-card span-hero"
+          id="card-current"
+          draggable="true"
+          data-card-id="card-current"
+        >
+          <div class="dev-card-corner-tl" aria-hidden="true"></div>
+          <div class="dev-card-corner-br" aria-hidden="true"></div>
+
+          <div class="card-header">
+            <div class="card-drag-handle" title="Drag to reorder module" aria-label="Drag handle">
+              <svg viewBox="0 0 16 16" width="12" height="12" fill="currentColor">
+                <circle cx="5" cy="4" r="1.3" />
+                <circle cx="11" cy="4" r="1.3" />
+                <circle cx="5" cy="8" r="1.3" />
+                <circle cx="11" cy="8" r="1.3" />
+                <circle cx="5" cy="12" r="1.3" />
+                <circle cx="11" cy="12" r="1.3" />
               </svg>
             </div>
-            <div class="current-ext-range">
-              <span class="range-tag">EXTREMES</span>
-              <span class="range-val" id="weatherHigh">
-                H:29°
-              </span>
-              <span class="range-sep">//</span>
-              <span class="range-val" id="weatherLow">
-                L:19°
-              </span>
-            </div>
-          </div>
-        </div>
-
-        <div class="telemetry-data-grid">
-          <div class="t-cell">
-            <span class="t-key">FEELS</span>
-            <span class="t-val" id="weatherFeelsLike">
-              25°C
-            </span>
-          </div>
-          <div class="t-cell">
-            <span class="t-key">WIND</span>
-            <span class="t-val" id="weatherWindSpeed">
-              7 km/h
-            </span>
-          </div>
-          <div class="t-cell">
-            <span class="t-key">HUMIDITY</span>
-            <span class="t-val" id="weatherHumidity">
-              48%
-            </span>
-          </div>
-        </div>
-      </div>
-
-      <div class="card-resize-grip" title="Drag to resize height" aria-hidden="true">
-        <svg viewBox="0 0 10 10" width="7" height="7">
-          <line
-            x1="9"
-            y1="1"
-            x2="1"
-            y2="9"
-            stroke="currentColor"
-            stroke-width="1.2"
-            stroke-linecap="round"
-          />
-          <line
-            x1="9"
-            y1="5"
-            x2="5"
-            y2="9"
-            stroke="currentColor"
-            stroke-width="1.2"
-            stroke-linecap="round"
-          />
-        </svg>
-      </div>
-    </section>
-
-    <!-- Card 2: 24-Hour Timeline Horizon -->
-    <section class="weather-card" id="card-hourly" draggable="true" data-card-id="card-hourly">
-      <div class="dev-card-corner-tl" aria-hidden="true"></div>
-      <div class="dev-card-corner-br" aria-hidden="true"></div>
-
-      <div class="card-header">
-        <div class="card-drag-handle" title="Drag to reorder" aria-label="Drag handle">
-          <svg viewBox="0 0 16 16" width="11" height="11" fill="currentColor">
-            <circle cx="5" cy="4" r="1.2" />
-            <circle cx="11" cy="4" r="1.2" />
-            <circle cx="5" cy="8" r="1.2" />
-            <circle cx="11" cy="8" r="1.2" />
-            <circle cx="5" cy="12" r="1.2" />
-            <circle cx="11" cy="12" r="1.2" />
-          </svg>
-        </div>
-        <span class="card-title">SYS // 02 • 24H HORIZON</span>
-        <div class="card-actions">
-          <div class="tactical-tab-strip" role="tablist" aria-label="Telemetry View">
-            <button
-              type="button"
-              class="weather-cond-tab active"
-              data-tab="temp"
-              title="Temperature"
-            >
-              TEMP
-            </button>
-            <button type="button" class="weather-cond-tab" data-tab="rain" title="Precipitation">
-              RAIN
-            </button>
-            <button type="button" class="weather-cond-tab" data-tab="wind" title="Wind">
-              WIND
-            </button>
-          </div>
-          <button
-            type="button"
-            class="card-action-btn card-size-btn"
-            title="Cycle size: S / M / L"
-            aria-label="Change card size"
-          >
-            <span class="size-indicator">M</span>
-          </button>
-          <button
-            type="button"
-            class="card-action-btn widget-pin-btn"
-            title="Pin widget to top"
-            aria-label="Pin widget"
-          >
-            <svg
-              viewBox="0 0 24 24"
-              width="10"
-              height="10"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-            >
-              <path d="M12 17v5M9 2h6l-1 7h3l-4 8-1-5H8l-1-7h2z" />
-            </svg>
-          </button>
-        </div>
-      </div>
-
-      <div class="card-content hourly-content">
-        <div class="hourly-slider" id="hourlySlider" role="region" aria-label="Hourly timeline">
-          <!-- Populated dynamically via controller -->
-        </div>
-      </div>
-
-      <div class="card-resize-grip" title="Drag to resize height" aria-hidden="true">
-        <svg viewBox="0 0 10 10" width="7" height="7">
-          <line
-            x1="9"
-            y1="1"
-            x2="1"
-            y2="9"
-            stroke="currentColor"
-            stroke-width="1.2"
-            stroke-linecap="round"
-          />
-          <line
-            x1="9"
-            y1="5"
-            x2="5"
-            y2="9"
-            stroke="currentColor"
-            stroke-width="1.2"
-            stroke-linecap="round"
-          />
-        </svg>
-      </div>
-    </section>
-
-    <!-- Card 3: 7-Day Synoptic Outlook -->
-    <section class="weather-card" id="card-forecast" draggable="true" data-card-id="card-forecast">
-      <div class="dev-card-corner-tl" aria-hidden="true"></div>
-      <div class="dev-card-corner-br" aria-hidden="true"></div>
-
-      <div class="card-header">
-        <div class="card-drag-handle" title="Drag to reorder" aria-label="Drag handle">
-          <svg viewBox="0 0 16 16" width="11" height="11" fill="currentColor">
-            <circle cx="5" cy="4" r="1.2" />
-            <circle cx="11" cy="4" r="1.2" />
-            <circle cx="5" cy="8" r="1.2" />
-            <circle cx="11" cy="8" r="1.2" />
-            <circle cx="5" cy="12" r="1.2" />
-            <circle cx="11" cy="12" r="1.2" />
-          </svg>
-        </div>
-        <span class="card-title">SYS // 03 • 7-DAY SYNOPTIC</span>
-        <div class="card-actions">
-          <button
-            type="button"
-            class="card-action-btn card-size-btn"
-            title="Cycle size: S / M / L"
-            aria-label="Change card size"
-          >
-            <span class="size-indicator">M</span>
-          </button>
-          <button
-            type="button"
-            class="card-action-btn widget-pin-btn"
-            title="Pin widget to top"
-            aria-label="Pin widget"
-          >
-            <svg
-              viewBox="0 0 24 24"
-              width="10"
-              height="10"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-            >
-              <path d="M12 17v5M9 2h6l-1 7h3l-4 8-1-5H8l-1-7h2z" />
-            </svg>
-          </button>
-        </div>
-      </div>
-
-      <div class="card-content forecast-content">
-        <div class="forecast-list" id="forecastList" role="list">
-          <!-- Populated dynamically via controller -->
-        </div>
-      </div>
-
-      <div class="card-resize-grip" title="Drag to resize height" aria-hidden="true">
-        <svg viewBox="0 0 10 10" width="7" height="7">
-          <line
-            x1="9"
-            y1="1"
-            x2="1"
-            y2="9"
-            stroke="currentColor"
-            stroke-width="1.2"
-            stroke-linecap="round"
-          />
-          <line
-            x1="9"
-            y1="5"
-            x2="5"
-            y2="9"
-            stroke="currentColor"
-            stroke-width="1.2"
-            stroke-linecap="round"
-          />
-        </svg>
-      </div>
-    </section>
-
-    <!-- Card 4: Aerodynamics & Pressure Chamber -->
-    <section
-      class="weather-card"
-      id="card-atmosphere"
-      draggable="true"
-      data-card-id="card-atmosphere"
-    >
-      <div class="dev-card-corner-tl" aria-hidden="true"></div>
-      <div class="dev-card-corner-br" aria-hidden="true"></div>
-
-      <div class="card-header">
-        <div class="card-drag-handle" title="Drag to reorder" aria-label="Drag handle">
-          <svg viewBox="0 0 16 16" width="11" height="11" fill="currentColor">
-            <circle cx="5" cy="4" r="1.2" />
-            <circle cx="11" cy="4" r="1.2" />
-            <circle cx="5" cy="8" r="1.2" />
-            <circle cx="11" cy="8" r="1.2" />
-            <circle cx="5" cy="12" r="1.2" />
-            <circle cx="11" cy="12" r="1.2" />
-          </svg>
-        </div>
-        <span class="card-title">SYS // 04 • WIND & PRESSURE</span>
-        <div class="card-actions">
-          <button
-            type="button"
-            class="card-action-btn card-size-btn"
-            title="Cycle size: S / M / L"
-            aria-label="Change card size"
-          >
-            <span class="size-indicator">M</span>
-          </button>
-          <button
-            type="button"
-            class="card-action-btn widget-pin-btn"
-            title="Pin widget to top"
-            aria-label="Pin widget"
-          >
-            <svg
-              viewBox="0 0 24 24"
-              width="10"
-              height="10"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-            >
-              <path d="M12 17v5M9 2h6l-1 7h3l-4 8-1-5H8l-1-7h2z" />
-            </svg>
-          </button>
-        </div>
-      </div>
-
-      <div class="card-content atmosphere-dual-content">
-        <!-- Wind Vane Dial -->
-        <div class="tactical-gauge-box">
-          <div class="compass-dial-wrap">
-            <svg class="compass-dial-svg" viewBox="0 0 84 84" width="68" height="68">
-              <circle
-                cx="42"
-                cy="42"
-                r="36"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="0.8"
-                opacity="0.3"
-                stroke-dasharray="2 3"
-              />
-              <line
-                x1="42"
-                y1="6"
-                x2="42"
-                y2="78"
-                stroke="currentColor"
-                stroke-width="0.5"
-                opacity="0.2"
-              />
-              <line
-                x1="6"
-                y1="42"
-                x2="78"
-                y2="42"
-                stroke="currentColor"
-                stroke-width="0.5"
-                opacity="0.2"
-              />
-              <text
-                x="42"
-                y="14"
-                text-anchor="middle"
-                font-size="7"
-                font-family="var(--font-mono)"
-                fill="currentColor"
-                opacity="0.8"
+            <span class="card-title">SYS // 01 • PRIMARY ATMOSPHERIC TELEMETRY</span>
+            <div class="card-actions">
+              <button
+                type="button"
+                class="card-action-btn widget-pin-btn"
+                title="Pin module"
+                aria-label="Pin module"
               >
-                N
-              </text>
-              <text
-                x="73"
-                y="44"
-                text-anchor="middle"
-                font-size="7"
-                font-family="var(--font-mono)"
-                fill="currentColor"
-                opacity="0.4"
+                <svg
+                  viewBox="0 0 24 24"
+                  width="11"
+                  height="11"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                >
+                  <path d="M12 17v5M9 2h6l-1 7h3l-4 8-1-5H8l-1-7h2z" />
+                </svg>
+              </button>
+            </div>
+          </div>
+
+          <div class="card-content current-hero-content">
+            <div class="current-hero-main">
+              <div class="current-hero-left">
+                <div class="station-meta-badge">
+                  <span class="badge-dot" aria-hidden="true"></span>
+                  <span class="badge-city" id="weatherCity">
+                    BENGALURU
+                  </span>
+                  <span class="badge-coords">[12.97°N, 77.59°E]</span>
+                </div>
+                <div class="digital-hero-temp">
+                  <span class="temp-digit-val" id="weatherBigTemp">
+                    25
+                  </span>
+                  <span class="temp-digit-deg">.0°</span>
+                  <span class="temp-digit-unit">C</span>
+                </div>
+                <div class="hero-condition-status" id="weatherCondition">
+                  [ STATUS: PARTLY CLOUDY ]
+                </div>
+              </div>
+
+              <div class="current-hero-right">
+                <div class="hero-weather-glyph" id="weatherConditionGlyph">
+                  <svg
+                    viewBox="0 0 24 24"
+                    width="56"
+                    height="56"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="1.6"
+                  >
+                    <path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9z" />
+                    <path d="M12 3v2m4.24 1.76l1.42-1.42M19 10h2" stroke-linecap="round" />
+                  </svg>
+                </div>
+                <div class="hero-extremes-box">
+                  <span class="ext-label">DAILY EXTREMES</span>
+                  <div class="ext-pills">
+                    <span class="ext-high" id="weatherHigh">
+                      HIGH 29°C
+                    </span>
+                    <span class="ext-sep">//</span>
+                    <span class="ext-low" id="weatherLow">
+                      LOW 19°C
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Hero Telemetry Matrix -->
+            <div class="hero-telemetry-matrix">
+              <div class="matrix-cell">
+                <span class="m-key">APPARENT FEELS</span>
+                <span class="m-val" id="weatherFeelsLike">
+                  25°C
+                </span>
+              </div>
+              <div class="matrix-cell">
+                <span class="m-key">SUSTAINED WIND</span>
+                <span class="m-val" id="weatherWindSpeed">
+                  7 km/h
+                </span>
+              </div>
+              <div class="matrix-cell">
+                <span class="m-key">RELATIVE HUMIDITY</span>
+                <span class="m-val" id="weatherHumidity">
+                  48%
+                </span>
+              </div>
+              <div class="matrix-cell">
+                <span class="m-key">SURFACE PRESSURE</span>
+                <span class="m-val" id="weatherPressureVal">
+                  758 mmHg
+                </span>
+              </div>
+              <div class="matrix-cell">
+                <span class="m-key">CALCULATED DEW POINT</span>
+                <span class="m-val" id="weatherDewPointVal">
+                  13°C
+                </span>
+              </div>
+              <div class="matrix-cell">
+                <span class="m-key">ATMOSPHERIC RISK</span>
+                <span class="m-val" id="weatherRiskVal">
+                  NOMINAL
+                </span>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Module 2: 24-Hour Horizon Tape -->
+        <section
+          class="weather-card span-half"
+          id="card-hourly"
+          draggable="true"
+          data-card-id="card-hourly"
+        >
+          <div class="dev-card-corner-tl" aria-hidden="true"></div>
+          <div class="dev-card-corner-br" aria-hidden="true"></div>
+
+          <div class="card-header">
+            <div class="card-drag-handle" title="Drag to reorder module" aria-label="Drag handle">
+              <svg viewBox="0 0 16 16" width="12" height="12" fill="currentColor">
+                <circle cx="5" cy="4" r="1.3" />
+                <circle cx="11" cy="4" r="1.3" />
+                <circle cx="5" cy="8" r="1.3" />
+                <circle cx="11" cy="8" r="1.3" />
+                <circle cx="5" cy="12" r="1.3" />
+                <circle cx="11" cy="12" r="1.3" />
+              </svg>
+            </div>
+            <span class="card-title">SYS // 02 • 24H HORIZON TIMELINE</span>
+            <div class="card-actions">
+              <div class="tactical-tab-strip" role="tablist" aria-label="Hourly telemetry view">
+                <button
+                  type="button"
+                  class="weather-cond-tab active"
+                  data-tab="temp"
+                  title="Temperature"
+                >
+                  TEMP (°C)
+                </button>
+                <button
+                  type="button"
+                  class="weather-cond-tab"
+                  data-tab="rain"
+                  title="Precipitation"
+                >
+                  RAIN (%)
+                </button>
+                <button type="button" class="weather-cond-tab" data-tab="wind" title="Wind">
+                  WIND (km/h)
+                </button>
+              </div>
+              <button
+                type="button"
+                class="card-action-btn widget-pin-btn"
+                title="Pin module"
+                aria-label="Pin module"
               >
-                E
-              </text>
-              <text
-                x="42"
-                y="74"
-                text-anchor="middle"
-                font-size="7"
-                font-family="var(--font-mono)"
-                fill="currentColor"
-                opacity="0.4"
-              >
-                S
-              </text>
-              <text
-                x="11"
-                y="44"
-                text-anchor="middle"
-                font-size="7"
-                font-family="var(--font-mono)"
-                fill="currentColor"
-                opacity="0.4"
-              >
-                W
-              </text>
-              <g id="windNeedleGroup" transform="rotate(207 42 42)">
-                <polygon points="42,16 38,42 46,42" fill="var(--accent)" />
-                <polygon points="42,68 38,42 46,42" fill="currentColor" opacity="0.3" />
-                <circle cx="42" cy="42" r="2.5" fill="var(--accent)" />
-              </g>
-            </svg>
+                <svg
+                  viewBox="0 0 24 24"
+                  width="11"
+                  height="11"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                >
+                  <path d="M12 17v5M9 2h6l-1 7h3l-4 8-1-5H8l-1-7h2z" />
+                </svg>
+              </button>
+            </div>
           </div>
-          <div class="gauge-meta">
-            <span class="g-title">AERO VECTOR</span>
-            <span class="g-num" id="weatherWindSpeedCard">
-              7 km/h
-            </span>
-            <span class="g-dir" id="weatherWindDirText">
-              207° SSW
-            </span>
-          </div>
-        </div>
 
-        <div class="tactical-divider" aria-hidden="true"></div>
-
-        <!-- Barometric Chamber -->
-        <div class="tactical-gauge-box">
-          <div class="pressure-gauge-wrap">
-            <svg class="pressure-svg" viewBox="0 0 84 84" width="68" height="68">
-              <circle
-                cx="42"
-                cy="42"
-                r="34"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2.5"
-                stroke-dasharray="160 220"
-                stroke-linecap="round"
-                opacity="0.25"
-                transform="rotate(135 42 42)"
-              />
-              <circle
-                id="pressureArcFill"
-                cx="42"
-                cy="42"
-                r="34"
-                fill="none"
-                stroke="var(--accent)"
-                stroke-width="2.5"
-                stroke-dasharray="105 220"
-                stroke-linecap="round"
-                transform="rotate(135 42 42)"
-              />
-              <line
-                x1="42"
-                y1="28"
-                x2="42"
-                y2="42"
-                stroke="var(--accent)"
-                stroke-width="1.8"
-                stroke-linecap="round"
-              />
-            </svg>
-          </div>
-          <div class="gauge-meta">
-            <span class="g-title">BAROMETRIC</span>
-            <span class="g-num" id="weatherPressure">
-              758
-            </span>
-            <span class="g-dir">mmHg // 1010 hPa</span>
-          </div>
-        </div>
-      </div>
-
-      <div class="card-resize-grip" title="Drag to resize height" aria-hidden="true">
-        <svg viewBox="0 0 10 10" width="7" height="7">
-          <line
-            x1="9"
-            y1="1"
-            x2="1"
-            y2="9"
-            stroke="currentColor"
-            stroke-width="1.2"
-            stroke-linecap="round"
-          />
-          <line
-            x1="9"
-            y1="5"
-            x2="5"
-            y2="9"
-            stroke="currentColor"
-            stroke-width="1.2"
-            stroke-linecap="round"
-          />
-        </svg>
-      </div>
-    </section>
-
-    <!-- Card 5: Astronomical Ephemeris -->
-    <section
-      class="weather-card"
-      id="card-solar-lunar"
-      draggable="true"
-      data-card-id="card-solar-lunar"
-    >
-      <div class="dev-card-corner-tl" aria-hidden="true"></div>
-      <div class="dev-card-corner-br" aria-hidden="true"></div>
-
-      <div class="card-header">
-        <div class="card-drag-handle" title="Drag to reorder" aria-label="Drag handle">
-          <svg viewBox="0 0 16 16" width="11" height="11" fill="currentColor">
-            <circle cx="5" cy="4" r="1.2" />
-            <circle cx="11" cy="4" r="1.2" />
-            <circle cx="5" cy="8" r="1.2" />
-            <circle cx="11" cy="8" r="1.2" />
-            <circle cx="5" cy="12" r="1.2" />
-            <circle cx="11" cy="12" r="1.2" />
-          </svg>
-        </div>
-        <span class="card-title">SYS // 05 • SOLAR & LUNAR</span>
-        <div class="card-actions">
-          <button
-            type="button"
-            class="card-action-btn card-size-btn"
-            title="Cycle size: S / M / L"
-            aria-label="Change card size"
-          >
-            <span class="size-indicator">M</span>
-          </button>
-          <button
-            type="button"
-            class="card-action-btn widget-pin-btn"
-            title="Pin widget to top"
-            aria-label="Pin widget"
-          >
-            <svg
-              viewBox="0 0 24 24"
-              width="10"
-              height="10"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
+          <div class="card-content hourly-content">
+            <div
+              class="hourly-slider"
+              id="hourlySlider"
+              role="region"
+              aria-label="Hourly forecast scroller"
             >
-              <path d="M12 17v5M9 2h6l-1 7h3l-4 8-1-5H8l-1-7h2z" />
-            </svg>
-          </button>
-        </div>
-      </div>
-
-      <div class="card-content solar-lunar-content">
-        <!-- Sun Arc Segment -->
-        <div class="ephemeris-box">
-          <div class="solar-arc-svg-wrap">
-            <svg viewBox="0 0 110 46" width="96" height="40" class="solar-arc-svg">
-              <path
-                d="M 8 36 Q 55 6 102 36"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="1.2"
-                stroke-dasharray="2 3"
-                opacity="0.3"
-              />
-              <line
-                x1="8"
-                y1="36"
-                x2="102"
-                y2="36"
-                stroke="currentColor"
-                stroke-width="0.6"
-                opacity="0.25"
-              />
-              <circle id="solarDot" cx="55" cy="16" r="3.5" fill="var(--accent)" />
-            </svg>
-          </div>
-          <div class="ephemeris-readout">
-            <div class="e-row">
-              <span class="e-label">RISE</span>
-              <span class="e-val" id="weatherSunrise">
-                06:12
-              </span>
+              <!-- Dynamically populated via controller -->
             </div>
-            <div class="e-row">
-              <span class="e-label">SET</span>
-              <span class="e-val" id="weatherSunset">
-                17:53
-              </span>
-            </div>
-          </div>
-        </div>
 
-        <div class="tactical-divider" aria-hidden="true"></div>
+            <!-- Hyper-Realistic Animated ASCII Doppler Radar & Atmospheric Flow Engine -->
+            <div class="ascii-radar-bay" id="asciiRadarBay">
+              <div class="ascii-radar-header">
+                <div class="radar-live-indicator">
+                  <span class="radar-ping-dot" aria-hidden="true"></span>
+                  <span class="radar-mode-label" id="asciiRadarModeLabel">
+                    ASCII RADAR // THERMAL FLUID SPECTRUM
+                  </span>
+                </div>
+                <div class="radar-live-stats">
+                  <span class="radar-stat-azimuth" id="asciiRadarAzimuth">
+                    AZ: 042°
+                  </span>
+                  <span class="radar-stat-fps">60 FPS</span>
+                </div>
+              </div>
 
-        <!-- Moon Phase Segment -->
-        <div class="ephemeris-box">
-          <div class="moon-render-wrap">
-            <svg viewBox="0 0 44 44" width="40" height="40" class="moon-disc-svg">
-              <defs>
-                <clipPath id="lunarClip">
-                  <circle cx="22" cy="22" r="18" />
-                </clipPath>
-              </defs>
-              <circle
-                cx="22"
-                cy="22"
-                r="18"
-                fill="rgba(var(--ink-rgb), 0.08)"
-                stroke="currentColor"
-                stroke-width="0.8"
-                opacity="0.3"
-              />
-              <g clip-path="url(#lunarClip)">
-                <circle cx="22" cy="22" r="18" fill="var(--accent)" opacity="0.3" />
-                <path
-                  id="lunarTerminator"
-                  d="M 22 4 A 18 18 0 0 1 22 40 A 12 18 0 0 0 22 4"
-                  fill="rgba(var(--bg-rgb), 0.95)"
-                />
-              </g>
-            </svg>
-          </div>
-          <div class="ephemeris-readout">
-            <div class="e-row">
-              <span class="e-label">PHASE</span>
-              <span class="e-val" id="moonPhaseName">
-                WANING GIBBOUS
-              </span>
-            </div>
-            <div class="e-row">
-              <span class="e-label">ILLUM</span>
-              <span class="e-val" id="moonIllumPct">
-                85%
-              </span>
+              <div class="ascii-radar-viewport">
+                <canvas
+                  id="asciiRadarCanvas"
+                  class="ascii-radar-canvas"
+                  width="460"
+                  height="135"
+                ></canvas>
+                <div class="ascii-scanline-fx" aria-hidden="true"></div>
+                <div class="ascii-radar-crosshair" aria-hidden="true"></div>
+              </div>
+
+              <div class="ascii-radar-footer">
+                <span class="rf-cell" id="asciiMetricRange">
+                  RANGE: 160 KM
+                </span>
+                <span class="rf-cell" id="asciiMetricReflectivity">
+                  REFLECTIVITY: 42 dBZ
+                </span>
+                <span class="rf-cell" id="asciiMetricTurbulence">
+                  TURBULENCE: NOMINAL
+                </span>
+                <span class="rf-cell" id="asciiMetricCells">
+                  4 CELLS ACTIVE
+                </span>
+              </div>
             </div>
           </div>
-        </div>
-      </div>
+        </section>
 
-      <div class="card-resize-grip" title="Drag to resize height" aria-hidden="true">
-        <svg viewBox="0 0 10 10" width="7" height="7">
-          <line
-            x1="9"
-            y1="1"
-            x2="1"
-            y2="9"
-            stroke="currentColor"
-            stroke-width="1.2"
-            stroke-linecap="round"
-          />
-          <line
-            x1="9"
-            y1="5"
-            x2="5"
-            y2="9"
-            stroke="currentColor"
-            stroke-width="1.2"
-            stroke-linecap="round"
-          />
-        </svg>
-      </div>
-    </section>
+        <!-- Module 3: 7-Day Synoptic Forecast -->
+        <section
+          class="weather-card span-half"
+          id="card-forecast"
+          draggable="true"
+          data-card-id="card-forecast"
+        >
+          <div class="dev-card-corner-tl" aria-hidden="true"></div>
+          <div class="dev-card-corner-br" aria-hidden="true"></div>
 
-    <!-- Card 6: Environmental Radiance & AQI -->
-    <section class="weather-card" id="card-air-uv" draggable="true" data-card-id="card-air-uv">
-      <div class="dev-card-corner-tl" aria-hidden="true"></div>
-      <div class="dev-card-corner-br" aria-hidden="true"></div>
-
-      <div class="card-header">
-        <div class="card-drag-handle" title="Drag to reorder" aria-label="Drag handle">
-          <svg viewBox="0 0 16 16" width="11" height="11" fill="currentColor">
-            <circle cx="5" cy="4" r="1.2" />
-            <circle cx="11" cy="4" r="1.2" />
-            <circle cx="5" cy="8" r="1.2" />
-            <circle cx="11" cy="8" r="1.2" />
-            <circle cx="5" cy="12" r="1.2" />
-            <circle cx="11" cy="12" r="1.2" />
-          </svg>
-        </div>
-        <span class="card-title">SYS // 06 • AQI & UV SPECTRUM</span>
-        <div class="card-actions">
-          <button
-            type="button"
-            class="card-action-btn card-size-btn"
-            title="Cycle size: S / M / L"
-            aria-label="Change card size"
-          >
-            <span class="size-indicator">M</span>
-          </button>
-          <button
-            type="button"
-            class="card-action-btn widget-pin-btn"
-            title="Pin widget to top"
-            aria-label="Pin widget"
-          >
-            <svg
-              viewBox="0 0 24 24"
-              width="10"
-              height="10"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-            >
-              <path d="M12 17v5M9 2h6l-1 7h3l-4 8-1-5H8l-1-7h2z" />
-            </svg>
-          </button>
-        </div>
-      </div>
-
-      <div class="card-content spectrum-content">
-        <!-- AQI Meter -->
-        <div class="spectrum-row">
-          <div class="spectrum-top">
-            <span class="s-label">AIR QUALITY [AQI]</span>
-            <span class="s-badge" id="weatherAqiCategory">
-              MODERATE
-            </span>
-            <span class="s-num" id="weatherAqiVal">
-              136
-            </span>
+          <div class="card-header">
+            <div class="card-drag-handle" title="Drag to reorder module" aria-label="Drag handle">
+              <svg viewBox="0 0 16 16" width="12" height="12" fill="currentColor">
+                <circle cx="5" cy="4" r="1.3" />
+                <circle cx="11" cy="4" r="1.3" />
+                <circle cx="5" cy="8" r="1.3" />
+                <circle cx="11" cy="8" r="1.3" />
+                <circle cx="5" cy="12" r="1.3" />
+                <circle cx="11" cy="12" r="1.3" />
+              </svg>
+            </div>
+            <span class="card-title">SYS // 03 • 7-DAY SYNOPTIC OUTLOOK</span>
+            <div class="card-actions">
+              <button
+                type="button"
+                class="card-action-btn widget-pin-btn"
+                title="Pin module"
+                aria-label="Pin module"
+              >
+                <svg
+                  viewBox="0 0 24 24"
+                  width="11"
+                  height="11"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                >
+                  <path d="M12 17v5M9 2h6l-1 7h3l-4 8-1-5H8l-1-7h2z" />
+                </svg>
+              </button>
+            </div>
           </div>
-          <div class="spectrum-track aqi-track">
-            <div class="spectrum-pip" id="weatherAqiPip" style="left: 45%;"></div>
-          </div>
-        </div>
 
-        <!-- UV Meter -->
-        <div class="spectrum-row">
-          <div class="spectrum-top">
-            <span class="s-label">ULTRAVIOLET [UVI]</span>
-            <span class="s-badge" id="weatherUvCategory">
-              VERY HIGH
-            </span>
-            <span class="s-num" id="weatherUvVal">
-              8
-            </span>
+          <div class="card-content forecast-content">
+            <div class="forecast-list" id="forecastList" role="list">
+              <!-- Dynamically populated via controller -->
+            </div>
           </div>
-          <div class="spectrum-track uv-track">
-            <div class="spectrum-pip" id="weatherUvPip" style="left: 65%;"></div>
-          </div>
-        </div>
-      </div>
+        </section>
 
-      <div class="card-resize-grip" title="Drag to resize height" aria-hidden="true">
-        <svg viewBox="0 0 10 10" width="7" height="7">
-          <line
-            x1="9"
-            y1="1"
-            x2="1"
-            y2="9"
-            stroke="currentColor"
-            stroke-width="1.2"
-            stroke-linecap="round"
-          />
-          <line
-            x1="9"
-            y1="5"
-            x2="5"
-            y2="9"
-            stroke="currentColor"
-            stroke-width="1.2"
-            stroke-linecap="round"
-          />
-        </svg>
+        <!-- Module 4: Aerodynamics & Pressure Chamber -->
+        <section
+          class="weather-card span-half"
+          id="card-atmosphere"
+          draggable="true"
+          data-card-id="card-atmosphere"
+        >
+          <div class="dev-card-corner-tl" aria-hidden="true"></div>
+          <div class="dev-card-corner-br" aria-hidden="true"></div>
+
+          <div class="card-header">
+            <div class="card-drag-handle" title="Drag to reorder module" aria-label="Drag handle">
+              <svg viewBox="0 0 16 16" width="12" height="12" fill="currentColor">
+                <circle cx="5" cy="4" r="1.3" />
+                <circle cx="11" cy="4" r="1.3" />
+                <circle cx="5" cy="8" r="1.3" />
+                <circle cx="11" cy="8" r="1.3" />
+                <circle cx="5" cy="12" r="1.3" />
+                <circle cx="11" cy="12" r="1.3" />
+              </svg>
+            </div>
+            <span class="card-title">SYS // 04 • WIND & BAROMETRIC CHAMBER</span>
+            <div class="card-actions">
+              <button
+                type="button"
+                class="card-action-btn widget-pin-btn"
+                title="Pin module"
+                aria-label="Pin module"
+              >
+                <svg
+                  viewBox="0 0 24 24"
+                  width="11"
+                  height="11"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                >
+                  <path d="M12 17v5M9 2h6l-1 7h3l-4 8-1-5H8l-1-7h2z" />
+                </svg>
+              </button>
+            </div>
+          </div>
+
+          <div class="card-content atmosphere-dual-content">
+            <!-- Wind Compass Bay -->
+            <div class="tactical-gauge-box">
+              <div class="compass-dial-wrap">
+                <svg class="compass-dial-svg" viewBox="0 0 100 100" width="84" height="84">
+                  <circle
+                    cx="50"
+                    cy="50"
+                    r="44"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="0.8"
+                    opacity="0.3"
+                    stroke-dasharray="2 3"
+                  />
+                  <line
+                    x1="50"
+                    y1="6"
+                    x2="50"
+                    y2="94"
+                    stroke="currentColor"
+                    stroke-width="0.5"
+                    opacity="0.2"
+                  />
+                  <line
+                    x1="6"
+                    y1="50"
+                    x2="94"
+                    y2="50"
+                    stroke="currentColor"
+                    stroke-width="0.5"
+                    opacity="0.2"
+                  />
+                  <text
+                    x="50"
+                    y="16"
+                    text-anchor="middle"
+                    font-size="8"
+                    font-family="var(--font-mono)"
+                    fill="currentColor"
+                    opacity="0.8"
+                  >
+                    N
+                  </text>
+                  <text
+                    x="88"
+                    y="53"
+                    text-anchor="middle"
+                    font-size="8"
+                    font-family="var(--font-mono)"
+                    fill="currentColor"
+                    opacity="0.4"
+                  >
+                    E
+                  </text>
+                  <text
+                    x="50"
+                    y="90"
+                    text-anchor="middle"
+                    font-size="8"
+                    font-family="var(--font-mono)"
+                    fill="currentColor"
+                    opacity="0.4"
+                  >
+                    S
+                  </text>
+                  <text
+                    x="12"
+                    y="53"
+                    text-anchor="middle"
+                    font-size="8"
+                    font-family="var(--font-mono)"
+                    fill="currentColor"
+                    opacity="0.4"
+                  >
+                    W
+                  </text>
+                  <g id="windNeedleGroup" transform="rotate(207 50 50)">
+                    <polygon points="50,18 45,50 55,50" fill="var(--accent)" />
+                    <polygon points="50,82 45,50 55,50" fill="currentColor" opacity="0.3" />
+                    <circle cx="50" cy="50" r="3" fill="var(--accent)" />
+                  </g>
+                </svg>
+              </div>
+              <div class="gauge-meta">
+                <span class="g-title">AERO VECTOR</span>
+                <span class="g-num" id="weatherWindSpeedCard">
+                  7 km/h
+                </span>
+                <span class="g-sub" id="weatherWindDirText">
+                  207° SSW
+                </span>
+                <span class="g-note" id="weatherWindGusts">
+                  GUSTS 14 km/h
+                </span>
+              </div>
+            </div>
+
+            <div class="tactical-divider" aria-hidden="true"></div>
+
+            <!-- Pressure Gauge Bay -->
+            <div class="tactical-gauge-box">
+              <div class="pressure-gauge-wrap">
+                <svg class="pressure-svg" viewBox="0 0 100 100" width="84" height="84">
+                  <circle
+                    cx="50"
+                    cy="50"
+                    r="42"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="3"
+                    stroke-dasharray="190 260"
+                    stroke-linecap="round"
+                    opacity="0.25"
+                    transform="rotate(135 50 50)"
+                  />
+                  <circle
+                    id="pressureArcFill"
+                    cx="50"
+                    cy="50"
+                    r="42"
+                    fill="none"
+                    stroke="var(--accent)"
+                    stroke-width="3"
+                    stroke-dasharray="120 260"
+                    stroke-linecap="round"
+                    transform="rotate(135 50 50)"
+                  />
+                  <line
+                    x1="50"
+                    y1="32"
+                    x2="50"
+                    y2="50"
+                    stroke="var(--accent)"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                  />
+                </svg>
+              </div>
+              <div class="gauge-meta">
+                <span class="g-title">BAROMETRIC TANK</span>
+                <span class="g-num" id="weatherPressure">
+                  758
+                </span>
+                <span class="g-sub">mm Hg // 1010 hPa</span>
+                <span class="g-note">[ TANK STABLE ↑ ]</span>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Module 5: Astronomical Ephemeris -->
+        <section
+          class="weather-card span-half"
+          id="card-solar-lunar"
+          draggable="true"
+          data-card-id="card-solar-lunar"
+        >
+          <div class="dev-card-corner-tl" aria-hidden="true"></div>
+          <div class="dev-card-corner-br" aria-hidden="true"></div>
+
+          <div class="card-header">
+            <div class="card-drag-handle" title="Drag to reorder module" aria-label="Drag handle">
+              <svg viewBox="0 0 16 16" width="12" height="12" fill="currentColor">
+                <circle cx="5" cy="4" r="1.3" />
+                <circle cx="11" cy="4" r="1.3" />
+                <circle cx="5" cy="8" r="1.3" />
+                <circle cx="11" cy="8" r="1.3" />
+                <circle cx="5" cy="12" r="1.3" />
+                <circle cx="11" cy="12" r="1.3" />
+              </svg>
+            </div>
+            <span class="card-title">SYS // 05 • ASTRONOMICAL EPHEMERIS</span>
+            <div class="card-actions">
+              <button
+                type="button"
+                class="card-action-btn widget-pin-btn"
+                title="Pin module"
+                aria-label="Pin module"
+              >
+                <svg
+                  viewBox="0 0 24 24"
+                  width="11"
+                  height="11"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                >
+                  <path d="M12 17v5M9 2h6l-1 7h3l-4 8-1-5H8l-1-7h2z" />
+                </svg>
+              </button>
+            </div>
+          </div>
+
+          <div class="card-content solar-lunar-content">
+            <!-- Sun Daylight Arc -->
+            <div class="ephemeris-box">
+              <div class="solar-arc-svg-wrap">
+                <svg viewBox="0 0 140 56" width="110" height="46" class="solar-arc-svg">
+                  <path
+                    d="M 10 44 Q 70 4 130 44"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="1.5"
+                    stroke-dasharray="2 3"
+                    opacity="0.3"
+                  />
+                  <line
+                    x1="10"
+                    y1="44"
+                    x2="130"
+                    y2="44"
+                    stroke="currentColor"
+                    stroke-width="0.8"
+                    opacity="0.25"
+                  />
+                  <circle id="solarDot" cx="70" cy="18" r="4.5" fill="var(--accent)" />
+                </svg>
+              </div>
+              <div class="ephemeris-readout">
+                <div class="e-row">
+                  <span class="e-label">DAWN // SUNRISE</span>
+                  <span class="e-val" id="weatherSunrise">
+                    06:12
+                  </span>
+                </div>
+                <div class="e-row">
+                  <span class="e-label">DUSK // SUNSET</span>
+                  <span class="e-val" id="weatherSunset">
+                    17:53
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            <div class="tactical-divider" aria-hidden="true"></div>
+
+            <!-- Moon Phase Disc -->
+            <div class="ephemeris-box">
+              <div class="moon-render-wrap">
+                <svg viewBox="0 0 54 54" width="46" height="46" class="moon-disc-svg">
+                  <defs>
+                    <clipPath id="lunarClip">
+                      <circle cx="27" cy="27" r="23" />
+                    </clipPath>
+                  </defs>
+                  <circle
+                    cx="27"
+                    cy="27"
+                    r="23"
+                    fill="rgba(var(--ink-rgb), 0.08)"
+                    stroke="currentColor"
+                    stroke-width="1"
+                    opacity="0.3"
+                  />
+                  <g clip-path="url(#lunarClip)">
+                    <circle cx="27" cy="27" r="23" fill="var(--accent)" opacity="0.35" />
+                    <path
+                      id="lunarTerminator"
+                      d="M 27 4 A 23 23 0 0 1 27 50 A 16 23 0 0 0 27 4"
+                      fill="rgba(var(--bg-rgb), 0.95)"
+                    />
+                  </g>
+                </svg>
+              </div>
+              <div class="ephemeris-readout">
+                <div class="e-row">
+                  <span class="e-label">LUNAR PHASE</span>
+                  <span class="e-val" id="moonPhaseName">
+                    WANING GIBBOUS
+                  </span>
+                </div>
+                <div class="e-row">
+                  <span class="e-label">ILLUMINATION</span>
+                  <span class="e-val" id="moonIllumPct">
+                    85%
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Module 6: Environmental Radiance & AQI Spectrum -->
+        <section
+          class="weather-card span-half"
+          id="card-air-uv"
+          draggable="true"
+          data-card-id="card-air-uv"
+        >
+          <div class="dev-card-corner-tl" aria-hidden="true"></div>
+          <div class="dev-card-corner-br" aria-hidden="true"></div>
+
+          <div class="card-header">
+            <div class="card-drag-handle" title="Drag to reorder module" aria-label="Drag handle">
+              <svg viewBox="0 0 16 16" width="12" height="12" fill="currentColor">
+                <circle cx="5" cy="4" r="1.3" />
+                <circle cx="11" cy="4" r="1.3" />
+                <circle cx="5" cy="8" r="1.3" />
+                <circle cx="11" cy="8" r="1.3" />
+                <circle cx="5" cy="12" r="1.3" />
+                <circle cx="11" cy="12" r="1.3" />
+              </svg>
+            </div>
+            <span class="card-title">SYS // 06 • ENVIRONMENTAL RADIANCE & SPECTRUM</span>
+            <div class="card-actions">
+              <button
+                type="button"
+                class="card-action-btn widget-pin-btn"
+                title="Pin module"
+                aria-label="Pin module"
+              >
+                <svg
+                  viewBox="0 0 24 24"
+                  width="11"
+                  height="11"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                >
+                  <path d="M12 17v5M9 2h6l-1 7h3l-4 8-1-5H8l-1-7h2z" />
+                </svg>
+              </button>
+            </div>
+          </div>
+
+          <div class="card-content spectrum-content">
+            <!-- AQI Meter -->
+            <div class="spectrum-row">
+              <div class="spectrum-top">
+                <span class="s-label">AIR QUALITY INDEX [AQI]</span>
+                <span class="s-badge" id="weatherAqiCategory">
+                  MODERATE
+                </span>
+                <span class="s-num" id="weatherAqiVal">
+                  136
+                </span>
+              </div>
+              <div class="spectrum-track aqi-track">
+                <div class="spectrum-pip" id="weatherAqiPip" style="left: 45%;"></div>
+              </div>
+            </div>
+
+            <!-- UV Meter -->
+            <div class="spectrum-row">
+              <div class="spectrum-top">
+                <span class="s-label">ULTRAVIOLET RADIATION [UVI]</span>
+                <span class="s-badge" id="weatherUvCategory">
+                  VERY HIGH
+                </span>
+                <span class="s-num" id="weatherUvVal">
+                  8
+                </span>
+              </div>
+              <div class="spectrum-track uv-track">
+                <div class="spectrum-pip" id="weatherUvPip" style="left: 65%;"></div>
+              </div>
+            </div>
+          </div>
+        </section>
       </div>
-    </section>
+    </div>
   </div>
-</aside>
+</div>
 
 <script>
   import '../scripts/weather-dashboard';
