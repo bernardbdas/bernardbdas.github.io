@@ -709,6 +709,17 @@ export const RADIO_STATIONS: FMStation[] = [
     bitrate: '320 kbps WFM',
   },
   {
+    id: 'david-gilmour',
+    ytId: 'QWTtXXHuKZ8',
+    freq: '97.3 FM',
+    freqNum: 97.3,
+    name: 'DAVID GILMOUR',
+    desc: 'The David Gilmour Station — Pink Floyd & Solo Live Streams',
+    genre: 'Classic Rock',
+    origin: 'Astoria Studio / UK',
+    bitrate: '320 kbps WFM',
+  },
+  {
     id: 'ccr-rock',
     ytId: 'FtiM1Qtz700',
     freq: '97.5 FM',
