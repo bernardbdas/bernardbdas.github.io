@@ -1776,10 +1776,9 @@ export class AmbientSoundController {
     this.audio.loop = true;
     this.audio.preload = 'auto';
 
-    // Play/mute preference (defaults to enabled)
-    const stored = localStorage.getItem('ambient_sound');
-    const isExplicitlyDisabled = stored === 'disabled';
-    this.isPlaying = !isExplicitlyDisabled;
+    // Autoplay strictly disabled: always initialize to OFF (silent) on fresh page entry
+    // Audio will only play when user explicitly clicks the sound toggle or chooses a track
+    this.isPlaying = (audioEl && !audioEl.paused && audioEl.currentTime > 0) || false;
 
     // FX preference
     const fxStored = localStorage.getItem('ui_fx_sound');
@@ -1815,7 +1814,7 @@ export class AmbientSoundController {
         !this.isMediaPlaying &&
         !this.wasPlayingBeforeVisibilityHidden
       ) {
-        if (localStorage.getItem('ambient_sound') === 'disabled') {
+        if (localStorage.getItem('ambient_sound') !== 'enabled') {
           this.isPlaying = false;
           this.updateUI(false);
         }
@@ -1835,26 +1834,11 @@ export class AmbientSoundController {
 
     this.bindUI();
 
-    // Autoplay attempt / gesture fallback
-    if (!isExplicitlyDisabled) {
-      if (track.type === 'local') {
-        const startPromise = this.audio.play();
-        if (startPromise !== undefined) {
-          startPromise
-            .then(() => {
-              this.isPlaying = true;
-              this.updateUI(true);
-              this.fadeTo(this.targetVolume, 1200);
-            })
-            .catch(() => {
-              this.setupFirstInteractionListener();
-            });
-        }
-      } else {
-        // Stream track (YouTube)
-        this.setupFirstInteractionListener();
-      }
+    // Autoplay strictly disabled: always start quiet unless already actively playing across an in-session view transition
+    if (this.isPlaying) {
+      this.updateUI(true);
     } else {
+      this.isPlaying = false;
       this.updateUI(false);
     }
 
@@ -1884,7 +1868,7 @@ export class AmbientSoundController {
         if (this.wasPlayingBeforeVisibilityHidden) {
           this.wasPlayingBeforeVisibilityHidden = false;
           const currentPref = localStorage.getItem('ambient_sound');
-          if (currentPref !== 'disabled' && !this.isMediaPlaying) {
+          if (currentPref === 'enabled' && !this.isMediaPlaying) {
             this.play();
           }
         }
@@ -1913,7 +1897,7 @@ export class AmbientSoundController {
 
     // Seasonal holiday change coordination
     window.addEventListener('seasonchange', () => {
-      this.updateUI();
+      this.updateUI(this.isPlaying);
     });
 
     // Universal media cutoff coordination
@@ -1997,26 +1981,7 @@ export class AmbientSoundController {
   }
 
   private setupFirstInteractionListener(): void {
-    const onFirstInteraction = () => {
-      if (this.hasInteracted) return;
-      this.hasInteracted = true;
-      this.play();
-      cleanup();
-    };
-
-    const cleanup = () => {
-      window.removeEventListener('click', onFirstInteraction);
-      window.removeEventListener('pointerdown', onFirstInteraction);
-      window.removeEventListener('keydown', onFirstInteraction);
-      window.removeEventListener('touchstart', onFirstInteraction);
-      window.removeEventListener('scroll', onFirstInteraction);
-    };
-
-    window.addEventListener('click', onFirstInteraction, { once: true, passive: true });
-    window.addEventListener('pointerdown', onFirstInteraction, { once: true, passive: true });
-    window.addEventListener('keydown', onFirstInteraction, { once: true, passive: true });
-    window.addEventListener('touchstart', onFirstInteraction, { once: true, passive: true });
-    window.addEventListener('scroll', onFirstInteraction, { once: true, passive: true });
+    // Autoplay strictly disabled: gestures will never trigger audio
   }
 
   public handleMediaCutoff(active: boolean): void {
@@ -2043,7 +2008,7 @@ export class AmbientSoundController {
         this.microSounds.setEnabled(true);
       }
       const currentPref = localStorage.getItem('ambient_sound');
-      if (currentPref !== 'disabled' && this.wasPlayingBeforeMedia) {
+      if (currentPref === 'enabled' && this.wasPlayingBeforeMedia) {
         this.wasPlayingBeforeMedia = false;
         this.play();
       }
@@ -2281,28 +2246,15 @@ export class AmbientSoundController {
       this.audio = audioEl;
     }
 
-    const isExplicitlyDisabled = localStorage.getItem('ambient_sound') === 'disabled';
-    const track = this.getCurrentTrack();
+    // Ambient audio only remains active if it is currently playing across client-side view transition
+    const isActivelyPlaying =
+      (this.audio && !this.audio.paused && this.audio.currentTime > 0) ||
+      (this.ytPlayer &&
+        typeof this.ytPlayer.getPlayerState === 'function' &&
+        (this.ytPlayer.getPlayerState() === 1 || this.ytPlayer.getPlayerState() === 3)) ||
+      false;
 
-    // Default to playing unless explicitly muted by user
-    if (!isExplicitlyDisabled && !this.isMediaPlaying) {
-      this.isPlaying = true;
-    } else {
-      this.isPlaying = false;
-    }
-
-    if (track.type === 'local' && this.audio && !this.audio.paused) {
-      this.isPlaying = true;
-    } else if (track.type === 'stream' && this.ytPlayer) {
-      try {
-        if (typeof this.ytPlayer.getPlayerState === 'function') {
-          const ytState = this.ytPlayer.getPlayerState();
-          if (ytState === 1 || ytState === 3) {
-            this.isPlaying = true;
-          }
-        }
-      } catch {}
-    }
+    this.isPlaying = isActivelyPlaying && !this.isMediaPlaying;
 
     this.bindUI();
     this.updateUI(this.isPlaying);
