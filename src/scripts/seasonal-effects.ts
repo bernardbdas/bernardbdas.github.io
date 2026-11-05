@@ -28,31 +28,8 @@ export type SeasonalMode = 'christmas' | 'newyear' | 'none';
 export type SeasonalOverride = 'auto' | 'christmas' | 'newyear' | 'off';
 
 export function isHolidaySeason(): boolean {
-  if (typeof window === 'undefined') return false;
-
-  // Check URL param test mode (?season=...)
-  try {
-    const params = new URLSearchParams(window.location.search);
-    const season = params.get('season')?.toLowerCase();
-    if (season === 'christmas' || season === 'xmas' || season === 'newyear' || season === 'ny') {
-      return true;
-    }
-  } catch {}
-
-  // Check stored override
-  try {
-    const override = localStorage.getItem('seasonal_override');
-    if (override === 'christmas' || override === 'newyear') return true;
-  } catch {}
-
-  // Pre-decided holiday dates (Dec 15 - Jan 5)
-  const now = new Date();
-  const m = now.getMonth();
-  const d = now.getDate();
-  const isChristmas = m === 11 && d >= 15 && d <= 26;
-  const isNewYear = (m === 11 && d >= 27) || (m === 0 && d <= 5);
-
-  return isChristmas || isNewYear;
+  // Seasonal visual effects completely disabled
+  return false;
 }
 
 interface SnowFlake {
@@ -153,68 +130,23 @@ export class SeasonalEffectsEngine {
 
   constructor() {
     if (typeof window === 'undefined') return;
-    this.readStoredOverride();
-    this.readQueryOverride();
+    this.isEnabled = false;
+    this.currentMode = 'none';
+    this.currentOverride = 'off';
     this.init();
   }
 
   private readStoredOverride(): void {
-    try {
-      const enabledPref = localStorage.getItem('seasonal_effects_enabled');
-      this.isEnabled = enabledPref !== 'false';
-
-      const stored = localStorage.getItem('seasonal_override');
-      if (stored === 'christmas' || stored === 'newyear' || stored === 'off' || stored === 'auto') {
-        this.currentOverride = stored;
-      }
-    } catch {}
+    this.isEnabled = false;
+    this.currentOverride = 'off';
   }
 
   private readQueryOverride(): void {
-    try {
-      const params = new URLSearchParams(window.location.search);
-      const seasonParam = params.get('season')?.toLowerCase();
-      if (seasonParam === 'christmas' || seasonParam === 'xmas') {
-        this.currentOverride = 'christmas';
-        this.isEnabled = true;
-        localStorage.setItem('seasonal_override', 'christmas');
-        localStorage.setItem('seasonal_effects_enabled', 'true');
-      } else if (seasonParam === 'newyear' || seasonParam === 'ny') {
-        this.currentOverride = 'newyear';
-        this.isEnabled = true;
-        localStorage.setItem('seasonal_override', 'newyear');
-        localStorage.setItem('seasonal_effects_enabled', 'true');
-      } else if (seasonParam === 'off' || seasonParam === 'disable' || seasonParam === 'disabled') {
-        this.currentOverride = 'off';
-        this.isEnabled = false;
-        localStorage.setItem('seasonal_override', 'off');
-        localStorage.setItem('seasonal_effects_enabled', 'false');
-      } else if (seasonParam === 'auto' || seasonParam === 'reset') {
-        this.currentOverride = 'auto';
-        localStorage.setItem('seasonal_override', 'auto');
-      }
-    } catch {}
+    this.isEnabled = false;
+    this.currentOverride = 'off';
   }
 
-  public evaluateSeason(now: Date = new Date()): SeasonalMode {
-    if (!this.isEnabled) return 'none';
-    if (this.currentOverride === 'off') return 'none';
-    if (this.currentOverride === 'christmas') return 'christmas';
-    if (this.currentOverride === 'newyear') return 'newyear';
-
-    const month = now.getMonth(); // 0 = Jan, 11 = Dec
-    const day = now.getDate();
-
-    // Christmas Season: Dec 15 through Dec 26
-    if (month === 11 && day >= 15 && day <= 26) {
-      return 'christmas';
-    }
-
-    // New Year Season: Dec 27 through Jan 5
-    if ((month === 11 && day >= 27) || (month === 0 && day <= 5)) {
-      return 'newyear';
-    }
-
+  public evaluateSeason(_now: Date = new Date()): SeasonalMode {
     return 'none';
   }
 
@@ -225,43 +157,39 @@ export class SeasonalEffectsEngine {
   }
 
   public init(): void {
+    this.isEnabled = false;
+    this.currentMode = 'none';
+    this.currentOverride = 'off';
     this.canvas = document.getElementById('seasonal-canvas') as HTMLCanvasElement | null;
-    if (!this.canvas) return;
-
-    this.initThree();
-    this.bindDOM();
-
-    window.addEventListener('resize', () => this.handleResize(), { passive: true });
-    window.addEventListener('mousemove', (e) => this.handleMouseMove(e), { passive: true });
-    document.addEventListener('visibilitychange', () => this.handleVisibilityChange());
-    window.addEventListener('themechange', () => this.handleThemeChange());
-    window.addEventListener('click', (e) => this.handleCanvasClick(e));
-    window.addEventListener('storage', (e) => {
-      if (e.key === 'seasonal_effects_enabled') {
-        this.isEnabled = e.newValue !== 'false';
-        this.updateToggleUI();
-        this.updateState();
-      }
-    });
-
-    // Periodic schedule verification (every 10 minutes)
-    if (this.checkInterval) clearInterval(this.checkInterval);
-    this.checkInterval = window.setInterval(() => {
-      this.updateState();
-    }, 600000);
-
-    this.updateState();
+    if (this.canvas) {
+      this.canvas.style.display = 'none';
+      this.canvas.classList.remove('is-active');
+    }
+    const root = document.documentElement;
+    root.classList.remove('season-christmas', 'season-newyear');
+    root.removeAttribute('data-season');
+    const toggle = document.getElementById('seasonalFxToggle');
+    if (toggle) {
+      toggle.style.display = 'none';
+    }
   }
 
   public onPageLoad(): void {
+    this.isEnabled = false;
+    this.currentMode = 'none';
+    this.currentOverride = 'off';
     this.canvas = document.getElementById('seasonal-canvas') as HTMLCanvasElement | null;
-    if (!this.renderer && this.canvas) {
-      this.initThree();
-    } else if (this.renderer && this.canvas) {
-      this.handleResize();
+    if (this.canvas) {
+      this.canvas.style.display = 'none';
+      this.canvas.classList.remove('is-active');
     }
-    this.bindDOM();
-    this.updateState();
+    const root = document.documentElement;
+    root.classList.remove('season-christmas', 'season-newyear');
+    root.removeAttribute('data-season');
+    const toggle = document.getElementById('seasonalFxToggle');
+    if (toggle) {
+      toggle.style.display = 'none';
+    }
   }
 
   private initThree(): void {

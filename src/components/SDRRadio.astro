@@ -14,7 +14,6 @@ import {
 
 const genres = [
   'ALL',
-  'Holiday & Seasonal',
   'Flow & Nature Sounds',
   'Lo-Fi & Study',
   'Classic Rock',
@@ -23,6 +22,7 @@ const genres = [
   'Jazz & Bossa Nova',
   'Classical & Piano',
   '90s Hip Hop',
+  'Holiday & Seasonal',
 ];
 
 // Initial default station
@@ -295,32 +295,24 @@ const defaultStation: FMStation = RADIO_STATIONS[0];
     </div>
 
     <div class="sdr-genre-pills" role="tablist" aria-label="Filter stations by genre">
-      {genres.map((genre) => {
-        const isHoliday = genre === 'Holiday & Seasonal';
-        return (
-          <button
-            type="button"
-            class:list={[
-              'sdr-genre-pill',
-              { active: genre === 'ALL', 'sdr-holiday-pill': isHoliday },
-            ]}
-            data-genre={genre}
-            data-holiday-filter={isHoliday ? 'true' : undefined}
-            role="tab"
-            aria-selected={genre === 'ALL' ? 'true' : 'false'}
-          >
-            {isHoliday && <span class="holiday-pill-dot" aria-hidden="true" />}
-            <span>{isHoliday ? 'HOLIDAY SPECIALS' : genre}</span>
-            <span class="genre-count">
-              (
-              {genre === 'ALL'
-                ? RADIO_STATIONS.length
-                : RADIO_STATIONS.filter((s) => s.genre === genre).length}
-              )
-            </span>
-          </button>
-        );
-      })}
+      {genres.map((genre) => (
+        <button
+          type="button"
+          class:list={['sdr-genre-pill', { active: genre === 'ALL' }]}
+          data-genre={genre}
+          role="tab"
+          aria-selected={genre === 'ALL' ? 'true' : 'false'}
+        >
+          <span>{genre.toUpperCase()}</span>
+          <span class="genre-count">
+            (
+            {genre === 'ALL'
+              ? RADIO_STATIONS.length
+              : RADIO_STATIONS.filter((s) => s.genre === genre).length}
+            )
+          </span>
+        </button>
+      ))}
     </div>
 
     <!-- Holiday Sub-Genre Matrix Strip -->
@@ -477,7 +469,6 @@ const defaultStation: FMStation = RADIO_STATIONS[0];
       this.initYouTube();
       this.attachEvents();
       this.updateDisplay();
-      this.updateHolidayFilterVisibility();
     }
 
     private initDom() {
@@ -759,33 +750,6 @@ const defaultStation: FMStation = RADIO_STATIONS[0];
           }
         }
       });
-
-      // Seasonal holiday mode updates
-      window.addEventListener('seasonchange', () => {
-        this.updateHolidayFilterVisibility();
-      });
-    }
-
-    private updateHolidayFilterVisibility() {
-      const holidayPill = document.querySelector<HTMLButtonElement>('.sdr-holiday-pill');
-      if (!holidayPill) return;
-
-      const override = localStorage.getItem('seasonal_override');
-      let isTest = false;
-      try {
-        const params = new URLSearchParams(window.location.search);
-        const s = params.get('season')?.toLowerCase();
-        if (s === 'christmas' || s === 'xmas' || s === 'newyear' || s === 'ny') isTest = true;
-      } catch {}
-
-      const now = new Date();
-      const m = now.getMonth();
-      const d = now.getDate();
-      const isDateHoliday = (m === 11 && d >= 15) || (m === 0 && d <= 5);
-      const isHoliday =
-        isTest || override === 'christmas' || override === 'newyear' || isDateHoliday;
-
-      holidayPill.classList.toggle('is-visible', isHoliday);
     }
 
     private togglePower() {

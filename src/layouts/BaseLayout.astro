@@ -121,12 +121,13 @@ const { title, description } = Astro.props;
     >
       <div id="ambient-yt-player"></div>
     </div>
-    <!-- Seasonal Holiday Visual Effects Canvas (Christmas Snowfall & New Year Celebration Sparks) -->
+    <!-- Seasonal Holiday Visual Effects Canvas (Disabled) -->
     <canvas
       id="seasonal-canvas"
       transition:persist="seasonal-canvas"
       class="seasonal-canvas"
       aria-hidden="true"
+      style="display: none !important;"
     ></canvas>
     <!-- Atmospheric Weather HUD (Customizable, Draggable, Pinnable) -->
     <WeatherDashboard />

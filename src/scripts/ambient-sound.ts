@@ -1661,28 +1661,8 @@ export class AmbientSoundController {
   }
 
   private isHolidaySeasonActive(): boolean {
-    if (typeof window === 'undefined') return false;
-
-    // Check query params (?season=...)
-    try {
-      const params = new URLSearchParams(window.location.search);
-      const s = params.get('season')?.toLowerCase();
-      if (s === 'christmas' || s === 'xmas' || s === 'newyear' || s === 'ny') return true;
-    } catch {}
-
-    // Check stored test override
-    try {
-      const override = localStorage.getItem('seasonal_override');
-      if (override === 'christmas' || override === 'newyear') return true;
-    } catch {}
-
-    // Pre-decided holiday calendar dates:
-    // Christmas Season: Dec 15 through Dec 26
-    // New Year Season: Dec 27 through Jan 5
-    const now = new Date();
-    const m = now.getMonth();
-    const d = now.getDate();
-    return (m === 11 && d >= 15) || (m === 0 && d <= 5);
+    // Seasonal effects disabled: atmospheric soundscapes follow user theme selection
+    return false;
   }
 
   private getHolidaySeasonType(): 'christmas' | 'newyear' | 'holiday' {
