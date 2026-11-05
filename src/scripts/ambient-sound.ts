@@ -2755,7 +2755,7 @@ export class AmbientSoundController {
     });
 
     this.labelElements.forEach((lbl) => {
-      lbl.textContent = isPlaying ? `AMB // ${track.code}` : 'AMB // OFF';
+      lbl.textContent = isPlaying ? `// ${track.code}` : '// OFF';
     });
 
     this.updateFxUI();

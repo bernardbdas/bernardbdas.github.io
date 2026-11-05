@@ -114,31 +114,31 @@ import { NETWORK_PEOPLE, NETWORK_CATEGORIES, type NetworkPerson } from '../data/
             <div class="network-card-identity">
               <h3 class="network-person-name">{person.name}</h3>
               <p class="network-person-role">{person.role}</p>
-            </div>
-            <div class="network-card-badges">
-              {person.tier && (
-                <span
-                  class:list={[
-                    'network-tier-badge',
-                    `tier-${person.tier.toLowerCase().replace(/[^a-z0-9]/g, '-')}`,
-                  ]}
-                >
-                  {person.tier}
-                </span>
-              )}
-              {person.experience && (
-                <span
-                  class="network-exp-badge"
-                  title={
-                    person.company
-                      ? `Total Work Experience: ${person.experience} (Currently at ${person.company})`
-                      : `Total Work Experience: ${person.experience}`
-                  }
-                >
-                  {person.experience}
-                </span>
-              )}
-              <span class="network-since-badge">KNOWN SINCE {person.knownSince}</span>
+              <div class="network-card-badges">
+                {person.tier && (
+                  <span
+                    class:list={[
+                      'network-tier-badge',
+                      `tier-${person.tier.toLowerCase().replace(/[^a-z0-9]/g, '-')}`,
+                    ]}
+                  >
+                    {person.tier}
+                  </span>
+                )}
+                {person.experience && (
+                  <span
+                    class="network-exp-badge"
+                    title={
+                      person.company
+                        ? `Total Work Experience: ${person.experience} (Currently at ${person.company})`
+                        : `Total Work Experience: ${person.experience}`
+                    }
+                  >
+                    {person.experience}
+                  </span>
+                )}
+                <span class="network-since-badge">KNOWN SINCE {person.knownSince}</span>
+              </div>
             </div>
           </div>
 

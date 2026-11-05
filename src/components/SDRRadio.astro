@@ -7,21 +7,25 @@
 import Loader from './Loader.astro';
 import {
   RADIO_STATIONS,
+  ROCK_SUBGENRES,
+  HOUSE_SUBGENRES,
   HOLIDAY_SUBGENRES,
   type FMStation,
+  type RockSubgenre,
+  type HouseSubgenre,
   type HolidaySubgenre,
 } from '../data/radio-stations';
 
 const genres = [
   'ALL',
-  'Flow & Nature Sounds',
-  'Lo-Fi & Study',
-  'Classic Rock',
-  'Synth & Cyberpunk',
-  'Deep House & Dance',
-  'Jazz & Bossa Nova',
   'Classical & Piano',
+  'Jazz & Bossa Nova',
+  'Classic Rock',
   '90s Hip Hop',
+  'Deep House & Dance',
+  'Synth & Cyberpunk',
+  'Lo-Fi & Study',
+  'Flow & Nature Sounds',
   'Holiday & Seasonal',
 ];
 
@@ -315,17 +319,85 @@ const defaultStation: FMStation = RADIO_STATIONS[0];
       ))}
     </div>
 
-    <!-- Holiday Sub-Genre Matrix Strip -->
-    <div class="sdr-subgenre-wrapper" id="sdr-subgenre-wrapper" aria-label="Holiday Subgenres">
+    <!-- Sub-Genre Matrix Strip (Multi-genre: Rock, Deep House & Dance, Holiday & Seasonal) -->
+    <div class="sdr-subgenre-wrapper" id="sdr-subgenre-wrapper" aria-label="Sub-Genre Selection">
       <div class="sdr-subgenre-label">
         <span class="subgenre-bracket">[</span>
         <span class="subgenre-title">SUB-GENRE // SELECTION</span>
         <span class="subgenre-bracket">]</span>
       </div>
+
+      <!-- Rock Sub-genres -->
       <div
         class="sdr-subgenre-pills"
+        id="sdr-subgenre-pills-rock"
+        data-parent-genre="Classic Rock"
+        role="tablist"
+        aria-label="Filter rock stations by sub-genre"
+        style="display: none;"
+      >
+        {ROCK_SUBGENRES.map((subgenre) => {
+          const isAll = subgenre === 'ALL ROCK';
+          const count = isAll
+            ? RADIO_STATIONS.filter((s) => s.genre === 'Classic Rock').length
+            : RADIO_STATIONS.filter((s) => s.genre === 'Classic Rock' && s.subgenre === subgenre)
+                .length;
+          return (
+            <button
+              type="button"
+              class:list={['sdr-subgenre-pill', { active: isAll }]}
+              data-genre="Classic Rock"
+              data-subgenre={subgenre}
+              role="tab"
+              aria-selected={isAll ? 'true' : 'false'}
+            >
+              <span class="subgenre-name">{subgenre.toUpperCase()}</span>
+              <span class="subgenre-count">({count})</span>
+            </button>
+          );
+        })}
+      </div>
+
+      <!-- Deep House & Dance Sub-genres -->
+      <div
+        class="sdr-subgenre-pills"
+        id="sdr-subgenre-pills-house"
+        data-parent-genre="Deep House & Dance"
+        role="tablist"
+        aria-label="Filter house and dance stations by sub-genre"
+        style="display: none;"
+      >
+        {HOUSE_SUBGENRES.map((subgenre) => {
+          const isAll = subgenre === 'ALL HOUSE & DANCE';
+          const count = isAll
+            ? RADIO_STATIONS.filter((s) => s.genre === 'Deep House & Dance').length
+            : RADIO_STATIONS.filter(
+                (s) => s.genre === 'Deep House & Dance' && s.subgenre === subgenre,
+              ).length;
+          return (
+            <button
+              type="button"
+              class:list={['sdr-subgenre-pill', { active: isAll }]}
+              data-genre="Deep House & Dance"
+              data-subgenre={subgenre}
+              role="tab"
+              aria-selected={isAll ? 'true' : 'false'}
+            >
+              <span class="subgenre-name">{subgenre.toUpperCase()}</span>
+              <span class="subgenre-count">({count})</span>
+            </button>
+          );
+        })}
+      </div>
+
+      <!-- Holiday Sub-genres -->
+      <div
+        class="sdr-subgenre-pills"
+        id="sdr-subgenre-pills-holiday"
+        data-parent-genre="Holiday & Seasonal"
         role="tablist"
         aria-label="Filter holiday stations by sub-genre"
+        style="display: none;"
       >
         {HOLIDAY_SUBGENRES.map((subgenre) => {
           const isAll = subgenre === 'ALL HOLIDAY';
@@ -338,6 +410,7 @@ const defaultStation: FMStation = RADIO_STATIONS[0];
             <button
               type="button"
               class:list={['sdr-subgenre-pill', { active: isAll }]}
+              data-genre="Holiday & Seasonal"
               data-subgenre={subgenre}
               role="tab"
               aria-selected={isAll ? 'true' : 'false'}
@@ -984,7 +1057,7 @@ const defaultStation: FMStation = RADIO_STATIONS[0];
 
     private filterGenre(genre: string) {
       this.currentGenre = genre;
-      this.currentSubgenre = 'ALL HOLIDAY';
+      this.currentSubgenre = '';
 
       // Update pills active state
       document.querySelectorAll('.sdr-genre-pill').forEach((pill) => {
@@ -998,27 +1071,47 @@ const defaultStation: FMStation = RADIO_STATIONS[0];
         }
       });
 
-      // Toggle sub-genre matrix bar visibility when Holiday & Seasonal is selected
+      // Toggle sub-genre matrix bar visibility when selected genre has curated sub-genres
       const subgenreWrapper = document.getElementById('sdr-subgenre-wrapper');
-      if (subgenreWrapper) {
-        if (genre === 'Holiday & Seasonal') {
-          subgenreWrapper.classList.add('is-visible');
-        } else {
-          subgenreWrapper.classList.remove('is-visible');
-        }
+      const rockPills = document.getElementById('sdr-subgenre-pills-rock');
+      const housePills = document.getElementById('sdr-subgenre-pills-house');
+      const holidayPills = document.getElementById('sdr-subgenre-pills-holiday');
+
+      if (rockPills) rockPills.style.display = 'none';
+      if (housePills) housePills.style.display = 'none';
+      if (holidayPills) holidayPills.style.display = 'none';
+
+      let activePillGroup: HTMLElement | null = null;
+      let allSubgenreName = '';
+
+      if (genre === 'Classic Rock') {
+        activePillGroup = rockPills;
+        allSubgenreName = 'ALL ROCK';
+      } else if (genre === 'Deep House & Dance') {
+        activePillGroup = housePills;
+        allSubgenreName = 'ALL HOUSE & DANCE';
+      } else if (genre === 'Holiday & Seasonal') {
+        activePillGroup = holidayPills;
+        allSubgenreName = 'ALL HOLIDAY';
       }
 
-      // Reset sub-genre pills active state
-      document.querySelectorAll('.sdr-subgenre-pill').forEach((pill) => {
-        const pSub = pill.getAttribute('data-subgenre');
-        if (pSub === 'ALL HOLIDAY') {
-          pill.classList.add('active');
-          pill.setAttribute('aria-selected', 'true');
+      if (subgenreWrapper) {
+        if (activePillGroup) {
+          subgenreWrapper.classList.add('is-visible');
+          activePillGroup.style.display = 'flex';
+          this.currentSubgenre = allSubgenreName;
+
+          // Reset sub-genre pills active state in this group
+          activePillGroup.querySelectorAll('.sdr-subgenre-pill').forEach((pill) => {
+            const isAll = pill.getAttribute('data-subgenre') === allSubgenreName;
+            pill.classList.toggle('active', isAll);
+            pill.setAttribute('aria-selected', isAll ? 'true' : 'false');
+          });
         } else {
-          pill.classList.remove('active');
-          pill.setAttribute('aria-selected', 'false');
+          subgenreWrapper.classList.remove('is-visible');
+          this.currentSubgenre = '';
         }
-      });
+      }
 
       // Filter station cards
       const cards = document.querySelectorAll<HTMLElement>('.sdr-station-card');
@@ -1042,28 +1135,24 @@ const defaultStation: FMStation = RADIO_STATIONS[0];
     private filterSubgenre(subgenre: string) {
       this.currentSubgenre = subgenre;
 
-      // Update sub-genre pills active state
-      document.querySelectorAll('.sdr-subgenre-pill').forEach((pill) => {
-        const pSub = pill.getAttribute('data-subgenre');
-        if (pSub === subgenre) {
-          pill.classList.add('active');
-          pill.setAttribute('aria-selected', 'true');
-        } else {
-          pill.classList.remove('active');
-          pill.setAttribute('aria-selected', 'false');
-        }
-      });
+      // Update sub-genre pills active state in current genre's subgenre container
+      const isAllSub = subgenre.startsWith('ALL');
+      document
+        .querySelectorAll(`.sdr-subgenre-pill[data-genre="${this.currentGenre}"]`)
+        .forEach((pill) => {
+          const pSub = pill.getAttribute('data-subgenre');
+          const isActive = pSub === subgenre;
+          pill.classList.toggle('active', isActive);
+          pill.setAttribute('aria-selected', isActive ? 'true' : 'false');
+        });
 
-      // Filter station cards by subgenre within Holiday & Seasonal
+      // Filter station cards by subgenre within currentGenre
       const cards = document.querySelectorAll<HTMLElement>('.sdr-station-card');
       let visibleCount = 0;
       cards.forEach((card) => {
         const cardGenre = card.getAttribute('data-genre');
         const cardSubgenre = card.getAttribute('data-subgenre');
-        if (
-          cardGenre === 'Holiday & Seasonal' &&
-          (subgenre === 'ALL HOLIDAY' || cardSubgenre === subgenre)
-        ) {
+        if (cardGenre === this.currentGenre && (isAllSub || cardSubgenre === subgenre)) {
           card.style.display = 'flex';
           visibleCount++;
         } else {
@@ -1079,9 +1168,9 @@ const defaultStation: FMStation = RADIO_STATIONS[0];
 
     private getFilteredStations(): FMStation[] {
       if (this.currentGenre === 'ALL') return this.stations;
-      if (this.currentGenre === 'Holiday & Seasonal' && this.currentSubgenre !== 'ALL HOLIDAY') {
+      if (this.currentSubgenre && !this.currentSubgenre.startsWith('ALL')) {
         return this.stations.filter(
-          (s) => s.genre === 'Holiday & Seasonal' && s.subgenre === this.currentSubgenre,
+          (s) => s.genre === this.currentGenre && s.subgenre === this.currentSubgenre,
         );
       }
       return this.stations.filter((s) => s.genre === this.currentGenre);

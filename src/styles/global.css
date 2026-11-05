@@ -851,6 +851,7 @@ h6 {
   box-shadow: 0 0 6px var(--accent);
 }
 
+.amb-badge,
 .fx-badge {
   font-family: var(--font-mono);
   font-size: 9.5px;
@@ -989,13 +990,17 @@ h6 {
 }
 
 .sound-toggle:not(.is-playing):not(.is-active) .sound-label,
+.sound-toggle:not(.is-playing):not(.is-active) .amb-badge,
 .sound-toggle:not(.is-playing):not(.is-active) .fx-badge,
 .sound-toggle:not(.is-playing):not(.is-active) .persist-badge,
 .mobile-sound-toggle:not(.is-playing):not(.is-active) .sound-label,
+.mobile-sound-toggle:not(.is-playing):not(.is-active) .amb-badge,
 .mobile-sound-toggle:not(.is-playing):not(.is-active) .fx-badge,
 .mobile-sound-toggle:not(.is-playing):not(.is-active) .persist-badge,
 #soundToggle:not(.is-playing) #soundLabel,
+#soundToggle:not(.is-playing) .amb-badge,
 #mobileSoundToggle:not(.is-playing) #mobileSoundLabel,
+#mobileSoundToggle:not(.is-playing) .amb-badge,
 #fxToggle:not(.is-active) #fxLabel,
 #fxToggle:not(.is-active) .fx-badge,
 #mobileFxToggle:not(.is-active) #mobileFxLabel,
@@ -3159,11 +3164,11 @@ h6 {
 
 .skill-pill {
   font-family: var(--font-mono);
-  font-size: 9.5px;
-  letter-spacing: 0.03em;
+  font-size: 9px;
+  letter-spacing: 0.02em;
   min-height: 24px;
   height: auto;
-  padding: 3px 9px;
+  padding: 3px 8px;
   background: var(--glass-bg-subtle);
   backdrop-filter: blur(6px);
   -webkit-backdrop-filter: blur(6px);
@@ -3172,14 +3177,14 @@ h6 {
   color: var(--ink);
   display: inline-flex;
   align-items: center;
-  justify-content: center;
-  text-align: center;
+  justify-content: flex-start;
+  text-align: left;
   gap: 5px;
   border-radius: var(--radius);
   box-sizing: border-box;
-  white-space: normal;
-  word-break: normal;
-  overflow-wrap: break-word;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
   max-width: 100%;
   line-height: 1.35;
   transition: all 0.15s ease;
@@ -3441,15 +3446,17 @@ html[data-theme='light'] .network-filter-pill.is-active {
 
 .network-card-top {
   display: flex;
+  flex-direction: column;
   align-items: flex-start;
-  justify-content: space-between;
-  gap: 12px;
-  flex-wrap: wrap;
+  gap: 8px;
 }
 
 .network-card-identity {
-  flex: 1 1 auto;
-  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 5px;
+  width: 100%;
 }
 
 .network-person-name {
@@ -3466,7 +3473,7 @@ html[data-theme='light'] .network-filter-pill.is-active {
   font-size: 11.5px;
   font-weight: 500;
   color: var(--accent);
-  margin: 3px 0 0 0;
+  margin: 0;
   letter-spacing: 0.04em;
 }
 
@@ -3475,6 +3482,7 @@ html[data-theme='light'] .network-filter-pill.is-active {
   align-items: center;
   gap: 6px;
   flex-wrap: wrap;
+  margin-top: 3px;
 }
 
 .network-tier-badge {
@@ -5027,7 +5035,7 @@ html[data-theme='light'] .network-filter-pill.is-active {
   background: rgba(var(--accent-rgb), 0.12);
 }
 
-/* ── Holiday Sub-Genre Selector Matrix Strip ─────────────────── */
+/* ── Sub-Genre Selector Matrix Strip ─────────────────── */
 .sdr-subgenre-wrapper {
   display: none;
   align-items: center;
@@ -5036,7 +5044,7 @@ html[data-theme='light'] .network-filter-pill.is-active {
   padding: 8px 12px;
   margin-top: 10px;
   background: rgba(var(--bg-rgb), 0.7);
-  border: 1px dashed rgba(56, 189, 248, 0.35);
+  border: 1px dashed rgba(var(--accent-rgb), 0.35);
   border-radius: 4px;
 }
 
@@ -5051,7 +5059,7 @@ html[data-theme='light'] .network-filter-pill.is-active {
   font-family: var(--font-mono);
   font-size: 8.5px;
   letter-spacing: 0.12em;
-  color: #38bdf8;
+  color: var(--accent);
   font-weight: 700;
   white-space: nowrap;
 }
@@ -5082,16 +5090,16 @@ html[data-theme='light'] .network-filter-pill.is-active {
 }
 
 .sdr-subgenre-pill:hover {
-  border-color: rgba(56, 189, 248, 0.6);
+  border-color: rgba(var(--accent-rgb), 0.6);
   color: var(--ink);
-  background: rgba(56, 189, 248, 0.08);
+  background: rgba(var(--accent-rgb), 0.08);
 }
 
 .sdr-subgenre-pill.active {
-  border-color: #38bdf8;
-  color: #ffffff;
-  background: rgba(56, 189, 248, 0.22);
-  box-shadow: 0 0 10px rgba(56, 189, 248, 0.35);
+  border-color: var(--accent);
+  color: var(--accent);
+  background: rgba(var(--accent-rgb), 0.18);
+  box-shadow: 0 0 10px rgba(var(--accent-rgb), 0.3);
   font-weight: 600;
 }
 
@@ -5101,18 +5109,18 @@ html[data-theme='light'] .network-filter-pill.is-active {
 }
 
 html[data-theme='light'] .sdr-subgenre-wrapper {
-  border-color: rgba(2, 132, 199, 0.35);
+  border-color: rgba(var(--accent-rgb), 0.35);
 }
 
 html[data-theme='light'] .sdr-subgenre-label {
-  color: #0369a1;
+  color: var(--accent);
 }
 
 html[data-theme='light'] .sdr-subgenre-pill.active {
-  border-color: #0284c7;
-  color: #0369a1;
-  background: rgba(2, 132, 199, 0.14);
-  box-shadow: 0 0 8px rgba(2, 132, 199, 0.2);
+  border-color: var(--accent);
+  color: var(--accent);
+  background: rgba(var(--accent-rgb), 0.14);
+  box-shadow: 0 0 8px rgba(var(--accent-rgb), 0.2);
 }
 
 /* Card Sub-Genre Tag */
@@ -5123,9 +5131,9 @@ html[data-theme='light'] .sdr-subgenre-pill.active {
   letter-spacing: 0.08em;
   padding: 1px 6px;
   border-radius: 2px;
-  background: rgba(56, 189, 248, 0.12);
-  border: 1px solid rgba(56, 189, 248, 0.4);
-  color: #38bdf8;
+  background: rgba(var(--accent-rgb), 0.12);
+  color: var(--accent);
+  border: 1px solid rgba(var(--accent-rgb), 0.3);
   white-space: nowrap;
   max-width: 140px;
   overflow: hidden;
@@ -5134,9 +5142,9 @@ html[data-theme='light'] .sdr-subgenre-pill.active {
 }
 
 html[data-theme='light'] .station-subgenre-tag {
-  background: rgba(2, 132, 199, 0.12);
-  border-color: rgba(2, 132, 199, 0.45);
-  color: #0369a1;
+  background: rgba(var(--accent-rgb), 0.12);
+  border-color: rgba(var(--accent-rgb), 0.45);
+  color: var(--accent);
 }
 
 /* ── Stations Grid Rack ──────────────────────────────────────── */
