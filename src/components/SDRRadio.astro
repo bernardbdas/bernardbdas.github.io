@@ -7,27 +7,45 @@
 import Loader from './Loader.astro';
 import {
   RADIO_STATIONS,
+  CLASSICAL_SUBGENRES,
+  JAZZ_SUBGENRES,
   ROCK_SUBGENRES,
+  HIPHOP_SUBGENRES,
   HOUSE_SUBGENRES,
-  HOLIDAY_SUBGENRES,
+  ELECTRONIC_SUBGENRES,
+  LOFI_SUBGENRES,
+  AMBIENT_SUBGENRES,
+  SEASONAL_SUBGENRES,
+  SDR_PLAYLISTS,
   type FMStation,
-  type RockSubgenre,
-  type HouseSubgenre,
-  type HolidaySubgenre,
+  type SDRPlaylist,
+  type PlaylistTrack,
 } from '../data/radio-stations';
 
 const genres = [
   'ALL',
-  'Classical & Piano',
-  'Jazz & Bossa Nova',
-  'Classic Rock',
-  '90s Hip Hop',
-  'Deep House & Dance',
-  'Synth & Cyberpunk',
-  'Lo-Fi & Study',
-  'Flow & Nature Sounds',
-  'Holiday & Seasonal',
+  'Classical',
+  'Jazz',
+  'Rock',
+  'Hip Hop',
+  'House Music',
+  'Electronic Music',
+  'Lo-Fi',
+  'Ambient',
+  'Seasonal',
 ];
+
+const SUBGENRE_MAP: Record<string, readonly string[]> = {
+  Classical: CLASSICAL_SUBGENRES,
+  Jazz: JAZZ_SUBGENRES,
+  Rock: ROCK_SUBGENRES,
+  'Hip Hop': HIPHOP_SUBGENRES,
+  'House Music': HOUSE_SUBGENRES,
+  'Electronic Music': ELECTRONIC_SUBGENRES,
+  'Lo-Fi': LOFI_SUBGENRES,
+  Ambient: AMBIENT_SUBGENRES,
+  Seasonal: SEASONAL_SUBGENRES,
+};
 
 // Initial default station
 const defaultStation: FMStation = RADIO_STATIONS[0];
@@ -69,7 +87,7 @@ const defaultStation: FMStation = RADIO_STATIONS[0];
        SDR TUNER & WATERFALL INSTRUMENT DECK
        ══════════════════════════════════════════════════════════ -->
   <div class="sdr-deck-wrap" id="sdr-deck-wrap">
-    <!-- Ambient Stage & Lightning Rig (Active exclusively for Deep House & Dance) -->
+    <!-- Ambient Stage & Lightning Rig (Active for House & Electronic Music) -->
     <div class="sdr-ambient-rig" id="sdr-ambient-rig" aria-hidden="true">
       <div class="ambient-glow-aura"></div>
       <div class="ambient-strobe-halo"></div>
@@ -93,8 +111,12 @@ const defaultStation: FMStation = RADIO_STATIONS[0];
               {defaultStation.freqNum.toFixed(1)}
             </span>
             <div class="vfd-freq-units">
-              <span class="vfd-unit-mhz">MHz</span>
-              <span class="vfd-modulation">WFM / STEREO</span>
+              <span class="vfd-unit-mhz" id="vfd-freq-unit">
+                MHz
+              </span>
+              <span class="vfd-modulation" id="vfd-modulation">
+                WFM / STEREO
+              </span>
             </div>
           </div>
 
@@ -106,6 +128,15 @@ const defaultStation: FMStation = RADIO_STATIONS[0];
               <span class="vfd-genre-badge" id="vfd-genre-badge">
                 {defaultStation.genre}
               </span>
+              <span
+                class:list={[
+                  'vfd-stream-type-badge',
+                  defaultStation.streamType === 'live' ? 'is-live' : 'is-recorded',
+                ]}
+                id="vfd-stream-type-badge"
+              >
+                {defaultStation.streamType === 'live' ? '● 24/7 LIVE' : 'PRE-RECORDED ARCHIVE'}
+              </span>
               <span class="vfd-club-sync-badge" id="vfd-club-sync" style="display: none;">
                 <span class="club-pulse-led" aria-hidden="true"></span>
                 <span>SYNC: 126 BPM // RAVE LIGHTING</span>
@@ -114,6 +145,45 @@ const defaultStation: FMStation = RADIO_STATIONS[0];
             <p class="vfd-station-desc" id="vfd-station-desc">
               {defaultStation.desc}
             </p>
+
+            <!-- Timeline Scrubber & 24/7 Real-Time Live Status -->
+            <div class="sdr-timeline-panel" id="sdr-timeline-panel">
+              <div
+                class="sdr-timeline-track-wrap"
+                id="sdr-timeline-track-wrap"
+                style={defaultStation.streamType === 'live' ? 'display: none;' : 'display: flex;'}
+              >
+                <span class="sdr-time-code" id="sdr-time-current">
+                  00:00
+                </span>
+                <div
+                  class="sdr-timeline-track"
+                  id="sdr-timeline-track"
+                  role="slider"
+                  aria-label="Playback track scrubber"
+                  aria-valuemin="0"
+                  aria-valuemax="100"
+                  aria-valuenow="0"
+                  tabindex="0"
+                >
+                  <div class="sdr-timeline-fill" id="sdr-timeline-fill" style="width: 0%;"></div>
+                  <div class="sdr-timeline-thumb" id="sdr-timeline-thumb" style="left: 0%;"></div>
+                </div>
+                <span class="sdr-time-code" id="sdr-time-total">
+                  --:--
+                </span>
+              </div>
+              <div
+                class="sdr-timeline-live-notice"
+                id="sdr-timeline-live-notice"
+                style={
+                  defaultStation.streamType === 'live' ? 'display: inline-flex;' : 'display: none;'
+                }
+              >
+                <span class="stream-pulse-dot" aria-hidden="true"></span>
+                <span>24/7 REAL-TIME CONTINUOUS BROADCAST // DIRECT SATELLITE &amp; RF STREAM</span>
+              </div>
+            </div>
           </div>
         </div>
 
@@ -151,29 +221,90 @@ const defaultStation: FMStation = RADIO_STATIONS[0];
         </div>
       </div>
 
-      <!-- SDR Interactive Waterfall & FFT Spectrum Canvas -->
-      <div class="sdr-waterfall-container">
-        <div class="waterfall-scale-header" aria-hidden="true">
-          <span>88.0 MHz</span>
-          <span>92.0</span>
-          <span>96.0</span>
-          <span>100.0</span>
-          <span>104.0</span>
-          <span>108.0 MHz</span>
+      <!-- SDR Multi-Mode Interactive Visualizer Deck -->
+      <div class="sdr-visualizer-deck">
+        <div class="sdr-viz-toolbar">
+          <div class="sdr-viz-modes-tabs" role="tablist" aria-label="Visualizer Display Modes">
+            <button
+              type="button"
+              class="sdr-viz-tab is-active"
+              data-mode="waterfall"
+              role="tab"
+              aria-selected="true"
+              title="Wideband RF FFT Spectrum & Waterfall Spectrogram"
+            >
+              <span class="viz-tab-dot" aria-hidden="true"></span>
+              <span>WATERFALL</span>
+            </button>
+            <button
+              type="button"
+              class="sdr-viz-tab"
+              data-mode="oscilloscope"
+              role="tab"
+              aria-selected="false"
+              title="Analog CRT Phosphor Oscilloscope Waveform"
+            >
+              <span class="viz-tab-dot" aria-hidden="true"></span>
+              <span>OSCILLOSCOPE</span>
+            </button>
+            <button
+              type="button"
+              class="sdr-viz-tab"
+              data-mode="particles"
+              role="tab"
+              aria-selected="false"
+              title="Audio-Reactive Frequency Particle Constellation"
+            >
+              <span class="viz-tab-dot" aria-hidden="true"></span>
+              <span>PARTICLES</span>
+            </button>
+            <button
+              type="button"
+              class="sdr-viz-tab"
+              data-mode="bars"
+              role="tab"
+              aria-selected="false"
+              title="32-Band VFD Graphic Equalizer & Peak Meter"
+            >
+              <span class="viz-tab-dot" aria-hidden="true"></span>
+              <span>SPECTRUM BARS</span>
+            </button>
+          </div>
+
+          <div class="sdr-viz-telemetry">
+            <span class="viz-tel-tag" id="viz-active-mode-tag">
+              DSP: WATERFALL FFT
+            </span>
+            <span class="viz-tel-sep">//</span>
+            <span class="viz-tel-tag">60 FPS REALTIME</span>
+          </div>
         </div>
-        <canvas
-          id="sdr-waterfall-canvas"
-          class="sdr-waterfall-canvas"
-          title="Interactive SDR Spectrum (Click anywhere to tune frequency)"
-          tabindex="0"
-          role="slider"
-          aria-label="SDR Waterfall Spectrum Frequency Tuner"
-          aria-valuemin="88.0"
-          aria-valuemax="108.0"
-          aria-valuenow={defaultStation.freqNum}
-        ></canvas>
-        <div class="waterfall-overlay-hint">
-          <span>[SPECTRUM FFT &amp; WATERFALL ANALYZER — CLICK OR DRAG TO TUNE]</span>
+
+        <div class="sdr-waterfall-container">
+          <div class="waterfall-scale-header" id="waterfall-scale-header" aria-hidden="true">
+            <span>88.0 MHz</span>
+            <span>92.0</span>
+            <span>96.0</span>
+            <span>100.0</span>
+            <span>104.0</span>
+            <span>108.0 MHz</span>
+          </div>
+          <canvas
+            id="sdr-waterfall-canvas"
+            class="sdr-waterfall-canvas"
+            title="Interactive SDR Visualizer (Click or drag anywhere to tune frequency)"
+            tabindex="0"
+            role="slider"
+            aria-label="SDR Waterfall Spectrum Frequency Tuner"
+            aria-valuemin="88.0"
+            aria-valuemax="108.0"
+            aria-valuenow={defaultStation.freqNum}
+          ></canvas>
+          <div class="waterfall-overlay-hint" id="waterfall-overlay-hint">
+            <span id="viz-hint-text">
+              [SPECTRUM FFT &amp; WATERFALL ANALYZER — CLICK OR DRAG TO TUNE]
+            </span>
+          </div>
         </div>
       </div>
 
@@ -232,6 +363,63 @@ const defaultStation: FMStation = RADIO_STATIONS[0];
           >
             <span>NEXT ▶▶</span>
           </button>
+
+          <!-- Dedicated Track & Seek Controls (Active for Pre-Recorded Tracks) -->
+          <div class="sdr-track-controls" id="sdr-track-controls">
+            <span class="sdr-controls-divider" aria-hidden="true">
+              |
+            </span>
+
+            <button
+              type="button"
+              class:list={[
+                'sdr-btn sdr-media-btn',
+                { 'is-disabled': defaultStation.streamType === 'live' },
+              ]}
+              id="sdr-rewind-btn"
+              aria-label="Rewind 15 seconds"
+              title="Rewind 15 seconds (Pre-Recorded Tracks)"
+              aria-disabled={defaultStation.streamType === 'live' ? 'true' : 'false'}
+            >
+              <span>↺ -15S</span>
+            </button>
+
+            <button
+              type="button"
+              class:list={[
+                'sdr-btn sdr-media-btn',
+                { 'is-disabled': defaultStation.streamType === 'live' },
+              ]}
+              id="sdr-forward-btn"
+              aria-label="Forward 15 seconds"
+              title="Forward 15 seconds (Pre-Recorded Tracks)"
+              aria-disabled={defaultStation.streamType === 'live' ? 'true' : 'false'}
+            >
+              <span>↻ +15S</span>
+            </button>
+
+            <button
+              type="button"
+              class="sdr-btn sdr-media-btn sdr-playlist-ctrl-btn"
+              id="sdr-track-prev-btn"
+              aria-label="Previous Track in Playlist"
+              title="Previous Track in Playlist"
+              style="display: none;"
+            >
+              <span>⏮ PREV TRK</span>
+            </button>
+
+            <button
+              type="button"
+              class="sdr-btn sdr-media-btn sdr-playlist-ctrl-btn"
+              id="sdr-track-next-btn"
+              aria-label="Next Track in Playlist"
+              title="Next Track in Playlist"
+              style="display: none;"
+            >
+              <span>NEXT TRK ⏭</span>
+            </button>
+          </div>
         </div>
 
         <div class="sdr-volume-controls">
@@ -319,7 +507,7 @@ const defaultStation: FMStation = RADIO_STATIONS[0];
       ))}
     </div>
 
-    <!-- Sub-Genre Matrix Strip (Multi-genre: Rock, Deep House & Dance, Holiday & Seasonal) -->
+    <!-- Sub-Genre Matrix Strip (Curated sub-genres across all primitive genres) -->
     <div class="sdr-subgenre-wrapper" id="sdr-subgenre-wrapper" aria-label="Sub-Genre Selection">
       <div class="sdr-subgenre-label">
         <span class="subgenre-bracket">[</span>
@@ -327,99 +515,102 @@ const defaultStation: FMStation = RADIO_STATIONS[0];
         <span class="subgenre-bracket">]</span>
       </div>
 
-      <!-- Rock Sub-genres -->
-      <div
-        class="sdr-subgenre-pills"
-        id="sdr-subgenre-pills-rock"
-        data-parent-genre="Classic Rock"
-        role="tablist"
-        aria-label="Filter rock stations by sub-genre"
-        style="display: none;"
-      >
-        {ROCK_SUBGENRES.map((subgenre) => {
-          const isAll = subgenre === 'ALL ROCK';
-          const count = isAll
-            ? RADIO_STATIONS.filter((s) => s.genre === 'Classic Rock').length
-            : RADIO_STATIONS.filter((s) => s.genre === 'Classic Rock' && s.subgenre === subgenre)
-                .length;
-          return (
-            <button
-              type="button"
-              class:list={['sdr-subgenre-pill', { active: isAll }]}
-              data-genre="Classic Rock"
-              data-subgenre={subgenre}
-              role="tab"
-              aria-selected={isAll ? 'true' : 'false'}
-            >
-              <span class="subgenre-name">{subgenre.toUpperCase()}</span>
-              <span class="subgenre-count">({count})</span>
-            </button>
-          );
-        })}
-      </div>
+      {Object.entries(SUBGENRE_MAP).map(([pGenre, sublist]) => (
+        <div
+          class="sdr-subgenre-pills"
+          id={`sdr-subgenre-pills-${pGenre.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`}
+          data-parent-genre={pGenre}
+          role="tablist"
+          aria-label={`Filter ${pGenre} stations by sub-genre`}
+          style="display: none;"
+        >
+          {sublist.map((subgenre) => {
+            const isAll = subgenre.startsWith('ALL');
+            const count = isAll
+              ? RADIO_STATIONS.filter((s) => s.genre === pGenre).length
+              : RADIO_STATIONS.filter((s) => s.genre === pGenre && s.subgenre === subgenre).length;
+            return (
+              <button
+                type="button"
+                class:list={['sdr-subgenre-pill', { active: isAll }]}
+                data-genre={pGenre}
+                data-subgenre={subgenre}
+                role="tab"
+                aria-selected={isAll ? 'true' : 'false'}
+              >
+                <span class="subgenre-name">{subgenre.toUpperCase()}</span>
+                <span class="subgenre-count">({count})</span>
+              </button>
+            );
+          })}
+        </div>
+      ))}
+    </div>
+  </div>
 
-      <!-- Deep House & Dance Sub-genres -->
-      <div
-        class="sdr-subgenre-pills"
-        id="sdr-subgenre-pills-house"
-        data-parent-genre="Deep House & Dance"
-        role="tablist"
-        aria-label="Filter house and dance stations by sub-genre"
-        style="display: none;"
-      >
-        {HOUSE_SUBGENRES.map((subgenre) => {
-          const isAll = subgenre === 'ALL HOUSE & DANCE';
-          const count = isAll
-            ? RADIO_STATIONS.filter((s) => s.genre === 'Deep House & Dance').length
-            : RADIO_STATIONS.filter(
-                (s) => s.genre === 'Deep House & Dance' && s.subgenre === subgenre,
-              ).length;
-          return (
-            <button
-              type="button"
-              class:list={['sdr-subgenre-pill', { active: isAll }]}
-              data-genre="Deep House & Dance"
-              data-subgenre={subgenre}
-              role="tab"
-              aria-selected={isAll ? 'true' : 'false'}
-            >
-              <span class="subgenre-name">{subgenre.toUpperCase()}</span>
-              <span class="subgenre-count">({count})</span>
-            </button>
-          );
-        })}
+  <!-- ══════════════════════════════════════════════════════════
+       CURATED PLAYLIST ARCHIVES (GENRES & SUB-GENRES)
+       ══════════════════════════════════════════════════════════ -->
+  <div class="sdr-playlists-shelf" id="sdr-playlists-shelf">
+    <div class="sdr-section-title-row">
+      <div class="sdr-playlists-title-group">
+        <span class="subgenre-bracket">[</span>
+        <h2 class="sdr-playlists-title">CURATED PLAYLISTS // TRACK ARCHIVES</h2>
+        <span class="subgenre-bracket">]</span>
       </div>
+      <span class="sdr-playlists-count-badge" id="sdr-playlists-count">
+        {SDR_PLAYLISTS.length} PLAYLISTS INDEXED
+      </span>
+    </div>
 
-      <!-- Holiday Sub-genres -->
-      <div
-        class="sdr-subgenre-pills"
-        id="sdr-subgenre-pills-holiday"
-        data-parent-genre="Holiday & Seasonal"
-        role="tablist"
-        aria-label="Filter holiday stations by sub-genre"
-        style="display: none;"
-      >
-        {HOLIDAY_SUBGENRES.map((subgenre) => {
-          const isAll = subgenre === 'ALL HOLIDAY';
-          const count = isAll
-            ? RADIO_STATIONS.filter((s) => s.genre === 'Holiday & Seasonal').length
-            : RADIO_STATIONS.filter(
-                (s) => s.genre === 'Holiday & Seasonal' && s.subgenre === subgenre,
-              ).length;
-          return (
-            <button
-              type="button"
-              class:list={['sdr-subgenre-pill', { active: isAll }]}
-              data-genre="Holiday & Seasonal"
-              data-subgenre={subgenre}
-              role="tab"
-              aria-selected={isAll ? 'true' : 'false'}
-            >
-              <span class="subgenre-name">{subgenre.toUpperCase()}</span>
-              <span class="subgenre-count">({count})</span>
-            </button>
-          );
-        })}
+    <div class="sdr-playlists-grid" id="sdr-playlists-grid">
+      {SDR_PLAYLISTS.map((pl) => (
+        <div
+          class="sdr-playlist-card"
+          id={`playlist-card-${pl.id}`}
+          data-playlist-id={pl.id}
+          data-genre={pl.genre}
+          data-subgenre={pl.subgenre || ''}
+          tabindex="0"
+          role="button"
+          aria-label={`Open playlist: ${pl.name}`}
+        >
+          <div class="playlist-card-top">
+            <span class="playlist-tag">PLAYLIST</span>
+            <span class="playlist-track-badge">{pl.tracks.length} TRACKS</span>
+            {pl.subgenre && <span class="playlist-subgenre-tag">{pl.subgenre}</span>}
+          </div>
+          <h3 class="playlist-title">{pl.name}</h3>
+          <p class="playlist-desc">{pl.desc}</p>
+          <div class="playlist-card-bottom">
+            <span class="playlist-genre-label">{pl.genre}</span>
+            <span class="playlist-open-cta">QUEUE PLAYLIST →</span>
+          </div>
+        </div>
+      ))}
+    </div>
+
+    <!-- Active Playlist Queue Drawer -->
+    <div class="sdr-queue-drawer" id="sdr-queue-drawer" style="display: none;">
+      <div class="queue-drawer-header">
+        <div class="queue-drawer-info">
+          <span class="queue-status-tag">ACTIVE PLAYLIST QUEUE</span>
+          <h4 class="queue-playlist-title" id="queue-playlist-title">
+            ...
+          </h4>
+        </div>
+        <button
+          type="button"
+          class="queue-close-btn"
+          id="queue-close-btn"
+          aria-label="Exit playlist queue"
+          title="Exit Playlist Mode"
+        >
+          <span>✕ EXIT PLAYLIST</span>
+        </button>
+      </div>
+      <div class="queue-tracks-list" id="queue-tracks-list" role="list">
+        <!-- Injected dynamically via SDRController -->
       </div>
     </div>
   </div>
@@ -448,18 +639,38 @@ const defaultStation: FMStation = RADIO_STATIONS[0];
           tabindex="0"
         >
           <div class="station-card-top">
-            <div class="station-freq-badge">
-              <span class="freq-tag">{station.freq}</span>
-            </div>
-            {station.subgenre && (
-              <span class="station-subgenre-tag" title={station.subgenre}>
-                {station.subgenre}
+            <div class="station-top-left">
+              <div class="station-freq-badge">
+                <span class="freq-tag">{station.freq}</span>
+              </div>
+              <span
+                class:list={[
+                  'stream-type-tag',
+                  station.streamType === 'live' ? 'is-live' : 'is-recorded',
+                ]}
+              >
+                {station.streamType === 'live' ? (
+                  <>
+                    <span class="stream-pulse-dot" aria-hidden="true"></span>
+                    <span>24/7 LIVE</span>
+                  </>
+                ) : (
+                  <span>PRE-RECORDED</span>
+                )}
               </span>
-            )}
-            <div class="station-live-eq" aria-hidden="true">
-              <span class="eq-bar"></span>
-              <span class="eq-bar"></span>
-              <span class="eq-bar"></span>
+            </div>
+
+            <div class="station-top-right">
+              {station.subgenre && (
+                <span class="station-subgenre-tag" title={station.subgenre}>
+                  {station.subgenre}
+                </span>
+              )}
+              <div class="station-live-eq" aria-hidden="true">
+                <span class="eq-bar"></span>
+                <span class="eq-bar"></span>
+                <span class="eq-bar"></span>
+              </div>
             </div>
           </div>
 
@@ -501,7 +712,12 @@ const defaultStation: FMStation = RADIO_STATIONS[0];
 
 <!-- Client Script for SDR & YouTube Engine -->
 <script>
-  import { RADIO_STATIONS, type FMStation } from '../data/radio-stations';
+  import {
+    RADIO_STATIONS,
+    SDR_PLAYLISTS,
+    type FMStation,
+    type SDRPlaylist,
+  } from '../data/radio-stations';
 
   declare global {
     interface Window {
@@ -518,23 +734,40 @@ const defaultStation: FMStation = RADIO_STATIONS[0];
     private volume = 80;
     private isMuted = false;
     private currentGenre = 'ALL';
-    private currentSubgenre = 'ALL HOLIDAY';
+    private currentSubgenre = '';
 
     private ytPlayer: any = null;
     private ytApiReady = false;
     private isPiping = false;
+
+    // Timeline Scrubber & Playlist Engine
+    private scrubberTimer: any = null;
+    private activePlaylist: SDRPlaylist | null = null;
+    private activeTrackIndex = 0;
 
     // Club Stage & Ambient Lightning FX
     private isClubLighting = false;
     private lightRigEnabled = true;
     private lightningTimer: any = null;
 
-    // Waterfall canvas state
+    // Visualizer modes and canvas state
+    private vizMode: 'waterfall' | 'oscilloscope' | 'particles' | 'bars' = 'waterfall';
     private canvas: HTMLCanvasElement | null = null;
     private ctx: CanvasRenderingContext2D | null = null;
     private animFrameId: number | null = null;
     private waterfallLines: number[][] = [];
     private maxWaterfallLines = 60;
+    private particles: {
+      x: number;
+      y: number;
+      vx: number;
+      vy: number;
+      baseFreq: number;
+      radius: number;
+      phase: number;
+    }[] = [];
+    private barPeaks: number[] = new Array(32).fill(0);
+    private barPeakDelays: number[] = new Array(32).fill(0);
 
     constructor() {
       this.initDom();
@@ -642,18 +875,19 @@ const defaultStation: FMStation = RADIO_STATIONS[0];
         // Playing
         this.isPlaying = true;
         this.isPoweredOn = true;
-        this.setStatusText('LIVE // BROADCASTING');
+        this.setStatusText(this.activePlaylist ? 'PLAYING PLAYLIST TRACK' : 'LIVE // BROADCASTING');
         mainDot?.classList.add('is-transmitting');
         powerBtn?.classList.add('is-active');
         if (powerLabel) powerLabel.textContent = 'MUTE / PAUSE';
         this.updateActiveCard();
         this.updateClubLightingState();
+        this.startScrubberTimer();
         window.dispatchEvent(new CustomEvent('sdr-radio-play'));
       } else if (state === 3) {
         // Buffering
         this.setStatusText('TUNING // ACQUIRING SIGNAL');
         if (powerLabel) powerLabel.textContent = 'BUFFERING...';
-      } else if (state === 2 || state === 0) {
+      } else if (state === 2) {
         // Paused
         this.saveStationPosition();
         this.isPlaying = false;
@@ -665,7 +899,240 @@ const defaultStation: FMStation = RADIO_STATIONS[0];
         if (!this.isPiping) {
           window.dispatchEvent(new CustomEvent('sdr-radio-stop'));
         }
+      } else if (state === 0) {
+        // Ended
+        if (this.activePlaylist) {
+          this.playNextPlaylistTrack();
+        } else {
+          this.saveStationPosition();
+          this.isPlaying = false;
+          mainDot?.classList.remove('is-transmitting');
+          powerBtn?.classList.remove('is-active');
+          if (powerLabel) powerLabel.textContent = 'RESUME AUDIO';
+          this.setStatusText('TRACK COMPLETE');
+          this.updateClubLightingState();
+          if (!this.isPiping) {
+            window.dispatchEvent(new CustomEvent('sdr-radio-stop'));
+          }
+        }
       }
+    }
+
+    // ── Timeline Scrubber & Duration Formatter ────────────────
+    private startScrubberTimer() {
+      if (this.scrubberTimer) clearInterval(this.scrubberTimer);
+      this.scrubberTimer = setInterval(() => {
+        if (!this.ytPlayer || !this.isPlaying) return;
+        if (!this.activePlaylist && this.currentStation.streamType === 'live') return;
+        try {
+          const cur = this.ytPlayer.getCurrentTime?.() || 0;
+          const dur = this.ytPlayer.getDuration?.() || 0;
+          this.updateScrubberDisplay(cur, dur);
+        } catch {}
+      }, 400);
+    }
+
+    private formatTime(sec: number): string {
+      if (!sec || isNaN(sec) || sec < 0) return '00:00';
+      const totalSec = Math.floor(sec);
+      const m = Math.floor(totalSec / 60);
+      const s = totalSec % 60;
+      const h = Math.floor(m / 60);
+      if (h > 0) {
+        const remM = m % 60;
+        return `${h}:${remM < 10 ? '0' : ''}${remM}:${s < 10 ? '0' : ''}${s}`;
+      }
+      return `${m < 10 ? '0' : ''}${m}:${s < 10 ? '0' : ''}${s}`;
+    }
+
+    private updateScrubberDisplay(cur: number, dur: number) {
+      const curEl = document.getElementById('sdr-time-current');
+      const totalEl = document.getElementById('sdr-time-total');
+      const fillEl = document.getElementById('sdr-timeline-fill');
+      const thumbEl = document.getElementById('sdr-timeline-thumb');
+      const trackEl = document.getElementById('sdr-timeline-track');
+
+      if (curEl) curEl.textContent = this.formatTime(cur);
+      if (totalEl) totalEl.textContent = dur > 0 ? this.formatTime(dur) : '--:--';
+
+      const pct = dur > 0 ? Math.min(100, Math.max(0, (cur / dur) * 100)) : 0;
+      if (fillEl) fillEl.style.width = `${pct}%`;
+      if (thumbEl) thumbEl.style.left = `${pct}%`;
+      if (trackEl) trackEl.setAttribute('aria-valuenow', pct.toFixed(0));
+    }
+
+    private seekDelta(delta: number) {
+      if (!this.ytPlayer || typeof this.ytPlayer.getCurrentTime !== 'function') return;
+      if (!this.activePlaylist && this.currentStation.streamType === 'live') return;
+      try {
+        const cur = this.ytPlayer.getCurrentTime() || 0;
+        const dur = this.ytPlayer.getDuration() || 0;
+        const target = Math.max(0, dur > 0 ? Math.min(dur, cur + delta) : cur + delta);
+        this.ytPlayer.seekTo(target, true);
+        this.updateScrubberDisplay(target, dur);
+      } catch {}
+    }
+
+    // ── Playlist Engine ───────────────────────────────────────
+    private playPlaylist(playlistId: string, trackIndex = 0) {
+      const pl = SDR_PLAYLISTS.find((p) => p.id === playlistId);
+      if (!pl || !pl.tracks.length) return;
+      this.activePlaylist = pl;
+      this.activeTrackIndex = Math.max(0, Math.min(pl.tracks.length - 1, trackIndex));
+      this.renderPlaylistQueue();
+      this.loadCurrentPlaylistTrack();
+    }
+
+    private renderPlaylistQueue() {
+      const drawer = document.getElementById('sdr-queue-drawer');
+      const titleEl = document.getElementById('queue-playlist-title');
+      const listEl = document.getElementById('queue-tracks-list');
+      const prevTrk = document.getElementById('sdr-track-prev-btn');
+      const nextTrk = document.getElementById('sdr-track-next-btn');
+
+      if (drawer) drawer.style.display = 'flex';
+      if (titleEl && this.activePlaylist) titleEl.textContent = this.activePlaylist.name;
+      if (prevTrk) prevTrk.style.display = 'inline-flex';
+      if (nextTrk) nextTrk.style.display = 'inline-flex';
+
+      if (listEl && this.activePlaylist) {
+        listEl.innerHTML = this.activePlaylist.tracks
+          .map(
+            (t, idx) => `
+            <div class="queue-track-item ${idx === this.activeTrackIndex ? 'is-current' : ''}" data-track-idx="${idx}" role="listitem" tabindex="0">
+              <div class="track-item-left">
+                <span class="track-num">${idx + 1 < 10 ? '0' : ''}${idx + 1}</span>
+                <div style="display:flex; flex-direction:column; min-width:0;">
+                  <span class="track-meta-title">${t.title}</span>
+                  <span class="track-meta-artist">${t.artist}</span>
+                </div>
+              </div>
+              <div class="track-item-right">
+                ${t.year ? `<span class="track-year-tag">[${t.year}]</span>` : ''}
+                ${idx === this.activeTrackIndex ? '<span class="track-play-indicator">NOW PLAYING</span>' : '<span class="track-play-indicator" style="opacity:0.5;">PLAY →</span>'}
+              </div>
+            </div>
+          `,
+          )
+          .join('');
+
+        listEl.querySelectorAll<HTMLElement>('.queue-track-item').forEach((item) => {
+          item.addEventListener('click', () => {
+            const idx = parseInt(item.getAttribute('data-track-idx') || '0', 10);
+            this.activeTrackIndex = idx;
+            this.renderPlaylistQueue();
+            this.loadCurrentPlaylistTrack();
+          });
+        });
+      }
+    }
+
+    private loadCurrentPlaylistTrack() {
+      if (!this.activePlaylist) return;
+      const track = this.activePlaylist.tracks[this.activeTrackIndex];
+      if (!track) return;
+
+      if (!this.isPoweredOn) {
+        this.isPoweredOn = true;
+      }
+      this.isPlaying = true;
+
+      // Update VFD for playlist track
+      const plFreq = this.activePlaylist.freqNum || 90.5;
+      const freqVal = document.getElementById('vfd-freq-val');
+      const freqUnit = document.getElementById('vfd-freq-unit');
+      const modulation = document.getElementById('vfd-modulation');
+      const stationTitle = document.getElementById('vfd-station-title');
+      const stationDesc = document.getElementById('vfd-station-desc');
+      const genreBadge = document.getElementById('vfd-genre-badge');
+      const streamBadge = document.getElementById('vfd-stream-type-badge');
+
+      if (freqVal) freqVal.textContent = plFreq.toFixed(1);
+      if (freqUnit) freqUnit.textContent = 'MHz';
+      if (modulation) modulation.textContent = 'ARCHIVE // TAPE';
+      if (stationTitle) stationTitle.textContent = `${track.artist} — ${track.title}`;
+      if (stationDesc)
+        stationDesc.textContent = track.desc
+          ? `${track.year ? `[${track.year}] ` : ''}${track.desc}`
+          : this.activePlaylist.desc;
+      if (genreBadge)
+        genreBadge.textContent = this.activePlaylist.subgenre
+          ? `${this.activePlaylist.genre} // ${this.activePlaylist.subgenre}`
+          : this.activePlaylist.genre;
+      if (streamBadge) {
+        streamBadge.className = 'vfd-stream-type-badge is-recorded';
+        streamBadge.textContent = `PLAYLIST // TRK ${this.activeTrackIndex + 1} OF ${this.activePlaylist.tracks.length}`;
+      }
+
+      this.currentStation = {
+        id: `pl-${this.activePlaylist.id}-${track.id}`,
+        ytId: track.ytId,
+        freq: `${plFreq.toFixed(1)} FM`,
+        freqNum: plFreq,
+        name: `${track.artist} — ${track.title}`,
+        desc: track.desc || '',
+        genre: this.activePlaylist.genre,
+        subgenre: this.activePlaylist.subgenre,
+        streamType: 'recorded',
+        bitrate: '320 kbps WFM',
+        origin: 'Master Tape Archive',
+      };
+
+      const trackWrap = document.getElementById('sdr-timeline-track-wrap');
+      const liveNotice = document.getElementById('sdr-timeline-live-notice');
+      if (trackWrap) trackWrap.style.display = 'flex';
+      if (liveNotice) liveNotice.style.display = 'none';
+
+      const rBtn = document.getElementById('sdr-rewind-btn');
+      const fBtn = document.getElementById('sdr-forward-btn');
+      rBtn?.classList.remove('is-disabled');
+      fBtn?.classList.remove('is-disabled');
+      rBtn?.removeAttribute('aria-disabled');
+      fBtn?.removeAttribute('aria-disabled');
+
+      if (this.ytPlayer && typeof this.ytPlayer.loadVideoById === 'function') {
+        this.setStatusText(`PLAYLIST // [${track.title.toUpperCase()}]`);
+        this.ytPlayer.loadVideoById(track.ytId);
+        this.ytPlayer.playVideo();
+      } else {
+        this.currentStation = {
+          ...this.currentStation,
+          ytId: track.ytId,
+          name: `${track.artist} — ${track.title}`,
+          desc: track.desc || '',
+          streamType: 'recorded',
+        };
+        this.createPlayer();
+      }
+      this.startScrubberTimer();
+    }
+
+    private playNextPlaylistTrack() {
+      if (!this.activePlaylist) return;
+      this.activeTrackIndex = (this.activeTrackIndex + 1) % this.activePlaylist.tracks.length;
+      this.renderPlaylistQueue();
+      this.loadCurrentPlaylistTrack();
+    }
+
+    private playPrevPlaylistTrack() {
+      if (!this.activePlaylist) return;
+      this.activeTrackIndex =
+        this.activeTrackIndex <= 0
+          ? this.activePlaylist.tracks.length - 1
+          : this.activeTrackIndex - 1;
+      this.renderPlaylistQueue();
+      this.loadCurrentPlaylistTrack();
+    }
+
+    private exitPlaylistMode() {
+      this.activePlaylist = null;
+      const drawer = document.getElementById('sdr-queue-drawer');
+      const prevTrk = document.getElementById('sdr-track-prev-btn');
+      const nextTrk = document.getElementById('sdr-track-next-btn');
+      if (drawer) drawer.style.display = 'none';
+      if (prevTrk) prevTrk.style.display = 'none';
+      if (nextTrk) nextTrk.style.display = 'none';
+      this.updateDisplay();
     }
 
     private attachEvents() {
@@ -686,8 +1153,47 @@ const defaultStation: FMStation = RADIO_STATIONS[0];
       // Step tuning ±0.1 MHz
       const stepDownBtn = document.getElementById('sdr-step-down');
       const stepUpBtn = document.getElementById('sdr-step-up');
-      stepDownBtn?.addEventListener('click', () => this.stepTune(-0.1));
-      stepUpBtn?.addEventListener('click', () => this.stepTune(0.1));
+      stepDownBtn?.addEventListener('click', () => {
+        this.exitPlaylistMode();
+        this.stepTune(-0.1);
+      });
+      stepUpBtn?.addEventListener('click', () => {
+        this.exitPlaylistMode();
+        this.stepTune(0.1);
+      });
+
+      // Rewind / Forward controls (-15s / +15s)
+      const rewindBtn = document.getElementById('sdr-rewind-btn');
+      const forwardBtn = document.getElementById('sdr-forward-btn');
+      rewindBtn?.addEventListener('click', () => this.seekDelta(-15));
+      forwardBtn?.addEventListener('click', () => this.seekDelta(15));
+
+      // Playlist track navigation
+      const prevTrackBtn = document.getElementById('sdr-track-prev-btn');
+      const nextTrackBtn = document.getElementById('sdr-track-next-btn');
+      prevTrackBtn?.addEventListener('click', () => this.playPrevPlaylistTrack());
+      nextTrackBtn?.addEventListener('click', () => this.playNextPlaylistTrack());
+
+      // Close playlist queue drawer
+      const closeDrawerBtn = document.getElementById('queue-close-btn');
+      closeDrawerBtn?.addEventListener('click', () => this.exitPlaylistMode());
+
+      // Interactive timeline track scrub
+      const timelineTrack = document.getElementById('sdr-timeline-track');
+      if (timelineTrack) {
+        timelineTrack.addEventListener('click', (e: MouseEvent) => {
+          if (!this.ytPlayer || typeof this.ytPlayer.getDuration !== 'function') return;
+          if (!this.activePlaylist && this.currentStation.streamType === 'live') return;
+          const rect = timelineTrack.getBoundingClientRect();
+          const ratio = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
+          const dur = this.ytPlayer.getDuration() || 0;
+          if (dur > 0) {
+            const target = ratio * dur;
+            this.ytPlayer.seekTo(target, true);
+            this.updateScrubberDisplay(target, dur);
+          }
+        });
+      }
 
       // Volume slider
       const volSlider = document.getElementById('sdr-volume-slider') as HTMLInputElement | null;
@@ -730,6 +1236,17 @@ const defaultStation: FMStation = RADIO_STATIONS[0];
         }
       });
 
+      // Playlist cards click
+      const playlistCards = document.querySelectorAll<HTMLElement>('.sdr-playlist-card');
+      playlistCards.forEach((card) => {
+        card.addEventListener('click', () => {
+          const plId = card.getAttribute('data-playlist-id');
+          if (plId) {
+            this.playPlaylist(plId);
+          }
+        });
+      });
+
       // Genre filter tabs
       const genrePills = document.querySelectorAll<HTMLButtonElement>('.sdr-genre-pill');
       genrePills.forEach((pill) => {
@@ -739,11 +1256,11 @@ const defaultStation: FMStation = RADIO_STATIONS[0];
         });
       });
 
-      // Holiday Sub-Genre filter tabs
+      // Sub-Genre filter tabs
       const subgenrePills = document.querySelectorAll<HTMLButtonElement>('.sdr-subgenre-pill');
       subgenrePills.forEach((pill) => {
         pill.addEventListener('click', () => {
-          const subgenre = pill.getAttribute('data-subgenre') || 'ALL HOLIDAY';
+          const subgenre = pill.getAttribute('data-subgenre') || '';
           this.filterSubgenre(subgenre);
         });
       });
@@ -754,6 +1271,7 @@ const defaultStation: FMStation = RADIO_STATIONS[0];
         card.addEventListener('click', () => {
           const stationId = card.getAttribute('data-station-id');
           if (stationId) {
+            this.exitPlaylistMode();
             this.tuneToStationById(stationId);
           }
         });
@@ -761,7 +1279,10 @@ const defaultStation: FMStation = RADIO_STATIONS[0];
           if (e.key === 'Enter' || e.key === ' ') {
             e.preventDefault();
             const stationId = card.getAttribute('data-station-id');
-            if (stationId) this.tuneToStationById(stationId);
+            if (stationId) {
+              this.exitPlaylistMode();
+              this.tuneToStationById(stationId);
+            }
           }
         });
       });
@@ -773,6 +1294,7 @@ const defaultStation: FMStation = RADIO_STATIONS[0];
           const rect = this.canvas!.getBoundingClientRect();
           const x = Math.max(0, Math.min(e.clientX - rect.left, rect.width));
           const freq = 88.0 + (x / rect.width) * (108.0 - 88.0);
+          this.exitPlaylistMode();
           this.tuneToClosestStation(freq);
         };
 
@@ -795,12 +1317,30 @@ const defaultStation: FMStation = RADIO_STATIONS[0];
               const rect = this.canvas!.getBoundingClientRect();
               const x = Math.max(0, Math.min(e.touches[0].clientX - rect.left, rect.width));
               const freq = 88.0 + (x / rect.width) * (108.0 - 88.0);
+              this.exitPlaylistMode();
               this.tuneToClosestStation(freq);
             }
           },
           { passive: true },
         );
       }
+
+      // Visualizer mode switcher tabs
+      const vizTabs = document.querySelectorAll<HTMLButtonElement>('.sdr-viz-tab');
+      vizTabs.forEach((tab) => {
+        tab.addEventListener('click', () => {
+          const mode = (tab.getAttribute('data-mode') || 'waterfall') as any;
+          this.setVizMode(mode);
+        });
+      });
+
+      // Restore saved visualizer mode
+      try {
+        const savedMode = localStorage.getItem('sdr_viz_mode') as any;
+        if (savedMode && ['waterfall', 'oscilloscope', 'particles', 'bars'].includes(savedMode)) {
+          this.setVizMode(savedMode);
+        }
+      } catch {}
 
       // Keyboard navigation (Left / Right arrow to tune, Space to play/pause)
       window.addEventListener('keydown', (e: KeyboardEvent) => {
@@ -809,9 +1349,11 @@ const defaultStation: FMStation = RADIO_STATIONS[0];
 
         if (e.key === 'ArrowRight') {
           e.preventDefault();
+          this.exitPlaylistMode();
           this.tuneNextStation();
         } else if (e.key === 'ArrowLeft') {
           e.preventDefault();
+          this.exitPlaylistMode();
           this.tunePrevStation();
         } else if (e.key === ' ') {
           if (
@@ -1073,26 +1615,23 @@ const defaultStation: FMStation = RADIO_STATIONS[0];
 
       // Toggle sub-genre matrix bar visibility when selected genre has curated sub-genres
       const subgenreWrapper = document.getElementById('sdr-subgenre-wrapper');
-      const rockPills = document.getElementById('sdr-subgenre-pills-rock');
-      const housePills = document.getElementById('sdr-subgenre-pills-house');
-      const holidayPills = document.getElementById('sdr-subgenre-pills-holiday');
-
-      if (rockPills) rockPills.style.display = 'none';
-      if (housePills) housePills.style.display = 'none';
-      if (holidayPills) holidayPills.style.display = 'none';
+      const allSubgenreContainers = document.querySelectorAll<HTMLElement>('.sdr-subgenre-pills');
+      allSubgenreContainers.forEach((container) => {
+        container.style.display = 'none';
+      });
 
       let activePillGroup: HTMLElement | null = null;
       let allSubgenreName = '';
 
-      if (genre === 'Classic Rock') {
-        activePillGroup = rockPills;
-        allSubgenreName = 'ALL ROCK';
-      } else if (genre === 'Deep House & Dance') {
-        activePillGroup = housePills;
-        allSubgenreName = 'ALL HOUSE & DANCE';
-      } else if (genre === 'Holiday & Seasonal') {
-        activePillGroup = holidayPills;
-        allSubgenreName = 'ALL HOLIDAY';
+      if (genre !== 'ALL') {
+        activePillGroup = document.querySelector<HTMLElement>(
+          `.sdr-subgenre-pills[data-parent-genre="${genre}"]`,
+        );
+        if (activePillGroup) {
+          const firstPill = activePillGroup.querySelector<HTMLButtonElement>('.sdr-subgenre-pill');
+          allSubgenreName =
+            firstPill?.getAttribute('data-subgenre') || `ALL ${genre.toUpperCase()}`;
+        }
       }
 
       if (subgenreWrapper) {
@@ -1130,6 +1669,23 @@ const defaultStation: FMStation = RADIO_STATIONS[0];
       if (countBadge) {
         countBadge.textContent = `${visibleCount} STATIONS VISIBLE`;
       }
+
+      // Filter playlist cards
+      const plCards = document.querySelectorAll<HTMLElement>('.sdr-playlist-card');
+      let plCount = 0;
+      plCards.forEach((card) => {
+        const cardGenre = card.getAttribute('data-genre');
+        if (genre === 'ALL' || cardGenre === genre) {
+          card.style.display = 'flex';
+          plCount++;
+        } else {
+          card.style.display = 'none';
+        }
+      });
+      const plCountBadge = document.getElementById('sdr-playlists-count');
+      if (plCountBadge) {
+        plCountBadge.textContent = `${plCount} PLAYLISTS VISIBLE`;
+      }
     }
 
     private filterSubgenre(subgenre: string) {
@@ -1164,6 +1720,26 @@ const defaultStation: FMStation = RADIO_STATIONS[0];
       if (countBadge) {
         countBadge.textContent = `${visibleCount} STATIONS VISIBLE`;
       }
+
+      // Filter playlist cards by subgenre within currentGenre
+      const plCards = document.querySelectorAll<HTMLElement>('.sdr-playlist-card');
+      let plCount = 0;
+      plCards.forEach((card) => {
+        const cardGenre = card.getAttribute('data-genre');
+        const cardSubgenre = card.getAttribute('data-subgenre');
+        const matchGenre = this.currentGenre === 'ALL' || cardGenre === this.currentGenre;
+        const matchSub = isAllSub || cardSubgenre === subgenre;
+        if (matchGenre && matchSub) {
+          card.style.display = 'flex';
+          plCount++;
+        } else {
+          card.style.display = 'none';
+        }
+      });
+      const plCountBadge = document.getElementById('sdr-playlists-count');
+      if (plCountBadge) {
+        plCountBadge.textContent = `${plCount} PLAYLISTS VISIBLE`;
+      }
     }
 
     private getFilteredStations(): FMStation[] {
@@ -1179,12 +1755,16 @@ const defaultStation: FMStation = RADIO_STATIONS[0];
     private updateDisplay() {
       // VFD frequency and title
       const freqVal = document.getElementById('vfd-freq-val');
+      const freqUnit = document.getElementById('vfd-freq-unit');
+      const modulation = document.getElementById('vfd-modulation');
       const stationTitle = document.getElementById('vfd-station-title');
       const stationDesc = document.getElementById('vfd-station-desc');
       const genreBadge = document.getElementById('vfd-genre-badge');
       const bitrateVal = document.getElementById('sdr-bitrate-val');
+      const streamBadge = document.getElementById('vfd-stream-type-badge');
 
       if (freqVal) freqVal.textContent = this.currentStation.freqNum.toFixed(1);
+      if (freqUnit) freqUnit.textContent = 'MHz';
       if (stationTitle) stationTitle.textContent = this.currentStation.name;
       if (stationDesc) stationDesc.textContent = this.currentStation.desc;
       if (genreBadge) {
@@ -1193,6 +1773,33 @@ const defaultStation: FMStation = RADIO_STATIONS[0];
           : this.currentStation.genre;
       }
       if (bitrateVal) bitrateVal.textContent = this.currentStation.bitrate || '256 kbps WFM';
+
+      const isLiveStation = this.currentStation.streamType === 'live';
+      if (modulation) {
+        modulation.textContent = isLiveStation ? 'WFM / STEREO' : 'PRE-REC / STEREO';
+      }
+      if (streamBadge) {
+        streamBadge.className = `vfd-stream-type-badge ${isLiveStation ? 'is-live' : 'is-recorded'}`;
+        streamBadge.textContent = isLiveStation ? '● 24/7 LIVE' : 'PRE-RECORDED ARCHIVE';
+      }
+
+      // Toggle timeline scrubber vs live real-time notice
+      const trackWrap = document.getElementById('sdr-timeline-track-wrap');
+      const liveNotice = document.getElementById('sdr-timeline-live-notice');
+      if (trackWrap) trackWrap.style.display = isLiveStation ? 'none' : 'flex';
+      if (liveNotice) liveNotice.style.display = isLiveStation ? 'inline-flex' : 'none';
+
+      // Toggle seek buttons disabled state
+      const rewindBtn = document.getElementById('sdr-rewind-btn');
+      const forwardBtn = document.getElementById('sdr-forward-btn');
+      if (rewindBtn) {
+        rewindBtn.classList.toggle('is-disabled', isLiveStation);
+        rewindBtn.setAttribute('aria-disabled', isLiveStation ? 'true' : 'false');
+      }
+      if (forwardBtn) {
+        forwardBtn.classList.toggle('is-disabled', isLiveStation);
+        forwardBtn.setAttribute('aria-disabled', isLiveStation ? 'true' : 'false');
+      }
 
       // Update RSSI based on frequency (simulated RF field)
       const rssiVal = document.getElementById('sdr-rssi-val');
@@ -1236,10 +1843,12 @@ const defaultStation: FMStation = RADIO_STATIONS[0];
       if (statusText) statusText.textContent = text;
     }
 
-    // ── Club Stage & Ambient Lightning FX (Deep House & Dance Only) ──
+    // ── Club Stage & Ambient Lightning FX (House & Electronic Music Only) ──
     private updateClubLightingState() {
-      const isDeepHouse = this.currentStation.genre === 'Deep House & Dance';
-      const isRaving = isDeepHouse && this.isPlaying && this.isPoweredOn;
+      const isClubMusic =
+        this.currentStation.genre === 'House Music' ||
+        this.currentStation.genre === 'Electronic Music';
+      const isRaving = isClubMusic && this.isPlaying && this.isPoweredOn;
       this.isClubLighting = isRaving && this.lightRigEnabled;
 
       const deckWrap = document.getElementById('sdr-deck-wrap');
@@ -1328,7 +1937,48 @@ const defaultStation: FMStation = RADIO_STATIONS[0];
       }, 120);
     }
 
-    // ── Waterfall & Spectrum Canvas Rendering ──────────────────
+    // ── Multi-Mode Visualizer Canvas Engine ───────────────────
+    public setVizMode(mode: 'waterfall' | 'oscilloscope' | 'particles' | 'bars') {
+      this.vizMode = mode;
+      try {
+        localStorage.setItem('sdr_viz_mode', mode);
+      } catch {}
+
+      // Update mode switcher buttons
+      document.querySelectorAll<HTMLButtonElement>('.sdr-viz-tab').forEach((tab) => {
+        const tMode = tab.getAttribute('data-mode');
+        const isActive = tMode === mode;
+        tab.classList.toggle('is-active', isActive);
+        tab.setAttribute('aria-selected', isActive ? 'true' : 'false');
+      });
+
+      const modeTag = document.getElementById('viz-active-mode-tag');
+      const hintText = document.getElementById('viz-hint-text');
+      const scaleHeader = document.getElementById('waterfall-scale-header');
+
+      if (mode === 'waterfall') {
+        if (modeTag) modeTag.textContent = 'DSP: WATERFALL FFT';
+        if (hintText)
+          hintText.textContent = '[SPECTRUM FFT & WATERFALL ANALYZER — CLICK OR DRAG TO TUNE]';
+        if (scaleHeader) scaleHeader.style.visibility = 'visible';
+      } else if (mode === 'oscilloscope') {
+        if (modeTag) modeTag.textContent = 'DSP: CRT OSCILLOSCOPE';
+        if (hintText)
+          hintText.textContent = '[CRT PHOSPHOR VECTOR SCOPE — CH1 RF TIME-DOMAIN WAVEFORM]';
+        if (scaleHeader) scaleHeader.style.visibility = 'hidden';
+      } else if (mode === 'particles') {
+        if (modeTag) modeTag.textContent = 'DSP: PARTICLE CONSTELLATION';
+        if (hintText)
+          hintText.textContent = '[QUANTUM FREQUENCY PARTICLES — CLICK TO SHIFT ATTRACTOR FIELD]';
+        if (scaleHeader) scaleHeader.style.visibility = 'visible';
+      } else if (mode === 'bars') {
+        if (modeTag) modeTag.textContent = 'DSP: 32-BAND VFD EQUALIZER';
+        if (hintText)
+          hintText.textContent = '[32-BAND STEREO GRAPHIC EQUALIZER & PEAK-HOLD METERS]';
+        if (scaleHeader) scaleHeader.style.visibility = 'hidden';
+      }
+    }
+
     private initCanvas() {
       if (!this.canvas || !this.ctx) return;
 
@@ -1346,159 +1996,207 @@ const defaultStation: FMStation = RADIO_STATIONS[0];
       this.renderCanvas();
     }
 
+    private initParticles(w: number, h: number) {
+      this.particles = [];
+      const count = 110;
+      for (let i = 0; i < count; i++) {
+        this.particles.push({
+          x: Math.random() * w,
+          y: Math.random() * h,
+          vx: (Math.random() - 0.5) * 0.8,
+          vy: (Math.random() - 0.5) * 0.8,
+          baseFreq: 88.0 + Math.random() * 20.0,
+          radius: 1.2 + Math.random() * 2.2,
+          phase: Math.random() * Math.PI * 2,
+        });
+      }
+    }
+
     private renderCanvas = () => {
       if (!this.canvas || !this.ctx) return;
       const rect = this.canvas.getBoundingClientRect();
       const w = rect.width;
       const h = rect.height;
 
-      // Clear frame
-      this.ctx.clearRect(0, 0, w, h);
-
-      // Height distribution: top 45% = FFT Spectrum curve, bottom 55% = Waterfall
-      const spectrumH = h * 0.44;
-      const waterfallH = h * 0.56;
-      const waterfallY = spectrumH;
-
-      // Club mode parameters (126 BPM 4/4 rhythm: 476.19ms per beat)
       const isClub = this.isClubLighting;
       const now = performance.now();
-      const beatPeriod = 476.19;
+      const beatPeriod = 476.19; // 126 BPM
       const beatPhase = (now % beatPeriod) / beatPeriod;
-      // Exponential kick envelope: sharp downbeat attack, rapid decay
       const kickEnvelope = isClub ? Math.pow(Math.max(0, 1 - beatPhase * 2.5), 2.5) : 0;
 
-      // Extract accent color from computed style
       const computed = window.getComputedStyle(document.documentElement);
       const accent = computed.getPropertyValue('--accent').trim() || '#f29559';
       const accentRgb = computed.getPropertyValue('--accent-rgb').trim() || '242, 149, 89';
 
-      // 1. Generate FFT spectrum points for 88.0 - 108.0 MHz
-      const points = 120;
+      if (this.vizMode === 'waterfall') {
+        this.renderWaterfallMode(w, h, accent, accentRgb, isClub, kickEnvelope, now);
+      } else if (this.vizMode === 'oscilloscope') {
+        this.renderOscilloscopeMode(w, h, accent, accentRgb, isClub, kickEnvelope, now);
+      } else if (this.vizMode === 'particles') {
+        this.renderParticlesMode(w, h, accent, accentRgb, isClub, kickEnvelope, now);
+      } else if (this.vizMode === 'bars') {
+        this.renderBarsMode(w, h, accent, accentRgb, isClub, kickEnvelope, now);
+      }
+
+      this.animFrameId = requestAnimationFrame(this.renderCanvas);
+    };
+
+    // ── Mode 1: Waterfall Spectrogram & Smooth Non-Clipping FFT ──
+    private renderWaterfallMode(
+      w: number,
+      h: number,
+      accent: string,
+      accentRgb: string,
+      isClub: boolean,
+      kickEnvelope: number,
+      now: number,
+    ) {
+      const ctx = this.ctx!;
+      ctx.clearRect(0, 0, w, h);
+
+      const spectrumH = h * 0.44;
+      const waterfallH = h * 0.56;
+      const waterfallY = spectrumH;
+
+      const points = 140;
       const spectrumData: number[] = new Array(points).fill(0);
       const minFreq = 88.0;
       const maxFreq = 108.0;
+      const timeSec = now * 0.001;
 
-      // Ambient RF noise baseline
+      // Ambient dynamic RF noise floor with gentle micro-fluctuations
       for (let i = 0; i < points; i++) {
-        spectrumData[i] = 4 + Math.random() * 5;
+        const f = minFreq + (i / (points - 1)) * (maxFreq - minFreq);
+        const flutter = Math.sin(timeSec * 3 + f * 5) * 1.5 + Math.cos(timeSec * 7 - f * 2) * 1.0;
+        spectrumData[i] = 4 + flutter + Math.random() * 3.5;
       }
 
-      // Add peaks for all radio stations
+      // Add Gaussian spectral peaks for all radio stations
       this.stations.forEach((st) => {
         const freqRatio = (st.freqNum - minFreq) / (maxFreq - minFreq);
         const centerIdx = Math.floor(freqRatio * points);
         const isCurrent = st.id === this.currentStation.id;
+
         const peakAmp = isCurrent
           ? this.isPlaying
             ? isClub
-              ? 42 + kickEnvelope * 36 + Math.random() * 6
-              : 40 + Math.random() * 8
-            : 28
-          : 18;
+              ? 38 + kickEnvelope * 30 + Math.random() * 5
+              : 34 + Math.sin(timeSec * 6) * 6 + Math.random() * 5
+            : 22
+          : 12 + Math.random() * 2;
 
         for (let offset = -4; offset <= 4; offset++) {
           const idx = centerIdx + offset;
           if (idx >= 0 && idx < points) {
-            const bell = Math.exp(-(offset * offset) / 3.2);
+            const bell = Math.exp(-(offset * offset) / 3.4);
             spectrumData[idx] += bell * peakAmp;
           }
         }
       });
 
-      // Draw FFT line
-      this.ctx.beginPath();
-      if (isClub) {
-        const lineGrad = this.ctx.createLinearGradient(0, 0, w, 0);
-        lineGrad.addColorStop(0, accent);
-        lineGrad.addColorStop(0.35, '#ffffff');
-        lineGrad.addColorStop(0.7, accent);
-        lineGrad.addColorStop(1, accent);
-        this.ctx.strokeStyle = lineGrad;
-        this.ctx.lineWidth = 1.8 + kickEnvelope * 1.2;
-      } else {
-        this.ctx.strokeStyle = accent;
-        this.ctx.lineWidth = 1.5;
+      // Subtle RF reference grid lines (-20, -40, -60, -80 dBm)
+      ctx.save();
+      ctx.strokeStyle = 'rgba(255, 255, 255, 0.05)';
+      ctx.lineWidth = 1;
+      ctx.setLineDash([3, 4]);
+      for (let db = 1; db <= 3; db++) {
+        const gridY = 16 + (db / 4) * (spectrumH - 20);
+        ctx.beginPath();
+        ctx.moveTo(0, gridY);
+        ctx.lineTo(w, gridY);
+        ctx.stroke();
       }
+      ctx.restore();
+
+      // Soft-knee compression: bounds peak to ALWAYS leave at least 15px safe headroom!
+      // Guarantees waveform is NEVER cut on the top
+      const topHeadroom = 15;
+      const usableHeight = spectrumH - topHeadroom - 4;
+      const coords: { x: number; y: number }[] = [];
 
       for (let i = 0; i < points; i++) {
         const x = (i / (points - 1)) * w;
-        const y = spectrumH - (spectrumData[i] / 50) * (spectrumH - 12);
-        if (i === 0) {
-          this.ctx.moveTo(x, y);
-        } else {
-          this.ctx.lineTo(x, y);
-        }
+        const compressed = Math.tanh(spectrumData[i] / 56);
+        const y = topHeadroom + (1 - compressed) * usableHeight;
+        coords.push({ x, y });
       }
-      this.ctx.stroke();
 
-      // FFT area gradient
-      this.ctx.lineTo(w, spectrumH);
-      this.ctx.lineTo(0, spectrumH);
-      this.ctx.closePath();
+      // Draw smooth quadratic curve through spectrum points
+      ctx.beginPath();
+      ctx.moveTo(coords[0].x, coords[0].y);
+      for (let i = 0; i < coords.length - 1; i++) {
+        const midX = (coords[i].x + coords[i + 1].x) / 2;
+        const midY = (coords[i].y + coords[i + 1].y) / 2;
+        ctx.quadraticCurveTo(coords[i].x, coords[i].y, midX, midY);
+      }
+      ctx.lineTo(coords[coords.length - 1].x, coords[coords.length - 1].y);
+
       if (isClub) {
-        const grad = this.ctx.createLinearGradient(0, 0, 0, spectrumH);
-        grad.addColorStop(0, `rgba(${accentRgb}, ${0.4 + kickEnvelope * 0.25})`);
-        grad.addColorStop(0.6, `rgba(${accentRgb}, ${0.15 + kickEnvelope * 0.15})`);
-        grad.addColorStop(1, 'rgba(0, 0, 0, 0)');
-        this.ctx.fillStyle = grad;
+        const lineGrad = ctx.createLinearGradient(0, 0, w, 0);
+        lineGrad.addColorStop(0, accent);
+        lineGrad.addColorStop(0.5, '#ffffff');
+        lineGrad.addColorStop(1, accent);
+        ctx.strokeStyle = lineGrad;
+        ctx.lineWidth = 1.8 + kickEnvelope * 1.2;
       } else {
-        const grad = this.ctx.createLinearGradient(0, 0, 0, spectrumH);
-        grad.addColorStop(0, `rgba(${accentRgb}, 0.28)`);
-        grad.addColorStop(1, `rgba(${accentRgb}, 0.02)`);
-        this.ctx.fillStyle = grad;
+        ctx.strokeStyle = accent;
+        ctx.lineWidth = 1.6;
       }
-      this.ctx.fill();
+      ctx.stroke();
 
-      // Draw active tuning carrier cursor (vertical reticle line)
+      // Gradient area under curve
+      ctx.lineTo(w, spectrumH);
+      ctx.lineTo(0, spectrumH);
+      ctx.closePath();
+      const areaGrad = ctx.createLinearGradient(0, topHeadroom, 0, spectrumH);
+      if (isClub) {
+        areaGrad.addColorStop(0, `rgba(${accentRgb}, ${0.45 + kickEnvelope * 0.25})`);
+        areaGrad.addColorStop(0.6, `rgba(${accentRgb}, ${0.15 + kickEnvelope * 0.15})`);
+        areaGrad.addColorStop(1, 'rgba(0, 0, 0, 0)');
+      } else {
+        areaGrad.addColorStop(0, `rgba(${accentRgb}, 0.32)`);
+        areaGrad.addColorStop(0.7, `rgba(${accentRgb}, 0.08)`);
+        areaGrad.addColorStop(1, 'rgba(0, 0, 0, 0)');
+      }
+      ctx.fillStyle = areaGrad;
+      ctx.fill();
+
+      // Active carrier cursor (vertical reticle line)
       const currentRatio = (this.currentStation.freqNum - minFreq) / (maxFreq - minFreq);
       const curX = currentRatio * w;
 
       if (isClub) {
-        // Laser beam shooting down carrier frequency
-        this.ctx.save();
-        this.ctx.shadowColor = accent;
-        this.ctx.shadowBlur = 12 + kickEnvelope * 16;
-        this.ctx.beginPath();
-        this.ctx.strokeStyle = `rgba(${accentRgb}, ${0.85 + kickEnvelope * 0.15})`;
-        this.ctx.lineWidth = 2 + kickEnvelope * 2;
-        this.ctx.moveTo(curX, 0);
-        this.ctx.lineTo(curX, h);
-        this.ctx.stroke();
-
-        // Horizontal laser pulse on kick
-        if (kickEnvelope > 0.3) {
-          this.ctx.beginPath();
-          this.ctx.strokeStyle = `rgba(255, 255, 255, ${kickEnvelope * 0.4})`;
-          this.ctx.lineWidth = 1;
-          const laserY = spectrumH * (1 - kickEnvelope * 0.8);
-          this.ctx.moveTo(0, laserY);
-          this.ctx.lineTo(w, laserY);
-          this.ctx.stroke();
-        }
-        this.ctx.restore();
+        ctx.save();
+        ctx.shadowColor = accent;
+        ctx.shadowBlur = 12 + kickEnvelope * 16;
+        ctx.beginPath();
+        ctx.strokeStyle = `rgba(${accentRgb}, ${0.85 + kickEnvelope * 0.15})`;
+        ctx.lineWidth = 2 + kickEnvelope * 2;
+        ctx.moveTo(curX, 0);
+        ctx.lineTo(curX, h);
+        ctx.stroke();
+        ctx.restore();
       } else {
-        this.ctx.beginPath();
-        this.ctx.setLineDash([2, 2]);
-        this.ctx.strokeStyle = '#ffffff';
-        this.ctx.lineWidth = 1.2;
-        this.ctx.moveTo(curX, 0);
-        this.ctx.lineTo(curX, h);
-        this.ctx.stroke();
-        this.ctx.setLineDash([]);
+        ctx.beginPath();
+        ctx.setLineDash([2, 2]);
+        ctx.strokeStyle = '#ffffff';
+        ctx.lineWidth = 1.2;
+        ctx.moveTo(curX, 0);
+        ctx.lineTo(curX, h);
+        ctx.stroke();
+        ctx.setLineDash([]);
       }
 
-      // Draw small carrier cursor arrow at top
-      this.ctx.fillStyle = accent;
-      this.ctx.beginPath();
-      this.ctx.moveTo(curX - 4, 0);
-      this.ctx.lineTo(curX + 4, 0);
-      this.ctx.lineTo(curX, 6);
-      this.ctx.closePath();
-      this.ctx.fill();
+      // Marker pointer arrow at top
+      ctx.fillStyle = accent;
+      ctx.beginPath();
+      ctx.moveTo(curX - 4, 0);
+      ctx.lineTo(curX + 4, 0);
+      ctx.lineTo(curX, 7);
+      ctx.closePath();
+      ctx.fill();
 
-      // 2. Waterfall Spectrogram
-      // Add new waterfall slice
+      // Waterfall Spectrogram rolling history
       const newSlice: number[] = new Array(points);
       for (let i = 0; i < points; i++) {
         newSlice[i] = spectrumData[i];
@@ -1508,48 +2206,407 @@ const defaultStation: FMStation = RADIO_STATIONS[0];
         this.waterfallLines.pop();
       }
 
-      // Draw waterfall lines
       const sliceH = waterfallH / this.maxWaterfallLines;
+      const colW = w / points;
+
       for (let row = 0; row < this.waterfallLines.length; row++) {
         const y = waterfallY + row * sliceH;
         const rowData = this.waterfallLines[row];
 
         for (let col = 0; col < points; col++) {
-          const x = (col / points) * w;
+          const x = col * colW;
           const val = rowData[col];
-          const intensity = Math.min(1, Math.max(0, val / 45));
+          const intensity = Math.min(1, Math.max(0, (val - 5) / 40));
 
-          if (intensity > 0.12) {
-            if (isClub) {
-              if (intensity > 0.8) {
-                this.ctx.fillStyle = `rgba(255, 255, 255, ${intensity})`;
-              } else if (intensity > 0.5) {
-                this.ctx.fillStyle = `rgba(${accentRgb}, ${intensity * 0.95})`;
-              } else {
-                this.ctx.fillStyle = `rgba(${accentRgb}, ${intensity * 0.75})`;
-              }
+          if (intensity > 0.08) {
+            if (intensity > 0.75) {
+              ctx.fillStyle = '#ffffff';
+            } else if (intensity > 0.5) {
+              ctx.fillStyle = `rgba(${accentRgb}, ${0.85 + intensity * 0.15})`;
+            } else if (intensity > 0.28) {
+              ctx.fillStyle = `rgba(${accentRgb}, ${intensity * 0.8})`;
             } else {
-              this.ctx.fillStyle = `rgba(${accentRgb}, ${intensity * 0.9})`;
+              ctx.fillStyle = `rgba(18, 55, 85, ${intensity * 1.5})`;
             }
-            this.ctx.fillRect(x, y, w / points + 0.5, sliceH + 0.5);
+            ctx.fillRect(x, y, colW + 0.6, sliceH + 0.6);
           }
         }
       }
 
-      // Divider line between spectrum and waterfall
-      this.ctx.strokeStyle = isClub ? `rgba(${accentRgb}, 0.35)` : 'rgba(255, 255, 255, 0.12)';
-      this.ctx.lineWidth = 1;
-      this.ctx.beginPath();
+      // Spectrum / waterfall divider
+      ctx.strokeStyle = 'rgba(255, 255, 255, 0.12)';
+      ctx.lineWidth = 1;
+      ctx.beginPath();
       this.ctx.moveTo(0, waterfallY);
       this.ctx.lineTo(w, waterfallY);
       this.ctx.stroke();
+    }
 
-      this.animFrameId = requestAnimationFrame(this.renderCanvas);
-    };
+    // ── Mode 2: Retro Phosphor CRT Vector Oscilloscope ────────
+    private renderOscilloscopeMode(
+      w: number,
+      h: number,
+      accent: string,
+      accentRgb: string,
+      isClub: boolean,
+      kickEnvelope: number,
+      now: number,
+    ) {
+      const ctx = this.ctx!;
+
+      // Dark CRT phosphor glass tint
+      ctx.fillStyle = '#020704';
+      ctx.fillRect(0, 0, w, h);
+
+      // CRT phosphor grid (8 rows x 10 cols)
+      ctx.save();
+      ctx.strokeStyle = 'rgba(0, 255, 120, 0.07)';
+      ctx.lineWidth = 1;
+      ctx.setLineDash([2, 4]);
+
+      const cols = 10;
+      const rows = 8;
+      for (let c = 1; c < cols; c++) {
+        const gx = (c / cols) * w;
+        ctx.beginPath();
+        ctx.moveTo(gx, 0);
+        ctx.lineTo(gx, h);
+        ctx.stroke();
+      }
+      for (let r = 1; r < rows; r++) {
+        const gy = (r / rows) * h;
+        ctx.beginPath();
+        ctx.moveTo(0, gy);
+        ctx.lineTo(w, gy);
+        ctx.stroke();
+      }
+
+      // Center crosshair with division tick marks
+      ctx.strokeStyle = 'rgba(0, 255, 120, 0.22)';
+      ctx.setLineDash([]);
+      const midX = w / 2;
+      const midY = h / 2;
+      ctx.beginPath();
+      ctx.moveTo(0, midY);
+      ctx.lineTo(w, midY);
+      ctx.moveTo(midX, 0);
+      ctx.lineTo(midX, h);
+      ctx.stroke();
+
+      for (let t = -4; t <= 4; t++) {
+        const tx = midX + t * (w / 10);
+        ctx.beginPath();
+        ctx.moveTo(tx, midY - 3);
+        ctx.lineTo(tx, midY + 3);
+        ctx.stroke();
+        const ty = midY + t * (h / 8);
+        ctx.beginPath();
+        ctx.moveTo(midX - 3, ty);
+        ctx.lineTo(midX + 3, ty);
+        ctx.stroke();
+      }
+      ctx.restore();
+
+      // Real-time time-domain waveform synthesis
+      const centerY = h / 2;
+      const maxAmp = h / 2 - 18; // Guaranteed 18px top and bottom headroom
+      const timeSec = now * 0.001;
+      const isPlaying = this.isPlaying;
+
+      const fRatio = (this.currentStation.freqNum - 88.0) / 20.0;
+      const fundamentalFreq = 2.5 + fRatio * 3.5;
+      const ampBase = isPlaying ? (isClub ? 0.75 + kickEnvelope * 0.2 : 0.65) : 0.15;
+
+      const points = 180;
+      const wavePoints: { x: number; y: number }[] = [];
+
+      for (let i = 0; i < points; i++) {
+        const x = (i / (points - 1)) * w;
+        const phase = (x / w) * Math.PI * 4 * fundamentalFreq;
+
+        const s1 = Math.sin(phase - timeSec * 12);
+        const s2 = isPlaying ? Math.sin(phase * 2.01 + timeSec * 16) * 0.35 : 0;
+        const s3 = isPlaying ? Math.sin(phase * 3.03 - timeSec * 22) * 0.15 : 0;
+        const noise = (Math.random() - 0.5) * (isPlaying ? 0.08 : 0.05);
+
+        const combined = (s1 + s2 + s3 + noise) * ampBase;
+        const clamped = Math.max(-0.95, Math.min(0.95, combined));
+        const y = centerY - clamped * maxAmp;
+        wavePoints.push({ x, y });
+      }
+
+      // Pass 1: Phosphor beam glow bloom
+      ctx.save();
+      ctx.shadowColor = isClub ? accent : '#00ff88';
+      ctx.shadowBlur = 12;
+      ctx.strokeStyle = isClub ? `rgba(${accentRgb}, 0.55)` : 'rgba(0, 255, 136, 0.55)';
+      ctx.lineWidth = 3;
+      ctx.beginPath();
+      ctx.moveTo(wavePoints[0].x, wavePoints[0].y);
+      for (let i = 1; i < wavePoints.length; i++) {
+        ctx.lineTo(wavePoints[i].x, wavePoints[i].y);
+      }
+      ctx.stroke();
+
+      // Pass 2: High-intensity sharp core electron beam
+      ctx.shadowBlur = 4;
+      ctx.shadowColor = '#ffffff';
+      ctx.strokeStyle = '#ffffff';
+      ctx.lineWidth = 1.3;
+      ctx.stroke();
+      ctx.restore();
+
+      // CRT telemetry readout in corners
+      ctx.save();
+      ctx.font = '8px monospace';
+      ctx.fillStyle = 'rgba(0, 255, 120, 0.7)';
+      ctx.fillText('CH1: 50mV/DIV', 10, 16);
+      ctx.fillText('TIME: 2.0ms/DIV', 10, 28);
+      ctx.textAlign = 'right';
+      ctx.fillText(`TRIG: AUTO // ${this.currentStation.freq}`, w - 10, 16);
+      ctx.fillText(isPlaying ? 'SIG: ACQUIRED' : 'SIG: STANDBY', w - 10, 28);
+      ctx.restore();
+    }
+
+    // ── Mode 3: Quantum Frequency Particle Constellation ───────
+    private renderParticlesMode(
+      w: number,
+      h: number,
+      accent: string,
+      accentRgb: string,
+      isClub: boolean,
+      kickEnvelope: number,
+      now: number,
+    ) {
+      const ctx = this.ctx!;
+
+      if (this.particles.length === 0) {
+        this.initParticles(w, h);
+      }
+
+      // Semi-transparent trailing fade for smooth particle comet trails
+      ctx.fillStyle = 'rgba(3, 6, 12, 0.3)';
+      ctx.fillRect(0, 0, w, h);
+
+      const targetX = ((this.currentStation.freqNum - 88.0) / 20.0) * w;
+      const centerY = h / 2;
+      const isPlaying = this.isPlaying;
+
+      // Center frequency orbital beacon
+      ctx.save();
+      ctx.beginPath();
+      ctx.arc(targetX, centerY, 4 + kickEnvelope * 6, 0, Math.PI * 2);
+      ctx.fillStyle = accent;
+      ctx.shadowColor = accent;
+      ctx.shadowBlur = 12 + kickEnvelope * 14;
+      ctx.fill();
+
+      // Outer ripple ring
+      ctx.beginPath();
+      const ringRadius = 16 + ((now * 0.04) % 35);
+      ctx.arc(targetX, centerY, ringRadius, 0, Math.PI * 2);
+      ctx.strokeStyle = `rgba(${accentRgb}, ${Math.max(0, 1 - ringRadius / 50)})`;
+      ctx.lineWidth = 1;
+      ctx.stroke();
+      ctx.restore();
+
+      // Update and draw particles
+      const pCount = this.particles.length;
+      for (let i = 0; i < pCount; i++) {
+        const p = this.particles[i];
+
+        // Gravitational pull toward tuned carrier frequency
+        const dx = targetX - p.x;
+        const dy = centerY - p.y;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+
+        const force = Math.min(0.12, 40 / (dist + 50));
+        p.vx += (dx / dist) * force * 0.08;
+        p.vy += (dy / dist) * force * 0.08;
+
+        if (isPlaying && kickEnvelope > 0.4) {
+          const angle = Math.atan2(dy, dx);
+          p.vx -= Math.cos(angle) * kickEnvelope * 0.6;
+          p.vy -= Math.sin(angle) * kickEnvelope * 0.6;
+        }
+
+        p.vx += (Math.random() - 0.5) * 0.15;
+        p.vy += (Math.random() - 0.5) * 0.15;
+
+        p.vx *= 0.96;
+        p.vy *= 0.96;
+
+        p.x += p.vx;
+        p.y += p.vy;
+
+        // Bounce / clamp within safe bounds with 12px headroom
+        if (p.x < 8) {
+          p.x = 8;
+          p.vx *= -1;
+        }
+        if (p.x > w - 8) {
+          p.x = w - 8;
+          p.vx *= -1;
+        }
+        if (p.y < 14) {
+          p.y = 14;
+          p.vy *= -1;
+        }
+        if (p.y > h - 14) {
+          p.y = h - 14;
+          p.vy *= -1;
+        }
+
+        ctx.beginPath();
+        const curR = p.radius * (isPlaying ? 1 + kickEnvelope * 0.5 : 1);
+        ctx.arc(p.x, p.y, curR, 0, Math.PI * 2);
+        ctx.fillStyle = dist < 70 ? accent : 'rgba(255, 255, 255, 0.7)';
+        ctx.fill();
+
+        // Connect nearby particles with constellation filaments
+        for (let j = i + 1; j < pCount; j++) {
+          const p2 = this.particles[j];
+          const cdx = p.x - p2.x;
+          const cdy = p.y - p2.y;
+          const cdist = Math.sqrt(cdx * cdx + cdy * cdy);
+          if (cdist < 40) {
+            ctx.beginPath();
+            ctx.moveTo(p.x, p.y);
+            ctx.lineTo(p2.x, p2.y);
+            const lineAlpha = (1 - cdist / 40) * 0.25;
+            ctx.strokeStyle = `rgba(${accentRgb}, ${lineAlpha})`;
+            ctx.lineWidth = 0.8;
+            ctx.stroke();
+          }
+        }
+      }
+
+      ctx.save();
+      ctx.font = '8px monospace';
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.45)';
+      ctx.fillText(`FIELD: QUANTUM NODES // 110`, 10, 16);
+      ctx.textAlign = 'right';
+      ctx.fillText(`CENTER: ${this.currentStation.freq}`, w - 10, 16);
+      ctx.restore();
+    }
+
+    // ── Mode 4: 32-Band VFD Equalizer & Peak-Hold Meters ───────
+    private renderBarsMode(
+      w: number,
+      h: number,
+      accent: string,
+      accentRgb: string,
+      isClub: boolean,
+      kickEnvelope: number,
+      now: number,
+    ) {
+      const ctx = this.ctx!;
+      ctx.clearRect(0, 0, w, h);
+
+      ctx.fillStyle = '#05070a';
+      ctx.fillRect(0, 0, w, h);
+
+      const numBars = 32;
+      const barPadding = 3;
+      const barWidth = (w - (numBars + 1) * barPadding) / numBars;
+      const topSafeY = 16; // 16px reserved top headroom
+      const maxBarH = h - 34;
+      const isPlaying = this.isPlaying;
+      const timeSec = now * 0.001;
+
+      const fLabels: { [key: number]: string } = {
+        0: '32',
+        4: '64',
+        8: '125',
+        12: '250',
+        16: '500',
+        20: '1k',
+        24: '4k',
+        28: '10k',
+        31: '16k',
+      };
+
+      for (let i = 0; i < numBars; i++) {
+        const x = barPadding + i * (barWidth + barPadding);
+
+        let targetEnergy = 0.08;
+        if (isPlaying) {
+          const bassBoost = i < 8 ? (isClub ? 0.9 * kickEnvelope : 0.6) : 0;
+          const midPresence = i >= 8 && i < 22 ? Math.sin(timeSec * 8 + i * 0.4) * 0.35 + 0.45 : 0;
+          const highAir = i >= 22 ? Math.sin(timeSec * 14 - i * 0.6) * 0.25 + 0.35 : 0;
+          targetEnergy = Math.max(
+            0.08,
+            Math.min(0.96, bassBoost + midPresence + highAir + Math.random() * 0.15),
+          );
+        } else {
+          targetEnergy = 0.06 + Math.sin(timeSec * 2 + i * 0.3) * 0.04;
+        }
+
+        if (targetEnergy > this.barPeaks[i]) {
+          this.barPeaks[i] = targetEnergy;
+          this.barPeakDelays[i] = 12;
+        } else {
+          if (this.barPeakDelays[i] > 0) {
+            this.barPeakDelays[i]--;
+          } else {
+            this.barPeaks[i] = Math.max(0.06, this.barPeaks[i] - 0.02);
+          }
+        }
+
+        const segments = 14;
+        const segGap = 1.5;
+        const segH = (maxBarH - (segments - 1) * segGap) / segments;
+        const litSegments = Math.round(targetEnergy * segments);
+
+        for (let s = 0; s < segments; s++) {
+          const segY = topSafeY + maxBarH - (s + 1) * (segH + segGap);
+          const isLit = s < litSegments;
+
+          if (isLit) {
+            if (s >= 12) {
+              ctx.fillStyle = '#ff4d4d';
+            } else if (s >= 9) {
+              ctx.fillStyle = accent;
+            } else {
+              ctx.fillStyle = isClub ? `rgba(${accentRgb}, 0.9)` : '#00c3a5';
+            }
+          } else {
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.04)';
+          }
+
+          ctx.fillRect(x, segY, barWidth, segH);
+        }
+
+        // Floating Peak-Hold cap
+        const peakSegY = topSafeY + maxBarH - this.barPeaks[i] * maxBarH;
+        ctx.fillStyle = this.barPeaks[i] > 0.85 ? '#ff4d4d' : '#ffffff';
+        ctx.fillRect(x, peakSegY, barWidth, 2);
+
+        if (fLabels[i]) {
+          ctx.font = '7.5px monospace';
+          ctx.fillStyle = 'rgba(255, 255, 255, 0.4)';
+          ctx.textAlign = 'center';
+          ctx.fillText(fLabels[i], x + barWidth / 2, topSafeY + maxBarH + 12);
+        }
+      }
+
+      ctx.save();
+      ctx.font = '8px monospace';
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.4)';
+      ctx.textAlign = 'left';
+      ctx.fillText('32-BAND ISO GRAPHIC EQ', 10, topSafeY - 4);
+      ctx.textAlign = 'right';
+      ctx.fillText(isPlaying ? 'PEAK: 0 dB' : 'MUTED', w - 10, topSafeY - 4);
+      ctx.restore();
+    }
 
     public destroy() {
       this.saveStationPosition();
       this.stopLightningScheduler();
+      if (this.scrubberTimer) {
+        clearInterval(this.scrubberTimer);
+        this.scrubberTimer = null;
+      }
       if (this.animFrameId) {
         cancelAnimationFrame(this.animFrameId);
       }

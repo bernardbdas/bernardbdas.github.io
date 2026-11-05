@@ -171,7 +171,7 @@ export const THEME_AUDIO_MAP: Record<string, AmbientTrack[]> = {
       code: 'CCR',
       type: 'stream',
       ytId: 'FtiM1Qtz700',
-      genre: 'Classic Rock',
+      genre: 'Rock',
     },
     {
       id: 'rock-icons',
@@ -187,7 +187,7 @@ export const THEME_AUDIO_MAP: Record<string, AmbientTrack[]> = {
       code: 'DOORS',
       type: 'stream',
       ytId: '0YYkq8KS7bA',
-      genre: 'Classic Rock',
+      genre: 'Rock',
     },
     {
       id: 'classic-rock',
@@ -195,7 +195,7 @@ export const THEME_AUDIO_MAP: Record<string, AmbientTrack[]> = {
       code: 'CLASSIC',
       type: 'stream',
       ytId: 'iemujlJ3q_c',
-      genre: 'Classic Rock',
+      genre: 'Rock',
     },
     {
       id: 'radiohead-tv',
@@ -211,7 +211,7 @@ export const THEME_AUDIO_MAP: Record<string, AmbientTrack[]> = {
       code: 'QUEEN',
       type: 'stream',
       ytId: 'aQFitMHcfWo',
-      genre: 'Classic Rock',
+      genre: 'Rock',
     },
   ],
 

@@ -4720,6 +4720,105 @@ html[data-theme='light'] .network-filter-pill.is-active {
   color: var(--accent);
 }
 
+.vfd-stream-type-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-family: var(--font-mono);
+  font-size: 8.5px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  padding: 2px 7px;
+  border-radius: 2px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.vfd-stream-type-badge.is-live {
+  background: rgba(var(--accent-rgb), 0.18);
+  color: var(--accent);
+  border: 1px solid var(--accent);
+  box-shadow: 0 0 8px rgba(var(--accent-rgb), 0.25);
+}
+
+.vfd-stream-type-badge.is-recorded {
+  background: rgba(var(--bg-rgb), 0.75);
+  color: var(--ink-dim);
+  border: 1px solid var(--hairline);
+}
+
+/* ── Timeline Track & Real-time Live Notice ─────────────────── */
+.sdr-timeline-panel {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  margin-top: 4px;
+  min-height: 22px;
+}
+
+.sdr-timeline-track-wrap {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+}
+
+.sdr-time-code {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: 0.1em;
+  color: var(--ink-dim);
+  font-variant-numeric: tabular-nums;
+  min-width: 38px;
+  user-select: none;
+}
+
+.sdr-timeline-track {
+  position: relative;
+  flex: 1;
+  height: 6px;
+  background: rgba(var(--bg-rgb), 0.9);
+  border: 1px solid var(--hairline);
+  cursor: pointer;
+  border-radius: 1px;
+}
+
+.sdr-timeline-fill {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  background: var(--accent);
+  box-shadow: 0 0 6px rgba(var(--accent-rgb), 0.5);
+  pointer-events: none;
+}
+
+.sdr-timeline-thumb {
+  position: absolute;
+  top: 50%;
+  width: 10px;
+  height: 10px;
+  background: #ffffff;
+  border: 1px solid var(--accent);
+  box-shadow: 0 0 6px var(--accent);
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  border-radius: 1px;
+}
+
+.sdr-timeline-live-notice {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--accent);
+  user-select: none;
+  line-height: 1.4;
+}
+
 .vfd-station-desc {
   font-family: var(--serif);
   font-size: 15px;
@@ -4803,6 +4902,91 @@ html[data-theme='light'] .network-filter-pill.is-active {
   font-weight: 500;
 }
 
+/* ── SDR Multi-Mode Visualizer Deck ─────────────────────────── */
+.sdr-visualizer-deck {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  width: 100%;
+}
+
+.sdr-viz-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  background: var(--surface);
+  border: 1px solid var(--hairline);
+  border-bottom: none;
+  padding: 5px 8px;
+  flex-wrap: wrap;
+}
+
+.sdr-viz-modes-tabs {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  flex-wrap: wrap;
+}
+
+.sdr-viz-tab {
+  font-family: var(--font-mono);
+  font-size: 8.5px;
+  letter-spacing: 0.14em;
+  padding: 3px 8px;
+  background: transparent;
+  border: 1px solid transparent;
+  color: var(--ink-dim);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  transition: all 0.15s ease;
+  user-select: none;
+}
+
+.sdr-viz-tab:hover {
+  color: var(--ink);
+  background: rgba(120, 120, 120, 0.08);
+}
+
+.sdr-viz-tab.is-active {
+  color: var(--accent);
+  background: rgba(242, 149, 89, 0.1);
+  border-color: var(--accent);
+}
+
+.sdr-viz-tab .viz-tab-dot {
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: currentColor;
+  opacity: 0.5;
+}
+
+.sdr-viz-tab.is-active .viz-tab-dot {
+  opacity: 1;
+  box-shadow: 0 0 6px currentColor;
+}
+
+.sdr-viz-telemetry {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--font-mono);
+  font-size: 8px;
+  letter-spacing: 0.14em;
+  color: var(--ink-dim);
+}
+
+.sdr-viz-telemetry .viz-tel-tag {
+  color: var(--ink-dim);
+}
+
+.sdr-viz-telemetry .viz-tel-sep {
+  opacity: 0.4;
+}
+
 /* ── Waterfall Canvas Container ──────────────────────────────── */
 .sdr-waterfall-container {
   position: relative;
@@ -4827,10 +5011,10 @@ html[data-theme='light'] .network-filter-pill.is-active {
 
 .sdr-waterfall-canvas {
   width: 100%;
-  height: 130px;
+  height: 142px;
   display: block;
   cursor: crosshair;
-  background: rgba(0, 0, 0, 0.95);
+  background: rgba(0, 0, 0, 0.98);
   border: 1px solid rgba(255, 255, 255, 0.08);
 }
 
@@ -4900,6 +5084,8 @@ html[data-theme='light'] .network-filter-pill.is-active {
   border-color: rgba(var(--accent-rgb), 0.6);
   font-weight: 600;
   padding: 8px 16px;
+  min-width: 125px;
+  justify-content: center;
 }
 
 .sdr-power-btn .sdr-power-led {
@@ -4919,6 +5105,41 @@ html[data-theme='light'] .network-filter-pill.is-active {
 .sdr-power-btn.is-active .sdr-power-led {
   background: var(--accent);
   box-shadow: 0 0 8px var(--accent);
+}
+
+.sdr-track-controls {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.sdr-controls-divider {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--hairline);
+  user-select: none;
+  padding: 0 2px;
+}
+
+.sdr-media-btn {
+  padding: 8px 10px;
+}
+
+.sdr-media-btn.is-disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+  pointer-events: none;
+  border-color: var(--hairline);
+}
+
+#sdr-mute-btn {
+  min-width: 68px;
+  justify-content: center;
+}
+
+#sdr-route-ambient-btn {
+  min-width: 130px;
+  justify-content: center;
 }
 
 .sdr-volume-controls {
@@ -5187,6 +5408,22 @@ html[data-theme='light'] .station-subgenre-tag {
   align-items: center;
   justify-content: space-between;
   gap: 8px;
+  width: 100%;
+}
+
+.station-top-left {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.station-top-right {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-left: auto;
+  flex-shrink: 0;
 }
 
 .station-freq-badge {
@@ -5203,6 +5440,49 @@ html[data-theme='light'] .station-subgenre-tag {
   color: var(--accent);
 }
 
+.stream-type-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-family: var(--font-mono);
+  font-size: 7.5px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 1px 5px;
+  border-radius: 2px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.stream-type-tag.is-live {
+  background: rgba(var(--accent-rgb), 0.15);
+  color: var(--accent);
+  border: 1px solid rgba(var(--accent-rgb), 0.4);
+}
+
+.stream-type-tag.is-recorded {
+  background: rgba(var(--bg-rgb), 0.8);
+  color: var(--ink-dim);
+  border: 1px solid var(--hairline);
+}
+
+.stream-pulse-dot {
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  min-width: 6px;
+  min-height: 6px;
+  max-width: 6px;
+  max-height: 6px;
+  aspect-ratio: 1 / 1;
+  flex-shrink: 0;
+  border-radius: 50%;
+  background: var(--accent);
+  box-shadow: 0 0 7px var(--accent);
+  animation: pulse 1.5s infinite;
+  vertical-align: middle;
+}
+
 .direct-tag {
   font-family: var(--font-mono);
   font-size: 8px;
@@ -5212,16 +5492,22 @@ html[data-theme='light'] .station-subgenre-tag {
   color: var(--ink-dim);
 }
 
-/* Live Equalizer Animation Bars */
+/* Live Equalizer Animation Bars — Reserved fixed width to eliminate layout shifts */
 .station-live-eq {
-  display: none;
+  display: inline-flex;
   align-items: flex-end;
   gap: 2px;
   height: 12px;
+  width: 12px;
+  visibility: hidden;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+  flex-shrink: 0;
 }
 
 .sdr-station-card.is-playing .station-live-eq {
-  display: inline-flex;
+  visibility: visible;
+  opacity: 1;
 }
 
 .station-live-eq .eq-bar {
@@ -5248,6 +5534,301 @@ html[data-theme='light'] .station-subgenre-tag {
   100% {
     height: 12px;
   }
+}
+
+/* ── Curated Playlists Shelf ────────────────────────────────── */
+.sdr-playlists-shelf {
+  margin-top: 24px;
+  margin-bottom: 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.sdr-playlists-title-group {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.sdr-playlists-title {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin: 0;
+}
+
+.sdr-playlists-count-badge {
+  font-family: var(--font-mono);
+  font-size: 9.5px;
+  letter-spacing: 0.12em;
+  color: var(--ink-dim);
+}
+
+.sdr-playlists-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 14px;
+}
+
+.sdr-playlist-card {
+  background: rgba(var(--bg-rgb), 0.75);
+  border: 1px dashed rgba(var(--accent-rgb), 0.35);
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  cursor: pointer;
+  border-radius: var(--radius);
+  transition: all 0.15s ease;
+  user-select: none;
+}
+
+.sdr-playlist-card:hover {
+  border-color: var(--accent);
+  background: rgba(var(--bg-rgb), 0.95);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 14px rgba(var(--accent-rgb), 0.2);
+}
+
+.playlist-card-top {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.playlist-tag {
+  font-family: var(--font-mono);
+  font-size: 8px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  padding: 1px 5px;
+  background: rgba(var(--accent-rgb), 0.15);
+  color: var(--accent);
+  border: 1px solid rgba(var(--accent-rgb), 0.4);
+  font-weight: 700;
+  border-radius: 2px;
+}
+
+.playlist-track-badge {
+  font-family: var(--font-mono);
+  font-size: 8px;
+  letter-spacing: 0.1em;
+  padding: 1px 5px;
+  border: 1px solid var(--hairline);
+  color: var(--ink-dim);
+  border-radius: 2px;
+}
+
+.playlist-subgenre-tag {
+  font-family: var(--font-mono);
+  font-size: 8px;
+  letter-spacing: 0.08em;
+  padding: 1px 6px;
+  border-radius: 2px;
+  background: rgba(var(--accent-rgb), 0.12);
+  color: var(--accent);
+  border: 1px solid rgba(var(--accent-rgb), 0.3);
+  margin-left: auto;
+}
+
+.playlist-title {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  color: var(--ink);
+  margin: 0;
+  text-transform: uppercase;
+}
+
+.playlist-desc {
+  font-family: var(--serif);
+  font-size: 13px;
+  line-height: 1.4;
+  color: var(--ink-dim);
+  margin: 0;
+}
+
+.playlist-card-bottom {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding-top: 8px;
+  border-top: 1px dashed var(--hairline);
+  margin-top: auto;
+}
+
+.playlist-genre-label {
+  font-family: var(--font-mono);
+  font-size: 8.5px;
+  letter-spacing: 0.1em;
+  color: var(--ink-dim);
+  text-transform: uppercase;
+}
+
+.playlist-open-cta {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  color: var(--accent);
+  text-transform: uppercase;
+}
+
+/* ── Active Playlist Queue Drawer ───────────────────────────── */
+.sdr-queue-drawer {
+  background: rgba(var(--bg-rgb), 0.9);
+  border: 1px solid var(--accent);
+  padding: 16px;
+  border-radius: var(--radius);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+}
+
+.queue-drawer-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding-bottom: 10px;
+  border-bottom: 1px dashed var(--hairline);
+}
+
+.queue-drawer-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.queue-status-tag {
+  font-family: var(--font-mono);
+  font-size: 8.5px;
+  letter-spacing: 0.14em;
+  color: var(--accent);
+  text-transform: uppercase;
+  font-weight: 600;
+}
+
+.queue-playlist-title {
+  font-family: var(--font-mono);
+  font-size: 15px;
+  letter-spacing: 0.05em;
+  color: var(--ink);
+  text-transform: uppercase;
+  margin: 0;
+}
+
+.queue-close-btn {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  padding: 6px 12px;
+  background: var(--glass-bg-subtle);
+  border: 1px solid var(--hairline);
+  color: var(--ink-dim);
+  cursor: pointer;
+  border-radius: var(--radius);
+  transition: all 0.15s ease;
+}
+
+.queue-close-btn:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.queue-tracks-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  max-height: 240px;
+  overflow-y: auto;
+}
+
+.queue-track-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 6px 10px;
+  background: rgba(var(--bg-rgb), 0.5);
+  border: 1px solid var(--hairline);
+  border-radius: 2px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.queue-track-item:hover {
+  border-color: rgba(var(--accent-rgb), 0.5);
+  background: rgba(var(--accent-rgb), 0.06);
+}
+
+.queue-track-item.is-current {
+  border-color: var(--accent);
+  background: rgba(var(--accent-rgb), 0.15);
+}
+
+.track-item-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+.track-num {
+  font-family: var(--font-mono);
+  font-size: 9.5px;
+  font-weight: 700;
+  color: var(--accent);
+  min-width: 18px;
+}
+
+.track-meta-title {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--ink);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.track-meta-artist {
+  font-family: var(--serif);
+  font-size: 11px;
+  color: var(--ink-dim);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.track-item-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.track-year-tag {
+  font-family: var(--font-mono);
+  font-size: 8.5px;
+  letter-spacing: 0.1em;
+  color: var(--ink-dim);
+}
+
+.track-play-indicator {
+  font-family: var(--font-mono);
+  font-size: 8.5px;
+  letter-spacing: 0.1em;
+  color: var(--accent);
+  font-weight: 600;
 }
 
 .station-card-body {
@@ -5402,7 +5983,7 @@ html[data-theme='light'] .station-subgenre-tag {
   }
 }
 
-/* ── Deep House & Dance Ambient Lightning & Music Sync Rig ───── */
+/* ── House & Electronic Music Ambient Lightning & Music Sync Rig ───── */
 .sdr-deck-wrap {
   position: relative;
   width: 100%;
