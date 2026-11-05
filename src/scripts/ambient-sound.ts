@@ -1989,6 +1989,9 @@ export class AmbientSoundController {
       this.isMediaPlaying = true;
       if (this.isPlaying) {
         this.wasPlayingBeforeMedia = true;
+        try {
+          sessionStorage.setItem('ambient_was_playing_before_media', 'true');
+        } catch {}
         this.isPlaying = false;
         this.updateUI(false);
         if (this.audio && !this.audio.paused) {
@@ -2002,14 +2005,25 @@ export class AmbientSoundController {
         }
       }
       this.microSounds.setEnabled(false);
+      this.updateFxUI();
     } else {
       this.isMediaPlaying = false;
       if (this.isFxEnabled) {
         this.microSounds.setEnabled(true);
       }
+      this.updateFxUI();
       const currentPref = localStorage.getItem('ambient_sound');
-      if (currentPref === 'enabled' && this.wasPlayingBeforeMedia) {
+      let wasPlaying = this.wasPlayingBeforeMedia;
+      try {
+        if (!wasPlaying && sessionStorage.getItem('ambient_was_playing_before_media') === 'true') {
+          wasPlaying = true;
+        }
+      } catch {}
+      if (currentPref === 'enabled' && wasPlaying) {
         this.wasPlayingBeforeMedia = false;
+        try {
+          sessionStorage.removeItem('ambient_was_playing_before_media');
+        } catch {}
         this.play();
       }
     }
@@ -2246,6 +2260,32 @@ export class AmbientSoundController {
       this.audio = audioEl;
     }
 
+    // Check if navigating to a page other than the media page:
+    // Any media deck playback stops, and AMB & FX restore to their previous states.
+    const isMediaPage = window.location.pathname.startsWith('/media');
+    if (!isMediaPage) {
+      if (this.isMediaPlaying) {
+        this.handleMediaCutoff(false);
+      } else {
+        let wasPlaying = this.wasPlayingBeforeMedia;
+        try {
+          if (
+            !wasPlaying &&
+            sessionStorage.getItem('ambient_was_playing_before_media') === 'true'
+          ) {
+            wasPlaying = true;
+          }
+        } catch {}
+        if (wasPlaying && localStorage.getItem('ambient_sound') === 'enabled') {
+          this.wasPlayingBeforeMedia = false;
+          try {
+            sessionStorage.removeItem('ambient_was_playing_before_media');
+          } catch {}
+          this.play();
+        }
+      }
+    }
+
     // Ambient audio only remains active if it is currently playing across client-side view transition
     const isActivelyPlaying =
       (this.audio && !this.audio.paused && this.audio.currentTime > 0) ||
@@ -2261,6 +2301,7 @@ export class AmbientSoundController {
     this.updateFxUI();
     this.updatePersistUI();
 
+    const track = this.getCurrentTrack();
     // If active and audio stopped/paused, resume
     if (this.isPlaying && !this.isMediaPlaying) {
       if (track.type === 'local') {
@@ -2420,27 +2461,30 @@ export class AmbientSoundController {
     } catch {
       // Ignore storage errors
     }
-    this.microSounds.setEnabled(this.isFxEnabled);
+    this.microSounds.setEnabled(this.isFxEnabled && !this.isMediaPlaying);
     this.updateFxUI();
-    if (this.isFxEnabled) {
+    if (this.isFxEnabled && !this.isMediaPlaying) {
       this.microSounds.play('click');
     }
   }
 
   private updateFxUI(): void {
+    const isActivelyOn = this.isFxEnabled && !this.isMediaPlaying;
     this.fxToggleButtons.forEach((btn) => {
-      btn.classList.toggle('is-active', this.isFxEnabled);
-      btn.setAttribute('aria-pressed', this.isFxEnabled ? 'true' : 'false');
+      btn.classList.toggle('is-active', isActivelyOn);
+      btn.setAttribute('aria-pressed', isActivelyOn ? 'true' : 'false');
       btn.setAttribute(
         'title',
-        this.isFxEnabled
+        isActivelyOn
           ? 'Sound Effects: FX [Active] (Click to turn off)'
-          : 'Sound Effects: FX [Muted] (Click to turn on)',
+          : this.isMediaPlaying
+            ? 'Sound Effects: FX [Muted while media is playing]'
+            : 'Sound Effects: FX [Muted] (Click to turn on)',
       );
     });
 
     this.fxLabelElements.forEach((lbl) => {
-      lbl.textContent = this.isFxEnabled ? '// ON' : '// OFF';
+      lbl.textContent = isActivelyOn ? '// ON' : '// OFF';
     });
   }
 
@@ -2573,6 +2617,10 @@ export class AmbientSoundController {
 
   public togglePlayPause(): void {
     if (this.isPlaying) {
+      this.wasPlayingBeforeMedia = false;
+      try {
+        sessionStorage.removeItem('ambient_was_playing_before_media');
+      } catch {}
       this.pause();
       localStorage.setItem('ambient_sound', 'disabled');
     } else {
@@ -2711,22 +2759,23 @@ export class AmbientSoundController {
     );
   }
 
-  private updateUI(playing: boolean): void {
+  private updateUI(playing: boolean = this.isPlaying): void {
+    const isPlaying = Boolean(playing);
     const track = this.getCurrentTrack();
 
     this.toggleButtons.forEach((btn) => {
-      btn.classList.toggle('is-playing', playing);
-      btn.setAttribute('aria-pressed', playing ? 'true' : 'false');
+      btn.classList.toggle('is-playing', isPlaying);
+      btn.setAttribute('aria-pressed', isPlaying ? 'true' : 'false');
       btn.setAttribute(
         'title',
-        playing
+        isPlaying
           ? `Atmospheric Ambient Sound: [${track.subgenre || track.genre || this.currentTheme.toUpperCase()}] ${track.code} — ${track.name} [Active] (Click to Pause, Double-Click to Switch Track)`
           : `Atmospheric Ambient Sound: [${track.subgenre || track.genre || this.currentTheme.toUpperCase()}] ${track.code} — ${track.name} [Muted] (Click to Play, Double-Click to Switch Track)`,
       );
     });
 
     this.labelElements.forEach((lbl) => {
-      lbl.textContent = playing ? `AMB // ${track.code}` : 'AMB // OFF';
+      lbl.textContent = isPlaying ? `AMB // ${track.code}` : 'AMB // OFF';
     });
 
     this.updateFxUI();

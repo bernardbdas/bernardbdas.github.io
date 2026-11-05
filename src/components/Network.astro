@@ -126,6 +126,18 @@ import { NETWORK_PEOPLE, NETWORK_CATEGORIES, type NetworkPerson } from '../data/
                   {person.tier}
                 </span>
               )}
+              {person.experience && (
+                <span
+                  class="network-exp-badge"
+                  title={
+                    person.company
+                      ? `Total Work Experience: ${person.experience} (Currently at ${person.company})`
+                      : `Total Work Experience: ${person.experience}`
+                  }
+                >
+                  {person.experience}
+                </span>
+              )}
               <span class="network-since-badge">SINCE {person.knownSince}</span>
             </div>
           </div>

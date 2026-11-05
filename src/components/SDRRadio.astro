@@ -1500,8 +1500,14 @@ const defaultStation: FMStation = RADIO_STATIONS[0];
       if (this.animFrameId) {
         cancelAnimationFrame(this.animFrameId);
       }
+      if (this.isPlaying && !this.isPiping) {
+        this.isPlaying = false;
+        window.dispatchEvent(new CustomEvent('sdr-radio-stop'));
+      }
       if (this.ytPlayer && typeof this.ytPlayer.destroy === 'function') {
-        this.ytPlayer.destroy();
+        try {
+          this.ytPlayer.destroy();
+        } catch {}
       }
     }
   }
@@ -1532,4 +1538,10 @@ const defaultStation: FMStation = RADIO_STATIONS[0];
   }
 
   document.addEventListener('astro:page-load', initSDR);
+  document.addEventListener('astro:before-swap', () => {
+    if (sdrInstance) {
+      sdrInstance.destroy();
+      sdrInstance = null;
+    }
+  });
 </script>

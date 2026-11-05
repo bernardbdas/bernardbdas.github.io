@@ -189,6 +189,7 @@ export async function executeHardReload(_options: PurgeOptions = {}): Promise<vo
   try {
     window.sessionStorage.clear();
     window.localStorage.clear();
+    localStorage.setItem('ambient_sound', 'disabled');
     appendLog(terminalBody, 'STORAGE REGISTRIES RESET TO FACTORY ZERO', 'success');
   } catch (err) {
     appendLog(terminalBody, `STORAGE WIPE ERROR: ${String(err)}`, 'warn');

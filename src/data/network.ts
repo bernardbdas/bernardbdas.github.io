@@ -7,12 +7,14 @@
  */
 
 export type NetworkCategory =
-  'ENGINEERING' | 'DESIGN' | 'DATA' | 'CONSULTING' | 'RESEARCH' | 'ACADEMIA';
+  'ENGINEERING' | 'DESIGN' | 'DATA' | 'MANAGEMENT' | 'RESEARCH' | 'ACADEMIA';
 
 export interface NetworkPerson {
   id: string;
   name: string;
   role: string;
+  company?: string;
+  experience?: string; // Total work experience, e.g. '4Y 9M EXP'
   knownSince: string; // Year association began, e.g. '2019'
   tier?: 'FACULTY' | 'RESEARCH PEER' | 'COLLEAGUE' | 'PROFESSIONAL PEER';
   categories: NetworkCategory[];
@@ -33,7 +35,7 @@ export const NETWORK_CATEGORIES: NetworkCategory[] = [
   'ENGINEERING',
   'DESIGN',
   'DATA',
-  'CONSULTING',
+  'MANAGEMENT',
   'RESEARCH',
   'ACADEMIA',
 ];
@@ -43,7 +45,9 @@ export const NETWORK_PEOPLE: NetworkPerson[] = [
   {
     id: 'rohan-chakraborty',
     name: 'Rohan Chakraborty',
-    role: 'Senior Frontend Engineer',
+    role: 'Senior Frontend Engineer @ Pixxel',
+    company: 'Pixxel',
+    experience: '4Y 9M EXP',
     knownSince: '2019',
     tier: 'COLLEAGUE',
     categories: ['ENGINEERING', 'DESIGN'],
@@ -53,6 +57,7 @@ export const NETWORK_PEOPLE: NetworkPerson[] = [
     tags: ['React', 'Next.js', 'TypeScript', 'UI/UX', 'Frontend Architecture', 'CSS'],
     links: {
       linkedin: 'https://www.linkedin.com/in/rohanchkrabrty/',
+      github: 'https://github.com/rohanchkrabrty',
       website: 'https://rohan.codes/',
     },
   },
@@ -61,10 +66,12 @@ export const NETWORK_PEOPLE: NetworkPerson[] = [
   {
     id: 'ankit-ajay',
     name: 'Ankit Ajay',
-    role: 'IT Consultant',
+    role: 'IT Consultant @ EY',
+    company: 'EY',
+    experience: '3Y 6M EXP',
     knownSince: '2019',
     tier: 'COLLEAGUE',
-    categories: ['CONSULTING'],
+    categories: ['MANAGEMENT'],
     connectionContext: [
       "St. Xavier's College (Autonomous), Kolkata, West Bengal",
       'CHRIST (Deemed-to-be-University), Bangalore, Karnataka',
@@ -83,6 +90,7 @@ export const NETWORK_PEOPLE: NetworkPerson[] = [
     ],
     links: {
       linkedin: 'https://www.linkedin.com/in/ankit-ajay-325b231b1/',
+      github: 'https://github.com/BitNomad17',
     },
   },
 
@@ -90,7 +98,9 @@ export const NETWORK_PEOPLE: NetworkPerson[] = [
   {
     id: 'shubha-angaria',
     name: 'Shubha Angaria',
-    role: 'Full Stack Engineer',
+    role: 'Full Stack Engineer @ Trivium eSolutions',
+    company: 'Trivium eSolutions',
+    experience: '3Y 11M EXP',
     knownSince: '2021',
     tier: 'COLLEAGUE',
     categories: ['ENGINEERING'],
@@ -100,6 +110,7 @@ export const NETWORK_PEOPLE: NetworkPerson[] = [
     tags: ['Java', 'Spring Boot', 'React', 'Angular', 'AWS', 'Docker', 'REST APIs', 'CI/CD'],
     links: {
       linkedin: 'https://www.linkedin.com/in/shubha-a-b38573212/',
+      github: 'https://github.com/shubhajyotsna',
     },
   },
 
@@ -110,19 +121,14 @@ export const NETWORK_PEOPLE: NetworkPerson[] = [
     role: 'Business Analyst',
     knownSince: '2021',
     tier: 'COLLEAGUE',
-    categories: ['CONSULTING'],
+    categories: ['MANAGEMENT'],
     connectionContext: 'CHRIST (Deemed-to-be-University), Bangalore, Karnataka',
     endorsement:
-      'A structured, results-oriented business consultant with an MBA from CHRIST University. Having collaborated closely with Prabhkirat firsthand, I can attest to her disciplined execution, strategic problem-solving capabilities, and strong leadership in driving cross-functional business initiatives.',
-    tags: [
-      'Business Consulting',
-      'Strategy',
-      'Operations',
-      'Project Management',
-      'Market Analysis',
-    ],
+      'A structured, results-oriented business analyst with an MBA from CHRIST University. Having collaborated closely with Prabhkirat firsthand, I can attest to her disciplined execution, strategic problem-solving capabilities, and strong leadership in driving cross-functional business initiatives.',
+    tags: ['Business Analyst', 'Strategy', 'Operations', 'Project Management', 'Market Analysis'],
     links: {
       linkedin: 'https://www.linkedin.com/in/prabhkirat-kaur/',
+      github: 'https://github.com/prabhkirat-kaur',
     },
   },
 
