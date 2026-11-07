@@ -149,22 +149,10 @@ const groups: SkillGroup[] = [
 ---
 
 <section class="section anim-s4" id="skills" aria-labelledby="skills-heading">
-  <div class="skills-header-row">
-    <div>
-      <p class="micro-label">
-        <Loader />
-        Skills
-      </p>
-      <h2 class="section-heading" id="skills-heading">
-        My Arsenal
-      </h2>
-    </div>
-    <div class="skills-meta-badge" title="Full Stack AI & Systems Competency Index">
-      <span class="badge-accent">8 DOMAINS</span>
-      <span class="badge-sep">//</span>
-      <span>70+ PRODUCTION SKILLS</span>
-    </div>
-  </div>
+  <p class="micro-label" id="skills-heading">
+    <Loader />
+    Skills
+  </p>
 
   <div class="skills-grid">
     {groups.map((group) => (
@@ -175,19 +163,23 @@ const groups: SkillGroup[] = [
           <h3 class="skill-group-name">{group.label}</h3>
         </div>
 
-        <div class="skill-badges-wrap">
-          {/* Flagship Skills Highlighted */}
-          {group.highlightItems.map((hItem) => (
-            <span class="skill-pill highlight" title="Flagship Production Skill">
-              <span class="skill-dot"></span>
-              {hItem}
-            </span>
-          ))}
+        <div class="card-wordy-content">
+          <div class="card-wordy-inner">
+            <div class="skill-badges-wrap">
+              {/* Flagship Skills Highlighted */}
+              {group.highlightItems.map((hItem) => (
+                <span class="skill-pill highlight" title="Flagship Production Skill">
+                  <span class="skill-dot"></span>
+                  {hItem}
+                </span>
+              ))}
 
-          {/* Standard Items */}
-          {group.items.map((item) => (
-            <span class="skill-pill">{item}</span>
-          ))}
+              {/* Standard Items */}
+              {group.items.map((item) => (
+                <span class="skill-pill">{item}</span>
+              ))}
+            </div>
+          </div>
         </div>
       </div>
     ))}

@@ -343,3 +343,9 @@ if (document.readyState === 'loading') {
 } else {
   initClientTelemetry();
 }
+
+if (typeof window !== 'undefined') {
+  window.addEventListener('easter-egg:unlock', () => {
+    initClientTelemetry();
+  });
+}

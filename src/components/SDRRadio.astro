@@ -146,42 +146,15 @@ const defaultStation: FMStation = RADIO_STATIONS[0];
               {defaultStation.desc}
             </p>
 
-            <!-- Timeline Scrubber & 24/7 Real-Time Live Status -->
+            <!-- Broadcast Stream RF Notice -->
             <div class="sdr-timeline-panel" id="sdr-timeline-panel">
-              <div
-                class="sdr-timeline-track-wrap"
-                id="sdr-timeline-track-wrap"
-                style={defaultStation.streamType === 'live' ? 'display: none;' : 'display: flex;'}
-              >
-                <span class="sdr-time-code" id="sdr-time-current">
-                  00:00
-                </span>
-                <div
-                  class="sdr-timeline-track"
-                  id="sdr-timeline-track"
-                  role="slider"
-                  aria-label="Playback track scrubber"
-                  aria-valuemin="0"
-                  aria-valuemax="100"
-                  aria-valuenow="0"
-                  tabindex="0"
-                >
-                  <div class="sdr-timeline-fill" id="sdr-timeline-fill" style="width: 0%;"></div>
-                  <div class="sdr-timeline-thumb" id="sdr-timeline-thumb" style="left: 0%;"></div>
-                </div>
-                <span class="sdr-time-code" id="sdr-time-total">
-                  --:--
-                </span>
-              </div>
-              <div
-                class="sdr-timeline-live-notice"
-                id="sdr-timeline-live-notice"
-                style={
-                  defaultStation.streamType === 'live' ? 'display: inline-flex;' : 'display: none;'
-                }
-              >
+              <div class="sdr-timeline-live-notice" id="sdr-timeline-live-notice">
                 <span class="stream-pulse-dot" aria-hidden="true"></span>
-                <span>24/7 REAL-TIME CONTINUOUS BROADCAST // DIRECT SATELLITE &amp; RF STREAM</span>
+                <span id="sdr-broadcast-status-text">
+                  {defaultStation.streamType === 'live'
+                    ? '24/7 REAL-TIME CONTINUOUS BROADCAST // DIRECT SATELLITE & RF STREAM'
+                    : 'ARCHIVED MASTER RECORDING // DIRECT SATELLITE & RF STREAM'}
+                </span>
               </div>
             </div>
           </div>
@@ -367,18 +340,27 @@ const defaultStation: FMStation = RADIO_STATIONS[0];
 
         <div class="sdr-volume-controls">
           <div class="sdr-vol-wrap">
+            <button
+              type="button"
+              class="sdr-btn sdr-vol-btn"
+              id="sdr-vol-down"
+              aria-label="Decrease Volume"
+              title="Decrease Volume by 10%"
+            >
+              <span>-</span>
+            </button>
             <span class="vol-label" id="vol-display-label">
               VOL: 80%
             </span>
-            <input
-              type="range"
-              id="sdr-volume-slider"
-              class="sdr-slider"
-              min="0"
-              max="100"
-              value="80"
-              aria-label="Radio Volume Control"
-            />
+            <button
+              type="button"
+              class="sdr-btn sdr-vol-btn"
+              id="sdr-vol-up"
+              aria-label="Increase Volume"
+              title="Increase Volume by 10%"
+            >
+              <span>+</span>
+            </button>
           </div>
 
           <button
@@ -528,32 +510,6 @@ const defaultStation: FMStation = RADIO_STATIONS[0];
         </div>
       </div>
 
-      <!-- Interactive Progress Bar / Scrubber -->
-      <div class="active-pl-scrubber-panel">
-        <div class="active-pl-scrubber-row">
-          <span class="active-pl-time-code" id="active-pl-time-current">
-            00:00
-          </span>
-          <div
-            class="active-pl-track-bar"
-            id="active-pl-track-bar"
-            role="slider"
-            aria-label="Playlist track progress scrubber"
-            aria-valuemin="0"
-            aria-valuemax="100"
-            aria-valuenow="0"
-            tabindex="0"
-            title="Click or drag to scrub track"
-          >
-            <div class="active-pl-track-fill" id="active-pl-track-fill" style="width: 0%;"></div>
-            <div class="active-pl-track-thumb" id="active-pl-track-thumb" style="left: 0%;"></div>
-          </div>
-          <span class="active-pl-time-code" id="active-pl-time-total">
-            --:--
-          </span>
-        </div>
-      </div>
-
       <!-- Tactical Media Controls Row -->
       <div class="active-pl-controls-bar">
         <div class="active-pl-playback-group">
@@ -580,26 +536,6 @@ const defaultStation: FMStation = RADIO_STATIONS[0];
             title="Previous Track"
           >
             <span>⏮ PREV TRK</span>
-          </button>
-
-          <button
-            type="button"
-            class="sdr-btn active-pl-seek-btn"
-            id="active-pl-rewind-btn"
-            aria-label="Rewind 15 seconds"
-            title="Rewind 15 Seconds"
-          >
-            <span>↺ -15S</span>
-          </button>
-
-          <button
-            type="button"
-            class="sdr-btn active-pl-seek-btn"
-            id="active-pl-forward-btn"
-            aria-label="Forward 15 seconds"
-            title="Forward 15 Seconds"
-          >
-            <span>↻ +15S</span>
           </button>
 
           <button
@@ -1084,18 +1020,6 @@ const defaultStation: FMStation = RADIO_STATIONS[0];
       if (plTrackEl) plTrackEl.setAttribute('aria-valuenow', pct.toFixed(0));
     }
 
-    private seekDelta(delta: number) {
-      if (!this.ytPlayer || typeof this.ytPlayer.getCurrentTime !== 'function') return;
-      if (!this.activePlaylist && this.currentStation.streamType === 'live') return;
-      try {
-        const cur = this.ytPlayer.getCurrentTime() || 0;
-        const dur = this.ytPlayer.getDuration() || 0;
-        const target = Math.max(0, dur > 0 ? Math.min(dur, cur + delta) : cur + delta);
-        this.ytPlayer.seekTo(target, true);
-        this.updateScrubberDisplay(target, dur);
-      } catch {}
-    }
-
     // ── Playlist Engine ───────────────────────────────────────
     private playPlaylist(playlistId: string, trackIndex = 0) {
       const pl = SDR_PLAYLISTS.find((p) => p.id === playlistId);
@@ -1252,17 +1176,9 @@ const defaultStation: FMStation = RADIO_STATIONS[0];
         origin: 'Master Tape Archive',
       };
 
-      const trackWrap = document.getElementById('sdr-timeline-track-wrap');
-      const liveNotice = document.getElementById('sdr-timeline-live-notice');
-      if (trackWrap) trackWrap.style.display = 'flex';
-      if (liveNotice) liveNotice.style.display = 'none';
-
-      const rBtn = document.getElementById('sdr-rewind-btn');
-      const fBtn = document.getElementById('sdr-forward-btn');
-      rBtn?.classList.remove('is-disabled');
-      fBtn?.classList.remove('is-disabled');
-      rBtn?.removeAttribute('aria-disabled');
-      fBtn?.removeAttribute('aria-disabled');
+      const statusText = document.getElementById('sdr-broadcast-status-text');
+      if (statusText)
+        statusText.textContent = 'ARCHIVED MASTER RECORDING // DIRECT SATELLITE & RF STREAM';
 
       if (this.ytPlayer && typeof this.ytPlayer.loadVideoById === 'function') {
         this.setStatusText(`PLAYLIST // [${track.title.toUpperCase()}]`);
@@ -1341,12 +1257,6 @@ const defaultStation: FMStation = RADIO_STATIONS[0];
         this.stepTune(0.1);
       });
 
-      // Rewind / Forward controls (-15s / +15s)
-      const rewindBtn = document.getElementById('sdr-rewind-btn');
-      const forwardBtn = document.getElementById('sdr-forward-btn');
-      rewindBtn?.addEventListener('click', () => this.seekDelta(-15));
-      forwardBtn?.addEventListener('click', () => this.seekDelta(15));
-
       // Playlist track navigation
       const prevTrackBtn = document.getElementById('sdr-track-prev-btn');
       const nextTrackBtn = document.getElementById('sdr-track-next-btn');
@@ -1370,49 +1280,15 @@ const defaultStation: FMStation = RADIO_STATIONS[0];
       const plNextTrk = document.getElementById('active-pl-next-trk-btn');
       plNextTrk?.addEventListener('click', () => this.playNextPlaylistTrack());
 
-      const plRewindBtn = document.getElementById('active-pl-rewind-btn');
-      plRewindBtn?.addEventListener('click', () => this.seekDelta(-15));
+      // Volume step buttons (- / +)
+      const volDownBtn = document.getElementById('sdr-vol-down');
+      volDownBtn?.addEventListener('click', () => {
+        this.setVolume(Math.max(0, this.volume - 10));
+      });
 
-      const plForwardBtn = document.getElementById('active-pl-forward-btn');
-      plForwardBtn?.addEventListener('click', () => this.seekDelta(15));
-
-      const plTrackBar = document.getElementById('active-pl-track-bar');
-      if (plTrackBar) {
-        plTrackBar.addEventListener('click', (e: MouseEvent) => {
-          if (!this.ytPlayer || typeof this.ytPlayer.getDuration !== 'function') return;
-          const rect = plTrackBar.getBoundingClientRect();
-          const ratio = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
-          const dur = this.ytPlayer.getDuration() || 0;
-          if (dur > 0) {
-            const target = ratio * dur;
-            this.ytPlayer.seekTo(target, true);
-            this.updateScrubberDisplay(target, dur);
-          }
-        });
-      }
-
-      // Interactive timeline track scrub
-      const timelineTrack = document.getElementById('sdr-timeline-track');
-      if (timelineTrack) {
-        timelineTrack.addEventListener('click', (e: MouseEvent) => {
-          if (!this.ytPlayer || typeof this.ytPlayer.getDuration !== 'function') return;
-          if (!this.activePlaylist && this.currentStation.streamType === 'live') return;
-          const rect = timelineTrack.getBoundingClientRect();
-          const ratio = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
-          const dur = this.ytPlayer.getDuration() || 0;
-          if (dur > 0) {
-            const target = ratio * dur;
-            this.ytPlayer.seekTo(target, true);
-            this.updateScrubberDisplay(target, dur);
-          }
-        });
-      }
-
-      // Volume slider
-      const volSlider = document.getElementById('sdr-volume-slider') as HTMLInputElement | null;
-      volSlider?.addEventListener('input', (e) => {
-        const val = parseInt((e.target as HTMLInputElement).value, 10);
-        this.setVolume(val);
+      const volUpBtn = document.getElementById('sdr-vol-up');
+      volUpBtn?.addEventListener('click', () => {
+        this.setVolume(Math.min(100, this.volume + 10));
       });
 
       // Mute toggle
@@ -1790,15 +1666,12 @@ const defaultStation: FMStation = RADIO_STATIONS[0];
     }
 
     private setVolume(val: number) {
-      this.volume = val;
+      this.volume = Math.max(0, Math.min(100, val));
       const volLabel = document.getElementById('vol-display-label');
-      if (volLabel) volLabel.textContent = `VOL: ${val}%`;
-
-      const mainVol = document.getElementById('sdr-volume-slider') as HTMLInputElement | null;
-      if (mainVol && mainVol.value !== String(val)) mainVol.value = String(val);
+      if (volLabel) volLabel.textContent = `VOL: ${this.volume}%`;
 
       if (this.ytPlayer && typeof this.ytPlayer.setVolume === 'function') {
-        this.ytPlayer.setVolume(val);
+        this.ytPlayer.setVolume(this.volume);
       }
     }
 
@@ -2002,22 +1875,12 @@ const defaultStation: FMStation = RADIO_STATIONS[0];
         streamBadge.textContent = isLiveStation ? '● 24/7 LIVE' : 'PRE-RECORDED ARCHIVE';
       }
 
-      // Toggle timeline scrubber vs live real-time notice
-      const trackWrap = document.getElementById('sdr-timeline-track-wrap');
-      const liveNotice = document.getElementById('sdr-timeline-live-notice');
-      if (trackWrap) trackWrap.style.display = isLiveStation ? 'none' : 'flex';
-      if (liveNotice) liveNotice.style.display = isLiveStation ? 'inline-flex' : 'none';
-
-      // Toggle seek buttons disabled state
-      const rewindBtn = document.getElementById('sdr-rewind-btn');
-      const forwardBtn = document.getElementById('sdr-forward-btn');
-      if (rewindBtn) {
-        rewindBtn.classList.toggle('is-disabled', isLiveStation);
-        rewindBtn.setAttribute('aria-disabled', isLiveStation ? 'true' : 'false');
-      }
-      if (forwardBtn) {
-        forwardBtn.classList.toggle('is-disabled', isLiveStation);
-        forwardBtn.setAttribute('aria-disabled', isLiveStation ? 'true' : 'false');
+      // Update RF stream status notice
+      const statusText = document.getElementById('sdr-broadcast-status-text');
+      if (statusText) {
+        statusText.textContent = isLiveStation
+          ? '24/7 REAL-TIME CONTINUOUS BROADCAST // DIRECT SATELLITE & RF STREAM'
+          : 'ARCHIVED MASTER RECORDING // DIRECT SATELLITE & RF STREAM';
       }
 
       // Update RSSI based on frequency (simulated RF field)

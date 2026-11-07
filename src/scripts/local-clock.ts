@@ -405,3 +405,13 @@ if (document.readyState === 'loading') {
 }
 
 document.addEventListener('astro:page-load', initLocalClock);
+
+if (typeof window !== 'undefined') {
+  window.addEventListener('easter-egg:unlock', () => {
+    const container = document.getElementById('local-clock');
+    if (container) {
+      delete container.dataset.clockBound;
+    }
+    initLocalClock();
+  });
+}

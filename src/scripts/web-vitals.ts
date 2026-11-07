@@ -269,3 +269,9 @@ if (document.readyState === 'loading') {
 } else {
   initWebVitals();
 }
+
+if (typeof window !== 'undefined') {
+  window.addEventListener('easter-egg:unlock', () => {
+    initWebVitals();
+  });
+}

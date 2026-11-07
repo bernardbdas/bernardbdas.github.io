@@ -92,7 +92,27 @@ const education: EduEntry[] = [
     <div class="edu-list" role="list">
       {experience.map((item) => (
         <div class="edu-item" role="listitem">
-          <span class="edu-period">{item.period}</span>
+          <span class="edu-period">
+            {item.period.includes('–') ? (
+              <>
+                <span>{item.period.split('–')[0].trim()}</span>
+                <span class="period-sep" aria-hidden="true">
+                  /
+                </span>
+                <span>{item.period.split('–')[1].trim()}</span>
+              </>
+            ) : item.period.includes('-') ? (
+              <>
+                <span>{item.period.split('-')[0].trim()}</span>
+                <span class="period-sep" aria-hidden="true">
+                  /
+                </span>
+                <span>{item.period.split('-')[1].trim()}</span>
+              </>
+            ) : (
+              item.period
+            )}
+          </span>
           <div class="edu-details">
             <span class="edu-institute">{item.company}</span>
             <span class="edu-degree">
@@ -110,7 +130,27 @@ const education: EduEntry[] = [
     <div class="edu-list" role="list">
       {education.map((item) => (
         <div class="edu-item" role="listitem">
-          <span class="edu-period">{item.period}</span>
+          <span class="edu-period">
+            {item.period.includes('–') ? (
+              <>
+                <span>{item.period.split('–')[0].trim()}</span>
+                <span class="period-sep" aria-hidden="true">
+                  /
+                </span>
+                <span>{item.period.split('–')[1].trim()}</span>
+              </>
+            ) : item.period.includes('-') ? (
+              <>
+                <span>{item.period.split('-')[0].trim()}</span>
+                <span class="period-sep" aria-hidden="true">
+                  /
+                </span>
+                <span>{item.period.split('-')[1].trim()}</span>
+              </>
+            ) : (
+              item.period
+            )}
+          </span>
           <div class="edu-details">
             <span class="edu-institute">{item.institute}</span>
             <span class="edu-degree">{item.degree}</span>

@@ -231,3 +231,9 @@ if (document.readyState === 'loading') {
 }
 
 document.addEventListener('astro:page-load', initAgeCounter);
+
+if (typeof window !== 'undefined') {
+  window.addEventListener('easter-egg:unlock', () => {
+    initAgeCounter();
+  });
+}

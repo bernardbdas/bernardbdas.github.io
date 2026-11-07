@@ -148,7 +148,7 @@ export const projects: Project[] = [
     id: 'SYS_02',
     name: 'Distributed 3D-Parallel Foundation Model Pre-Training & Alignment Cluster',
     category: 'DISTRIBUTED HPC & POST-TRAINING',
-    metric: '48.2% MFU // 32x H100 Scale // 32k Long-Context',
+    metric: '48.2% MFU // 32x H100 Scale',
     desc: 'Scalable distributed training harness engineered for pre-training and alignment of a 14B Mixture-of-Experts (MoE) foundation model. Coordinates 3D parallelism across multi-node GPU clusters using PyTorch FSDP, DeepSpeed ZeRO-3, and Megatron-LM. Fine-tuned with Direct Preference Optimization (DPO) and online PPO/GRPO reinforcement learning.',
     highlights: [
       'Achieved 48.2% Model FLOPs Utilization (MFU) with zero gradient divergence across 32k context lengths',
@@ -262,7 +262,7 @@ export const projects: Project[] = [
     id: 'SYS_03',
     name: 'Ultra-Low-Latency Real-Time LLM Serving Mesh with Speculative Decoding',
     category: 'INFERENCE ACCEL & CUSTOM KERNELS',
-    metric: '4.2x Throughput // 68% p99 Latency Drop // 38% Cache Hit',
+    metric: '4.2x Throughput // 68% p99 Latency Drop',
     desc: 'High-throughput distributed model serving pipeline built for real-time generative workloads. Combines vLLM continuous batching and chunked prefill with speculative draft decoding (1.5B draft assisting 70B target). Features custom OpenAI Triton kernels for fused rotary embeddings and dynamic FP8/AWQ quantization.',
     highlights: [
       '4.2x throughput increase over baseline serving with sub-32ms per-token generation latency',
@@ -372,7 +372,7 @@ export const projects: Project[] = [
     id: 'SYS_04',
     name: 'Self-Healing Enterprise MLOps Platform & Continuous Evaluation Mesh',
     category: 'CLOUD MLOPS & PRODUCTION INFRA',
-    metric: '99.99% Uptime // Sub-Second GPU HPA // Zero-Downtime Rollouts',
+    metric: '99.99% Uptime // Sub-Second GPU HPA',
     desc: 'Cloud-native automated MLOps platform managing the entire model lifecycle from automated data validation to zero-downtime canary deployments on Kubernetes. Features real-time feature and concept drift monitoring that automatically triggers active learning re-training pipelines, backed by automated LLM-as-a-Judge evaluation suites.',
     highlights: [
       'Automated drift detection via Evidently AI triggering zero-touch re-training in Argo Workflows',
@@ -487,7 +487,7 @@ export const projects: Project[] = [
     id: 'SYS_05',
     name: 'Multi-Modal Vision-Language Edge Perception System',
     category: 'EDGE AI & EMBEDDED ACCELERATION',
-    metric: '60 FPS Real-Time (<18ms) // 75% Memory Cut // <25W Power',
+    metric: '60 FPS Real-Time // 75% Memory Cut',
     desc: 'Ultra-efficient edge vision-language reasoning engine deployed on NVIDIA Jetson AGX Orin for autonomous robotics and situational awareness. Features 4-bit AWQ weight quantization, TensorRT acceleration, open-vocabulary object grounding, and temporal video stream comprehension under strict embedded power constraints.',
     highlights: [
       'Sub-18ms end-to-end perception latency at 60 FPS running entirely within a 25W power envelope',
@@ -588,8 +588,8 @@ export const projects: Project[] = [
   {
     id: 'SYS_06',
     name: 'Real-Time Streaming Feature Store & Dual-Stage Recommendation Mesh',
-    category: 'STREAMING DATA & HIGH-THROUGHPUT RECSYS',
-    metric: '<18ms p99 at 75k QPS // Feature Freshness <150ms',
+    category: 'STREAMING DATA & RECSYS',
+    metric: '<18ms p99 at 75k QPS // Freshness <150ms',
     desc: 'High-velocity personalization pipeline processing 100k+ events/sec. Dual-stage retrieval architecture: candidate generation via Two-Tower embedding indexing in ScaNN, followed by deep transformer ranking (DLRM) served through Triton Inference Server, with strict point-in-time correctness to eliminate train-serve skew.',
     highlights: [
       'Processes 75,000 queries per second with p99 latency strictly below 18ms',

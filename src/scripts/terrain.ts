@@ -71,11 +71,150 @@ export function initTerrainScene(): void {
     powerPreference: 'high-performance',
   });
   renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-  renderer.setClearColor(0x07090a, 1);
+  renderer.setClearColor(0x080822, 1);
+  renderer.autoClear = false;
+
+  // ── 90s SYNTHWAVE AURORA BACKGROUND SKY (Variant Reference Shader) ──
+  const bgScene = new THREE.Scene();
+  const bgCamera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1);
+  const bgGeom = new THREE.PlaneGeometry(2, 2);
+
+  const bgVertexShader = /* glsl */ `
+    varying vec2 vUv;
+    void main() {
+      vUv = uv;
+      gl_Position = vec4(position, 1.0);
+    }
+  `;
+
+  const bgFragmentShader = /* glsl */ `
+    precision highp float;
+    uniform float u_time;
+    uniform vec2 u_resolution;
+    uniform float u_theme;
+    uniform vec3 u_bg;
+    uniform vec3 u_c1;
+    uniform vec3 u_c2;
+    uniform vec3 u_c3;
+    varying vec2 vUv;
+
+    // Simplex 3D Noise function (Ashima Arts)
+    vec4 permute(vec4 x) { return mod(((x * 34.0) + 1.0) * x, 289.0); }
+    vec4 taylorInvSqrt(vec4 r) { return 1.79284291400159 - 0.85373472095314 * r; }
+    float snoise(vec3 v) {
+      const vec2 C = vec2(1.0 / 6.0, 1.0 / 3.0);
+      const vec4 D = vec4(0.0, 0.5, 1.0, 2.0);
+      vec3 i = floor(v + dot(v, C.yyy));
+      vec3 x0 = v - i + dot(i, C.xxx);
+      vec3 g = step(x0.yzx, x0.xyz);
+      vec3 l = 1.0 - g;
+      vec3 i1 = min(g.xyz, l.zxy);
+      vec3 i2 = max(g.xyz, l.zxy);
+      vec3 x1 = x0 - i1 + 1.0 * C.xxx;
+      vec3 x2 = x0 - i2 + 2.0 * C.xxx;
+      vec3 x3 = x0 - 1.0 + 3.0 * C.xxx;
+      i = mod(i, 289.0);
+      vec4 p = permute(permute(permute(
+                i.z + vec4(0.0, i1.z, i2.z, 1.0))
+              + i.y + vec4(0.0, i1.y, i2.y, 1.0))
+              + i.x + vec4(0.0, i1.x, i2.x, 1.0));
+      float n_ = 1.0 / 7.0;
+      vec3 ns = n_ * D.wyz - D.xzx;
+      vec4 j = p - 49.0 * floor(p * ns.z * ns.z);
+      vec4 x_ = floor(j * ns.z);
+      vec4 y_ = floor(j - 7.0 * x_);
+      vec4 x = x_ * ns.x + ns.yyyy;
+      vec4 y = y_ * ns.x + ns.yyyy;
+      vec4 h = 1.0 - abs(x) - abs(y);
+      vec4 b0 = vec4(x.xy, y.xy);
+      vec4 b1 = vec4(x.zw, y.zw);
+      vec4 s0 = floor(b0) * 2.0 + 1.0;
+      vec4 s1 = floor(b1) * 2.0 + 1.0;
+      vec4 sh = -step(h, vec4(0.0));
+      vec4 a0 = b0.xzyw + s0.xzyw * sh.xxyy;
+      vec4 a1 = b1.xzyw + s1.xzyw * sh.zzww;
+      vec3 p0 = vec3(a0.xy, h.x);
+      vec3 p1 = vec3(a0.zw, h.y);
+      vec3 p2 = vec3(a1.xy, h.z);
+      vec3 p3 = vec3(a1.zw, h.w);
+      vec4 norm = taylorInvSqrt(vec4(dot(p0, p0), dot(p1, p1), dot(p2, p2), dot(p3, p3)));
+      p0 *= norm.x;
+      p1 *= norm.y;
+      p2 *= norm.z;
+      p3 *= norm.w;
+      vec4 m = max(0.6 - vec4(dot(x0, x0), dot(x1, x1), dot(x2, x2), dot(x3, x3)), 0.0);
+      m = m * m;
+      return 42.0 * dot(m * m, vec4(dot(p0, x0), dot(p1, x1), dot(p2, x2), dot(p3, x3)));
+    }
+
+    // Pseudo-random function for grain
+    float random(vec2 st) {
+      return fract(sin(dot(st.xy, vec2(12.9898, 78.233))) * 43758.5453123);
+    }
+
+    void main() {
+      vec2 uv = gl_FragCoord.xy / u_resolution.xy;
+      vec2 st = uv;
+      st.x *= u_resolution.x / u_resolution.y;
+
+      // Fluid, slow atmospheric evolution
+      float t = u_time * 0.15;
+
+      // Multi-layered organic simplex distortion
+      float n1 = snoise(vec3(st * 1.5, t));
+      float n2 = snoise(vec3(st * 3.0 - n1, t * 1.2));
+      float n3 = snoise(vec3(st * 1.0 + n2 * 0.5, t * 0.8));
+      float noiseVal = n1 * 0.5 + n2 * 0.3 + n3 * 0.2;
+
+      // Domain warp coordinate space
+      vec2 warpedUv = uv + vec2(noiseVal * 0.2, n2 * 0.2);
+
+      // Coordinate mixing
+      float mix1 = smoothstep(-0.5, 1.0, warpedUv.x + warpedUv.y * 0.5 + noiseVal);
+      float mix2 = smoothstep(-0.2, 0.8, warpedUv.y - warpedUv.x + n2 * 0.5);
+      float mix3 = smoothstep(0.0, 1.2, length(st - vec2(0.5)) - noiseVal * 0.5);
+
+      vec3 finalColor = u_bg;
+      finalColor = mix(finalColor, u_c1, mix1 * 0.85);
+      finalColor = mix(finalColor, u_c2, mix2 * 0.75);
+      finalColor = mix(finalColor, u_c3, (1.0 - mix3) * 0.65);
+
+      // Extra vibrancy for dark mode
+      finalColor = mix(finalColor, finalColor * 1.25, (1.0 - u_theme) * 0.35);
+
+      // High-frequency subtle film grain
+      float grain = random(uv * 23.17 + fract(u_time * 0.08)) - 0.5;
+      float grainIntensity = mix(0.07, 0.025, u_theme);
+      finalColor += grain * grainIntensity;
+
+      gl_FragColor = vec4(finalColor, 1.0);
+    }
+  `;
+
+  const bgUniforms = {
+    u_time: { value: 0.0 },
+    u_resolution: { value: new THREE.Vector2(window.innerWidth, window.innerHeight) },
+    u_theme: { value: 0.0 },
+    u_bg: { value: new THREE.Color(0.08, 0.08, 0.22) },
+    u_c1: { value: new THREE.Color(0.16, 0.18, 0.48) },
+    u_c2: { value: new THREE.Color(1.0, 0.42, 0.21) },
+    u_c3: { value: new THREE.Color(0.8, 0.2, 0.33) },
+  };
+
+  const bgMat = new THREE.ShaderMaterial({
+    vertexShader: bgVertexShader,
+    fragmentShader: bgFragmentShader,
+    uniforms: bgUniforms,
+    depthWrite: false,
+    depthTest: false,
+  });
+
+  const bgMesh = new THREE.Mesh(bgGeom, bgMat);
+  bgScene.add(bgMesh);
 
   // Scene & Fog (exact glennso)
   const scene = new THREE.Scene();
-  scene.fog = new THREE.Fog(0x07090a, 60, 220);
+  scene.fog = new THREE.Fog(0x080822, 60, 220);
 
   // Camera - exact glennso setup
   const camera = new THREE.PerspectiveCamera(42, 1, 0.1, 600);
@@ -235,18 +374,19 @@ export function initTerrainScene(): void {
       float hN = clamp((vElevation + 5.0) / 12.0, 0.0, 1.0);
 
       vec3 col;
+      float alpha = 1.0;
       if (uIsLight > 0.5) {
-        // ── LIGHT MODE: Exact same glennso landscape rendered as architectural drafting ──
-        vec3 paperBase  = uFogColor; // #f4f5ee
-        vec3 slopeColor = vec3(0.85, 0.89, 0.81);
-        vec3 peakColor  = vec3(0.74, 0.80, 0.68);
+        // ── LIGHT MODE: Crisp gallery porcelain landscape rendered as architectural drafting ──
+        vec3 paperBase  = uFogColor; // #f6f8fb
+        vec3 slopeColor = vec3(0.88, 0.92, 0.97);
+        vec3 peakColor  = vec3(0.80, 0.86, 0.94);
         vec3 base = mix(paperBase, slopeColor, smoothstep(0.0, 0.55, hN));
         base = mix(base, peakColor, smoothstep(0.55, 1.0, hN));
         base *= (0.88 + 0.18 * lambert);
 
         // Grid & contour lines as crisp architectural drafting ink
-        vec3 lineInk = vec3(0.36, 0.40, 0.32);
-        vec3 majorLineInk = vec3(0.20, 0.24, 0.16);
+        vec3 lineInk = vec3(0.25, 0.33, 0.45);
+        vec3 majorLineInk = vec3(0.12, 0.18, 0.28);
         col = base;
         col = mix(col, lineInk, gMicro * 0.06 + gMinor * 0.14 + ctrMinor * 0.09);
         col = mix(col, majorLineInk, gMajor * 0.24 + ctrMajor * 0.18);
@@ -259,59 +399,72 @@ export function initTerrainScene(): void {
           + ctrMinor * 0.5
           + ctrMajor * 0.9
         );
-        col = mix(col, vec3(1.0, 0.96, 0.90), band * 0.25);
+        col = mix(col, vec3(1.0, 0.92, 0.84), band * 0.30);
         col = mix(col, uScanColor, clamp(band * lineDetail, 0.0, 1.0));
 
-        // Distance falloff (from world origin) so far edges melt into the background
+        // Distance falloff only at the outer rim of the island disk
         float radial = length(vWorldPos.xz);
-        float falloff = 1.0 - smoothstep(uMaxRadius * 0.55, uMaxRadius, radial);
-        col = mix(uFogColor, col, falloff);
-
-        // Fog
+        float edgeFalloff = 1.0 - smoothstep(112.0, 128.0, radial);
         float depth = length(vWorldPos - cameraPosition);
-        float fogF = smoothstep(60.0, 220.0, depth);
-        col = mix(col, uFogColor, fogF);
+        float fogF = smoothstep(85.0, 230.0, depth);
+        col = mix(col, uFogColor, fogF * 0.50);
+        alpha = clamp(edgeFalloff, 0.0, 1.0);
       } else {
-        // ── DARK MODE: EXACT 100% UNMODIFIED GLENNSO.DEV SHADER ──
-        vec3 lowCol  = uBaseColor * 0.18;
-        vec3 midCol  = uBaseColor;
-        vec3 highCol = mix(uBaseColor, uHighColor, 0.8);
-        vec3 base = mix(lowCol, midCol, smoothstep(0.0, 0.55, hN));
-        base = mix(base, highCol, smoothstep(0.55, 1.0, hN));
+        // ── DARK MODE: FRONT-MOST CARTOGRAPHY OVER 90s SYNTHWAVE UNDERTONE ──
+        vec3 lowCol  = uBaseColor * 0.22;
+        vec3 midCol  = uBaseColor * 0.85;
+        vec3 highCol = mix(uBaseColor, uHighColor, 0.88);
+        vec3 base = mix(lowCol, midCol, smoothstep(0.0, 0.50, hN));
+        base = mix(base, highCol, smoothstep(0.50, 1.0, hN));
         // Lambert: peaks lit, slopes shaded, valleys darker still
-        base *= (0.35 + 0.75 * lambert) * (0.7 + 0.3 * upFacing);
+        base *= (0.38 + 0.72 * lambert) * (0.75 + 0.25 * upFacing);
 
-        // Add grid + contours as faint emissive overlay
+        // 90s Synthwave Undertone Horizon Chromatic Ramp (Terracotta -> Amber -> Cyan -> Teal)
+        float normX = clamp(vWorldPos.x / 130.0 * 0.5 + 0.5, 0.0, 1.0);
+        vec3 synthwaveWarm = mix(vec3(0.91, 0.36, 0.02), vec3(0.92, 0.77, 0.42), smoothstep(0.0, 0.45, normX));
+        vec3 synthwaveCool = mix(vec3(0.22, 0.74, 0.97), vec3(0.16, 0.62, 0.56), smoothstep(0.45, 1.0, normX));
+        vec3 synthwaveChroma = mix(synthwaveWarm, synthwaveCool, smoothstep(0.35, 0.65, normX));
+
+        // Atmospheric horizon elevation glow in background region
+        float horizonGlow = smoothstep(-30.0, -115.0, vWorldPos.z) * smoothstep(-4.0, 10.0, vElevation);
+        base += synthwaveChroma * horizonGlow * 0.32;
+
+        // Front-most Cartography: crisp, luminous grid lines and elevation contours
         col = base;
-        col += uBaseColor * gMicro * 0.10;
-        col += uHighColor * gMinor * 0.16;
-        col += uHighColor * gMajor * 0.22;
-        col += uHighColor * ctrMinor * 0.08;
-        col += uHighColor * ctrMajor * 0.14;
+        col += mix(uBaseColor, synthwaveChroma, 0.30) * gMicro * 0.18;
+        col += mix(uHighColor, synthwaveChroma, 0.40) * gMinor * 0.35;
+        col += mix(uHighColor, synthwaveChroma, 0.65) * gMajor * 0.65;
+        col += uHighColor * ctrMinor * 0.22;
+        col += mix(uHighColor, synthwaveChroma, 0.55) * ctrMajor * 0.50;
 
-        // Scan highlight — boost grid + base where wave is
+        // Scan highlight — crisp grid and contour illumination without heavy flat base banding
         float scanBoost = band;
         col += uScanColor * scanBoost * (
-          0.55
-          + gMicro   * 0.5
-          + gMinor   * 0.9
-          + gMajor   * 1.4
-          + ctrMinor * 0.5
-          + ctrMajor * 0.9
+          0.08
+          + gMicro   * 0.60
+          + gMinor   * 1.10
+          + gMajor   * 1.80
+          + ctrMinor * 0.60
+          + ctrMajor * 1.20
         );
 
-        // Distance falloff (from world origin) so far edges melt into background
-        float radial = length(vWorldPos.xz);
-        float falloff = 1.0 - smoothstep(uMaxRadius * 0.55, uMaxRadius, radial);
-        col *= falloff;
-
-        // Fog
+        // Distance fog subtly blending base into horizon while keeping cartography crisp
         float depth = length(vWorldPos - cameraPosition);
-        float fogF = smoothstep(60.0, 220.0, depth);
-        col = mix(col, uFogColor, fogF);
+        float fogF = smoothstep(85.0, 230.0, depth);
+        vec3 fogSynthwave = mix(
+          uFogColor,
+          synthwaveChroma * 0.35,
+          smoothstep(90.0, 210.0, depth) * (0.40 + 0.60 * clamp((vElevation + 2.0) / 14.0, 0.0, 1.0))
+        );
+        col = mix(col, fogSynthwave, fogF * 0.50);
+
+        // Cartography firmly in the front-most layer: 100% solid landmass with clean outer rim falloff
+        float radial = length(vWorldPos.xz);
+        float edgeFalloff = 1.0 - smoothstep(112.0, 128.0, radial);
+        alpha = clamp(edgeFalloff, 0.0, 1.0);
       }
 
-      gl_FragColor = vec4(col, 1.0);
+      gl_FragColor = vec4(col, alpha);
     }
   `;
 
@@ -319,6 +472,9 @@ export function initTerrainScene(): void {
     uniforms,
     vertexShader,
     fragmentShader,
+    transparent: true,
+    depthWrite: true,
+    depthTest: true,
     fog: false,
   });
 
@@ -348,23 +504,69 @@ export function initTerrainScene(): void {
     renderer.setSize(w, h, false);
     camera.aspect = w / h;
     camera.updateProjectionMatrix();
+    bgUniforms.u_resolution.value.set(w, h);
   }
   window.addEventListener('resize', resize);
   resize();
 
+  // Helper to render both background sky and terrain in clean passes
+  function renderScene(): void {
+    renderer.clear();
+    renderer.render(bgScene, bgCamera);
+    renderer.render(scene, camera);
+  }
+
   // Animation Loop
   const clock = new THREE.Clock();
   let animId: number | null = null;
+  let isRecalibrating = false;
+  let recalibrateStartTime = 0;
+
+  function triggerCartographyRecalibration(): void {
+    isRecalibrating = true;
+    const now = clock.getElapsedTime();
+    recalibrateStartTime = now;
+
+    // Reset pulse to center (0, 0) and trigger wide, fast radial cartography wave
+    uniforms.uPulseOrigin.value.set(0, 0);
+    uniforms.uPulseMode.value = 1.0;
+    uniforms.uPulseSpeed.value = 240.0;
+    uniforms.uPulseWidth.value = 18.0;
+    uniforms.uMaxRadius.value = 320.0;
+    uniforms.uPulseStart.value = now;
+    nextPulseAt = now + 4.0;
+
+    // Trigger audio effect
+    try {
+      window.dispatchEvent(new CustomEvent('terrain-wave'));
+    } catch {}
+
+    if (reducedMotion) {
+      renderScene();
+    }
+  }
+
+  window.addEventListener('cartography-recalibrate', triggerCartographyRecalibration);
 
   function tick(): void {
     const now = clock.getElapsedTime();
     uniforms.uTime.value = now;
+    bgUniforms.u_time.value = now;
 
-    if (now >= nextPulseAt) {
+    if (now >= nextPulseAt && !isRecalibrating) {
       firePulse(now);
     }
 
-    if (!reducedMotion) {
+    if (isRecalibrating) {
+      const elapsed = now - recalibrateStartTime;
+      const progress = Math.min(1.0, elapsed / 0.7);
+      // Topographic cartography elevation lift & orbital sweep
+      const lift = Math.sin(progress * Math.PI) * 18.0;
+      camera.position.x = Math.sin(now * 0.05) * 14 * (1 - progress * 0.7);
+      camera.position.z = 70 + Math.cos(now * 0.05) * 6 * (1 - progress * 0.7);
+      camera.position.y = 30 + lift;
+      camera.lookAt(0, -3 + lift * 0.25, 0);
+    } else if (!reducedMotion) {
       // Slow camera drift for parallax — visible but unhurried (exact glennso)
       const r = 70;
       const a = now * 0.05;
@@ -374,7 +576,7 @@ export function initTerrainScene(): void {
       camera.lookAt(0, -3, 0);
     }
 
-    renderer.render(scene, camera);
+    renderScene();
 
     if (!reducedMotion) {
       animId = requestAnimationFrame(tick);
@@ -388,16 +590,24 @@ export function initTerrainScene(): void {
     baseColor: string;
     highColor: string;
     scanColor: string;
+    skyBg: THREE.Color;
+    skyC1: THREE.Color;
+    skyC2: THREE.Color;
+    skyC3: THREE.Color;
     isLight: boolean;
   }
 
   const TERRAIN_PALETTES: Record<string, TerrainPalette> = {
     dark: {
-      clearColor: 0x07090a,
-      fogColor: '#07090a',
+      clearColor: 0x080822,
+      fogColor: '#080822',
       baseColor: '#4a5a3d',
       highColor: '#c8d6a8',
       scanColor: '#F29559',
+      skyBg: new THREE.Color(0.08, 0.08, 0.22),
+      skyC1: new THREE.Color(0.16, 0.18, 0.48),
+      skyC2: new THREE.Color(1.0, 0.42, 0.21),
+      skyC3: new THREE.Color(0.8, 0.2, 0.33),
       isLight: false,
     },
     white: {
@@ -406,6 +616,10 @@ export function initTerrainScene(): void {
       baseColor: '#20242c',
       highColor: '#ffffff',
       scanColor: '#ff2a4b',
+      skyBg: new THREE.Color(0.06, 0.07, 0.09),
+      skyC1: new THREE.Color(0.14, 0.16, 0.22),
+      skyC2: new THREE.Color(1.0, 0.25, 0.35),
+      skyC3: new THREE.Color(0.75, 0.8, 0.9),
       isLight: false,
     },
     blue: {
@@ -414,6 +628,10 @@ export function initTerrainScene(): void {
       baseColor: '#163152',
       highColor: '#7dd3fc',
       scanColor: '#38bdf8',
+      skyBg: new THREE.Color(0.03, 0.06, 0.14),
+      skyC1: new THREE.Color(0.08, 0.2, 0.45),
+      skyC2: new THREE.Color(0.22, 0.74, 0.98),
+      skyC3: new THREE.Color(0.4, 0.3, 0.88),
       isLight: false,
     },
     emerald: {
@@ -422,6 +640,10 @@ export function initTerrainScene(): void {
       baseColor: '#0f3d26',
       highColor: '#6ee7b7',
       scanColor: '#10b981',
+      skyBg: new THREE.Color(0.02, 0.08, 0.05),
+      skyC1: new THREE.Color(0.06, 0.26, 0.16),
+      skyC2: new THREE.Color(0.25, 0.88, 0.58),
+      skyC3: new THREE.Color(0.15, 0.65, 0.72),
       isLight: false,
     },
     violet: {
@@ -430,14 +652,22 @@ export function initTerrainScene(): void {
       baseColor: '#301552',
       highColor: '#d8b4fe',
       scanColor: '#c084fc',
+      skyBg: new THREE.Color(0.08, 0.04, 0.15),
+      skyC1: new THREE.Color(0.24, 0.12, 0.42),
+      skyC2: new THREE.Color(0.92, 0.4, 0.85),
+      skyC3: new THREE.Color(0.6, 0.22, 0.9),
       isLight: false,
     },
     light: {
-      clearColor: 0xf4f5ee,
-      fogColor: '#f4f5ee',
-      baseColor: '#d6ddcf',
-      highColor: '#b0be9a',
-      scanColor: '#d65d1a',
+      clearColor: 0xf5f2e9,
+      fogColor: '#f5f2e9',
+      baseColor: '#e8e2d4',
+      highColor: '#ddd5c3',
+      scanColor: '#0284c7',
+      skyBg: new THREE.Color(0.95, 0.92, 0.9),
+      skyC1: new THREE.Color(0.85, 0.88, 0.98),
+      skyC2: new THREE.Color(1.0, 0.82, 0.7),
+      skyC3: new THREE.Color(0.9, 0.7, 0.8),
       isLight: true,
     },
   };
@@ -445,6 +675,11 @@ export function initTerrainScene(): void {
   function applyTerrainTheme(theme: string): void {
     const p = TERRAIN_PALETTES[theme] || TERRAIN_PALETTES.dark;
     uniforms.uIsLight.value = p.isLight ? 1.0 : 0.0;
+    bgUniforms.u_theme.value = p.isLight ? 1.0 : 0.0;
+    bgUniforms.u_bg.value.copy(p.skyBg);
+    bgUniforms.u_c1.value.copy(p.skyC1);
+    bgUniforms.u_c2.value.copy(p.skyC2);
+    bgUniforms.u_c3.value.copy(p.skyC3);
     renderer.setClearColor(p.clearColor, 1);
     if (scene.fog) {
       scene.fog.color.set(p.clearColor);
@@ -459,7 +694,7 @@ export function initTerrainScene(): void {
   applyTerrainTheme(initialTheme);
 
   if (reducedMotion) {
-    renderer.render(scene, camera);
+    renderScene();
   } else {
     tick();
   }
@@ -516,7 +751,7 @@ export function initTerrainScene(): void {
     if (custom.detail?.theme) {
       applyTerrainTheme(custom.detail.theme);
       if (reducedMotion) {
-        renderer.render(scene, camera);
+        renderScene();
       }
     }
   });

@@ -9,22 +9,10 @@ import { projects } from '../data/projects';
 ---
 
 <section class="section anim-s3" id="work" aria-labelledby="projects-heading">
-  <div class="projects-header-row">
-    <div>
-      <p class="micro-label">
-        <Loader />
-        Work
-      </p>
-      <h2 class="section-heading" id="projects-heading">
-        Featured Systems
-      </h2>
-    </div>
-    <div class="projects-meta-badge" title="Production System Deployments">
-      <span class="badge-accent">6 ARCHITECTURES</span>
-      <span class="badge-sep">//</span>
-      <span>PRODUCTION GRADE</span>
-    </div>
-  </div>
+  <p class="micro-label" id="projects-heading">
+    <Loader />
+    Work
+  </p>
 
   <div class="projects-list" role="list">
     {projects.map((project) => (
@@ -54,48 +42,56 @@ import { projects } from '../data/projects';
           </a>
         </h3>
 
-        <p class="project-desc">{project.desc}</p>
+        <div class="card-wordy-content">
+          <div class="card-wordy-inner">
+            <p class="project-desc">{project.desc}</p>
 
-        <!-- Key Architectural Highlights -->
-        <ul class="project-highlights-list">
-          {project.highlights.map((highlight) => (
-            <li>{highlight}</li>
-          ))}
-        </ul>
+            <!-- Key Architectural Highlights -->
+            <ul class="project-highlights-list">
+              {project.highlights.map((highlight) => (
+                <li>{highlight}</li>
+              ))}
+            </ul>
 
-        <div class="tags">
-          {project.tags.map((tag) => (
-            <span class="tag">{tag}</span>
-          ))}
-        </div>
+            <div class="tags">
+              {project.tags.map((tag) => (
+                <span class="tag">{tag}</span>
+              ))}
+            </div>
 
-        <!-- Interactive Tactical Demonstration Actions -->
-        <div class="project-actions-row">
-          <button
-            type="button"
-            class="project-demo-btn"
-            data-open-project-demo={project.id}
-            title={`Watch live demo & architecture telemetry for ${project.name}`}
-          >
-            <span class="demo-play-icon" aria-hidden="true">
-              ▶
-            </span>
-            <span>WATCH DEMO & TELEMETRY</span>
-          </button>
-          <a
-            href={project.githubUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            class="project-github-link"
-            title={`View GitHub repository for ${project.name}`}
-          >
-            <span>GITHUB REPO</span>
-            <span class="arrow" aria-hidden="true">
-              ↗
-            </span>
-          </a>
+            <!-- Interactive Tactical Demonstration Actions -->
+            <div class="project-actions-row">
+              <button
+                type="button"
+                class="project-demo-btn"
+                data-open-project-demo={project.id}
+                title={`Watch live demo & architecture telemetry for ${project.name}`}
+              >
+                <span class="demo-play-icon" aria-hidden="true">
+                  ▶
+                </span>
+                <span>WATCH DEMO & TELEMETRY</span>
+              </button>
+              <a
+                href={project.githubUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                class="project-github-link"
+                title={`View GitHub repository for ${project.name}`}
+              >
+                <span>GITHUB REPO</span>
+                <span class="arrow" aria-hidden="true">
+                  ↗
+                </span>
+              </a>
+            </div>
+          </div>
         </div>
       </article>
     ))}
   </div>
 </section>
+
+<script>
+  import '../scripts/card-accordion.ts';
+</script>

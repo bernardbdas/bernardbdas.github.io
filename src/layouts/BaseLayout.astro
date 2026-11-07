@@ -41,6 +41,12 @@ const { title, description } = Astro.props;
     />
     <script is:inline>
       (function () {
+        try {
+          if (sessionStorage.getItem('easter_egg_unlocked') === 'true') {
+            document.documentElement.classList.add('easter-egg-unlocked');
+          }
+        } catch {}
+
         function getSolarDefault() {
           try {
             var lat = parseFloat(localStorage.getItem('client_geo_lat') || '');

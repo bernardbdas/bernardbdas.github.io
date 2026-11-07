@@ -1,21 +1,31 @@
 ---
 /** ChromeFooter — Fixed bottom status bar with copyright, client telemetry, live age counter, and vitals readout. */
+const currentYear = new Date().getFullYear();
 ---
 
 <footer class="chrome-bottom anim-chrome">
   <div class="chrome-bottom-left">
-    <span class="footer-copyright">
-      &copy; 2026{' '}
+    <button
+      type="button"
+      class="footer-copyright-btn"
+      id="footerCopyright"
+      title={`\u00a9 ${currentYear} Bernard Birendra Das (Click 7 times quickly to toggle hidden telemetry HUD)`}
+      aria-label={`Copyright ${currentYear} Bernard Birendra Das`}
+    >
+      <span class="copyright-symbol">&copy;</span>
+      <span class="copyright-year" id="copyrightYear">
+        {currentYear}
+      </span>
       <span class="author-name">
         <span class="author-full">Bernard Birendra Das</span>
         <span class="author-short">BBD</span>
       </span>
-    </span>
-    <span class="hud-sep" aria-hidden="true">
+    </button>
+    <span class="hud-sep footer-extra" aria-hidden="true">
       //
     </span>
     <div
-      class="client-telemetry"
+      class="client-telemetry footer-extra"
       id="client-telemetry"
       title="Client Telemetry (Click any item to copy)"
     >
@@ -64,7 +74,7 @@
   </div>
 
   <div class="chrome-bottom-right">
-    <div class="footer-hud-controls" role="group" aria-label="HUD Feature Toggles">
+    <div class="footer-hud-controls footer-extra" role="group" aria-label="HUD Feature Toggles">
       <button
         type="button"
         class="telemetry-pill footer-toggle-pill is-active"
@@ -99,17 +109,17 @@
       </button>
     </div>
 
-    <span class="hud-sep" aria-hidden="true">
+    <span class="hud-sep footer-extra" aria-hidden="true">
       //
     </span>
 
     <a href="#top" class="back-to-top" aria-label="Scroll back to top">
       TOP ↑
     </a>
-    <span class="hud-sep vitals-sep" aria-hidden="true">
+    <span class="hud-sep vitals-sep footer-extra" aria-hidden="true">
       //
     </span>
-    <div class="vitals-cluster">
+    <div class="vitals-cluster footer-extra">
       <span
         class="vitals"
         id="vitals-badge"
@@ -173,6 +183,17 @@
   </div>
 </footer>
 
+<div
+  class="easter-egg-toast"
+  id="easterEggToast"
+  role="status"
+  aria-live="polite"
+  aria-hidden="true"
+>
+  <span class="easter-egg-toast-dot"></span>
+  <span class="easter-egg-toast-msg" id="easterEggToastMsg"></span>
+</div>
+
 <script>
   import '../scripts/client-telemetry';
   import '../scripts/web-vitals';
@@ -191,4 +212,106 @@
       window.scrollTo({ top: 0, behavior: 'smooth' });
     });
   }
+
+  // Hidden Mode / Easter Egg 7-click trigger on copyright button
+  const copyrightBtn = document.getElementById('footerCopyright');
+  const toastEl = document.getElementById('easterEggToast');
+  const toastMsg = document.getElementById('easterEggToastMsg');
+  const yearEl = document.getElementById('copyrightYear');
+  if (yearEl) {
+    yearEl.textContent = String(new Date().getFullYear());
+  }
+
+  let toastTimer: number | null = null;
+
+  function showToast(message: string): void {
+    if (!toastEl || !toastMsg) return;
+    toastMsg.textContent = message;
+    toastEl.classList.add('is-visible');
+    toastEl.setAttribute('aria-hidden', 'false');
+    if (toastTimer !== null) {
+      window.clearTimeout(toastTimer);
+    }
+    toastTimer = window.setTimeout(() => {
+      toastEl.classList.remove('is-visible');
+      toastEl.setAttribute('aria-hidden', 'true');
+      toastTimer = null;
+    }, 3200);
+  }
+
+  let eggClicks = 0;
+  let lastEggClickTime = 0;
+  // User must click fast: max 500ms between consecutive clicks
+  const MAX_CLICK_GAP_MS = 500;
+
+  function resetClicks(): void {
+    eggClicks = 0;
+  }
+
+  if (copyrightBtn) {
+    // Reset immediately if cursor leaves button, button loses focus, or window blurs
+    copyrightBtn.addEventListener('mouseleave', resetClicks);
+    copyrightBtn.addEventListener('pointerleave', resetClicks);
+    copyrightBtn.addEventListener('blur', resetClicks);
+
+    copyrightBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const now = Date.now();
+
+      // Enforce fast consecutive clicks: if user pauses longer than 500ms, start count over
+      if (now - lastEggClickTime > MAX_CLICK_GAP_MS) {
+        eggClicks = 0;
+      }
+      lastEggClickTime = now;
+      eggClicks++;
+
+      if (eggClicks === 7) {
+        eggClicks = 0;
+        const html = document.documentElement;
+        const isUnlocked = html.classList.contains('easter-egg-unlocked');
+
+        if (isUnlocked) {
+          // Hide features again
+          html.classList.remove('easter-egg-unlocked');
+          try {
+            sessionStorage.removeItem('easter_egg_unlocked');
+          } catch {}
+          showToast('NOX');
+          window.dispatchEvent(new CustomEvent('easter-egg:lock'));
+          window.dispatchEvent(new CustomEvent('cartography:recalibrate'));
+        } else {
+          // Unlock hidden features
+          html.classList.add('easter-egg-unlocked');
+          try {
+            sessionStorage.setItem('easter_egg_unlocked', 'true');
+          } catch {}
+          showToast('LUMOS');
+          window.dispatchEvent(new CustomEvent('easter-egg:unlock'));
+          window.dispatchEvent(new CustomEvent('cartography:recalibrate'));
+        }
+      }
+    });
+  }
+
+  // If user clicks anywhere else on the document, reset click counter immediately
+  document.addEventListener('pointerdown', (e) => {
+    if (copyrightBtn && !copyrightBtn.contains(e.target as Node)) {
+      resetClicks();
+    }
+  });
+
+  window.addEventListener('blur', resetClicks);
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden) {
+      resetClicks();
+    }
+  });
+
+  document.addEventListener('astro:after-swap', () => {
+    try {
+      if (sessionStorage.getItem('easter_egg_unlocked') === 'true') {
+        document.documentElement.classList.add('easter-egg-unlocked');
+      }
+    } catch {}
+  });
 </script>

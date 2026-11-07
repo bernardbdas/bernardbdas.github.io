@@ -8,6 +8,7 @@ interface NavLink {
   label: string;
   href: string;
   external?: boolean;
+  isExtra?: boolean;
 }
 
 const currentPath = Astro.url.pathname;
@@ -22,10 +23,10 @@ const links: NavLink[] = [
   { label: 'About', href: '/#about' },
   { label: 'Work', href: '/#work' },
   { label: 'Skills', href: '/#skills' },
-  { label: 'Research', href: '/research' },
-  { label: 'Blog', href: '/blog' },
-  { label: 'Media', href: '/media' },
-  { label: 'People', href: '/people' },
+  { label: 'Research', href: '/research', isExtra: true },
+  { label: 'Blog', href: '/blog', isExtra: true },
+  { label: 'Media', href: '/media', isExtra: true },
+  { label: 'People', href: '/people', isExtra: true },
   { label: 'GitHub', href: 'https://github.com/bernardbdas', external: true },
   { label: 'LinkedIn', href: 'https://linkedin.com/in/bernardbdas', external: true },
 ];
@@ -36,10 +37,14 @@ const links: NavLink[] = [
     <a href="/" class="brand" aria-label="Bernard Birendra Das (Home)">
       bernardbdas<span class="brand-suffix">.github.io</span>
     </a>
-    <span class="hud-sep" aria-hidden="true">
+    <span class="hud-sep nav-extra" aria-hidden="true">
       //
     </span>
-    <div class="age-counter" id="age-counter" title="Live Age Counter (Click to toggle format)">
+    <div
+      class="age-counter nav-extra"
+      id="age-counter"
+      title="Live Age Counter (Click to toggle format)"
+    >
       <span class="age-badge">UPTIME</span>
       <span class="age-display" id="age-display">
         <span class="age-num age-y" id="age-y">
@@ -71,7 +76,7 @@ const links: NavLink[] = [
 
   <div class="chrome-nav-spacer" aria-hidden="true"></div>
 
-  <div class="chrome-top-center">
+  <div class="chrome-top-center nav-extra">
     <div
       class="local-clock"
       id="local-clock"
@@ -192,10 +197,12 @@ const links: NavLink[] = [
   <div class="nav-links" role="navigation">
     {links.map((link, i) => (
       <>
-        {i > 0 && <span class="nav-sep" aria-hidden="true" />}
+        {i > 0 && (
+          <span class:list={['nav-sep', { 'nav-extra': link.isExtra }]} aria-hidden="true" />
+        )}
         <a
           href={link.href}
-          class:list={['nav-link-item', { active: isActive(link.href) }]}
+          class:list={['nav-link-item', { active: isActive(link.href), 'nav-extra': link.isExtra }]}
           {...(link.external ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
         >
           {link.label}
@@ -230,25 +237,45 @@ const links: NavLink[] = [
           <span class="swatch-dot dot-light"></span>
           <span>Light</span>
         </button>
-        <button class="palette-item" data-set-theme="blue" role="menuitem" type="button">
+        <button
+          class="palette-item nav-extra theme-extra"
+          data-set-theme="blue"
+          role="menuitem"
+          type="button"
+        >
           <span class="swatch-dot dot-blue"></span>
           <span>Blue</span>
         </button>
-        <button class="palette-item" data-set-theme="white" role="menuitem" type="button">
+        <button
+          class="palette-item nav-extra theme-extra"
+          data-set-theme="white"
+          role="menuitem"
+          type="button"
+        >
           <span class="swatch-dot dot-white"></span>
           <span>White</span>
         </button>
-        <button class="palette-item" data-set-theme="violet" role="menuitem" type="button">
+        <button
+          class="palette-item nav-extra theme-extra"
+          data-set-theme="violet"
+          role="menuitem"
+          type="button"
+        >
           <span class="swatch-dot dot-violet"></span>
           <span>Violet</span>
         </button>
-        <button class="palette-item" data-set-theme="emerald" role="menuitem" type="button">
+        <button
+          class="palette-item nav-extra theme-extra"
+          data-set-theme="emerald"
+          role="menuitem"
+          type="button"
+        >
           <span class="swatch-dot dot-emerald"></span>
           <span>Emerald</span>
         </button>
       </div>
     </div>
-    <div class="sound-toggle-wrap">
+    <div class="sound-toggle-wrap nav-extra">
       <button
         class="sound-toggle ambient-toggle"
         id="soundToggle"
@@ -334,7 +361,7 @@ const links: NavLink[] = [
       </button>
     </div>
 
-    <div class="mobile-drawer-uptime">
+    <div class="mobile-drawer-uptime nav-extra">
       <div class="age-counter" title="Live Age Counter (Click to toggle format)">
         <span class="age-badge">UPTIME</span>
         <span class="age-display">
@@ -357,7 +384,10 @@ const links: NavLink[] = [
       {links.map((link, i) => (
         <a
           href={link.href}
-          class:list={['mobile-nav-item', { active: isActive(link.href) }]}
+          class:list={[
+            'mobile-nav-item',
+            { active: isActive(link.href), 'nav-extra': link.isExtra },
+          ]}
           {...(link.external ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
         >
           <span class="mobile-item-index">{String(i + 1).padStart(2, '0')}</span>
@@ -383,20 +413,35 @@ const links: NavLink[] = [
           <span class="swatch-dot dot-light"></span>
           <span>Light</span>
         </button>
-        <button class="palette-btn" data-set-theme="blue" type="button" aria-label="Blue theme">
+        <button
+          class="palette-btn nav-extra theme-extra"
+          data-set-theme="blue"
+          type="button"
+          aria-label="Blue theme"
+        >
           <span class="swatch-dot dot-blue"></span>
           <span>Blue</span>
         </button>
-        <button class="palette-btn" data-set-theme="white" type="button" aria-label="White theme">
+        <button
+          class="palette-btn nav-extra theme-extra"
+          data-set-theme="white"
+          type="button"
+          aria-label="White theme"
+        >
           <span class="swatch-dot dot-white"></span>
           <span>White</span>
         </button>
-        <button class="palette-btn" data-set-theme="violet" type="button" aria-label="Violet theme">
+        <button
+          class="palette-btn nav-extra theme-extra"
+          data-set-theme="violet"
+          type="button"
+          aria-label="Violet theme"
+        >
           <span class="swatch-dot dot-violet"></span>
           <span>Violet</span>
         </button>
         <button
-          class="palette-btn"
+          class="palette-btn nav-extra theme-extra"
           data-set-theme="emerald"
           type="button"
           aria-label="Emerald theme"
@@ -407,7 +452,7 @@ const links: NavLink[] = [
       </div>
     </div>
 
-    <div class="mobile-audio-section">
+    <div class="mobile-audio-section nav-extra">
       <div class="mobile-section-header">
         <span class="mobile-section-title">AUDIO & INTERACTION</span>
       </div>
@@ -739,10 +784,14 @@ const links: NavLink[] = [
   }
 
   function cycleTheme(): void {
+    const isUnlocked = document.documentElement.classList.contains('easter-egg-unlocked');
+    const availableThemes = isUnlocked
+      ? THEMES
+      : THEMES.filter((t) => t.id === 'dark' || t.id === 'light');
     const current = document.documentElement.getAttribute('data-theme') || 'dark';
-    const curIndex = THEMES.findIndex((t) => t.id === current);
-    const nextIndex = curIndex >= 0 ? (curIndex + 1) % THEMES.length : 0;
-    applyTheme(THEMES[nextIndex].id, true);
+    const curIndex = availableThemes.findIndex((t) => t.id === current);
+    const nextIndex = curIndex >= 0 ? (curIndex + 1) % availableThemes.length : 0;
+    applyTheme(availableThemes[nextIndex].id, true);
   }
 
   function openMobileMenu(): void {

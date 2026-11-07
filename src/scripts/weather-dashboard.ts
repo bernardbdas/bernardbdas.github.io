@@ -1275,4 +1275,8 @@ if (typeof window !== 'undefined') {
   }
 
   document.addEventListener('astro:page-load', initOrUpdate);
+
+  window.addEventListener('easter-egg:unlock', () => {
+    initOrUpdate();
+  });
 }
