@@ -4437,7 +4437,7 @@ html[data-theme='light'] .network-card:hover {
     display: block;
     position: fixed;
     inset: 0;
-    z-index: 1000;
+    z-index: 2000;
     pointer-events: none;
     opacity: 0;
     transition: opacity 0.22s ease;
@@ -4446,6 +4446,18 @@ html[data-theme='light'] .network-card:hover {
   .mobile-nav-drawer.is-open {
     opacity: 1;
     pointer-events: auto;
+  }
+  /* Hide fixed bottom chrome bar when mobile nav drawer is open to prevent overlapping footers */
+  body.mobile-nav-open .chrome-bottom,
+  html:has(.mobile-nav-drawer.is-open) .chrome-bottom,
+  html:has(.mobile-nav-drawer[aria-hidden='false']) .chrome-bottom {
+    opacity: 0 !important;
+    visibility: hidden !important;
+    pointer-events: none !important;
+    transform: translateY(100%) !important;
+    transition:
+      opacity 0.2s ease,
+      transform 0.2s ease !important;
   }
   .mobile-nav-backdrop {
     position: absolute;
@@ -4511,7 +4523,8 @@ html[data-theme='light'] .network-card:hover {
     display: flex;
     flex-direction: column;
     gap: 10px;
-    flex: 1;
+    flex: 1 0 auto;
+    counter-reset: mobile-nav-idx;
   }
   .mobile-nav-item {
     display: flex;
@@ -4526,6 +4539,7 @@ html[data-theme='light'] .network-card:hover {
     font-size: 13px;
     letter-spacing: 0.12em;
     text-transform: uppercase;
+    counter-increment: mobile-nav-idx;
     transition:
       border-color 0.15s ease,
       color 0.15s ease,
@@ -4555,6 +4569,9 @@ html[data-theme='light'] .network-card:hover {
     color: var(--ink-dim);
     margin-right: 12px;
     font-weight: 600;
+  }
+  .mobile-item-index::before {
+    content: counter(mobile-nav-idx, decimal-leading-zero);
   }
   .mobile-item-label {
     flex: 1;
@@ -4729,8 +4746,9 @@ html[data-theme='light'] .network-card:hover {
     align-items: center;
     justify-content: space-between;
     padding-top: 14px;
+    padding-bottom: max(12px, env(safe-area-inset-bottom, 12px));
     border-top: 1px dashed var(--hairline-dashed, var(--hairline));
-    margin-top: 16px;
+    margin-top: auto;
     font-size: 9.5px;
     color: var(--ink-dim);
     letter-spacing: 0.12em;
@@ -4738,6 +4756,7 @@ html[data-theme='light'] .network-card:hover {
     font-family: var(--font-mono);
     width: 100%;
     box-sizing: border-box;
+    flex-shrink: 0;
   }
   .mobile-nav-status {
     display: flex;

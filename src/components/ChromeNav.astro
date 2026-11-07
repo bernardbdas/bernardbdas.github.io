@@ -390,7 +390,7 @@ const links: NavLink[] = [
           ]}
           {...(link.external ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
         >
-          <span class="mobile-item-index">{String(i + 1).padStart(2, '0')}</span>
+          <span class="mobile-item-index" aria-hidden="true"></span>
           <span class="mobile-item-label">{link.label}</span>
           <span class="mobile-item-arrow">{link.external ? '↗' : '→'}</span>
         </a>
@@ -806,6 +806,7 @@ const links: NavLink[] = [
       if (textSpan) textSpan.textContent = 'CLOSE';
     }
     document.body.style.overflow = 'hidden';
+    document.body.classList.add('mobile-nav-open');
   }
 
   function closeMobileMenu(): void {
@@ -820,6 +821,7 @@ const links: NavLink[] = [
       if (textSpan) textSpan.textContent = 'MENU';
     }
     document.body.style.overflow = '';
+    document.body.classList.remove('mobile-nav-open');
   }
 
   let navEventsBound = false;
