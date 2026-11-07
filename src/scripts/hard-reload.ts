@@ -37,7 +37,7 @@ function ensureOverlay(): HTMLElement {
     overlay.innerHTML = `
       <div class="carto-recalibrate-card">
         <span class="carto-pulse-reticle" aria-hidden="true"></span>
-        <span class="carto-recalibrate-text">CARTOGRAPHY RECALIBRATING // RESETTING STATE</span>
+        <span class="carto-recalibrate-text">Wingardium Leviosa</span>
       </div>
     `;
     document.body.appendChild(overlay);
