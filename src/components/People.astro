@@ -1,0 +1,376 @@
+---
+/**
+ * People.astro — Trusted People & Talent Dispatch Directory
+ *
+ * An on-demand terminal directory of trusted colleagues, practitioners,
+ * and academic mentors. Allows recruiters, founders, and teams
+ * to query and connect with verified practitioners Bernard personally vouches for.
+ */
+import Loader from './Loader.astro';
+import { PEOPLE, PEOPLE_CATEGORIES, type Person } from '../data/people';
+---
+
+<section class="section anim-s4" id="people" aria-labelledby="people-heading">
+  <p class="micro-label">
+    <Loader />
+    People // Talent Network
+  </p>
+
+  <h2 class="section-heading" id="people-heading">
+    People
+  </h2>
+
+  <div class="network-recruiter-notice">
+    <div class="network-notice-header">
+      <span class="notice-prefix">[RECRUITER DISPATCH NOTE]</span>
+    </div>
+    <p class="network-notice-text">
+      If your organization is seeking exceptional engineering, design, consulting, or analytical
+      talent outside my primary focus (AI research and scalable ML systems), I personally endorse
+      and vouch for these practitioners. I have studied and worked alongside them, trust their
+      judgment, and vouch for their craft.
+    </p>
+  </div>
+
+  <!-- Terminal Query & Filter Deck -->
+  <div class="network-query-deck" role="region" aria-label="People Directory Console">
+    <div class="network-deck-header">
+      <span class="network-console-title">QUERY CONSOLE // DOMAIN DISPATCH</span>
+      <span class="network-status-badge" id="network-status-badge">
+        [ STATUS: STANDBY // SELECT QUERY ]
+      </span>
+    </div>
+
+    <div class="network-filter-pills" role="tablist" aria-label="Filter people directory by domain">
+      <button
+        type="button"
+        class="network-filter-pill"
+        data-category="ALL"
+        role="tab"
+        aria-selected="false"
+      >
+        <span class="pill-name">ALL</span>
+        <span class="pill-count">({PEOPLE.length})</span>
+      </button>
+
+      {PEOPLE_CATEGORIES.map((category) => {
+        const count = PEOPLE.filter((p) => p.categories.includes(category)).length;
+        if (count === 0) return null;
+        return (
+          <button
+            type="button"
+            class="network-filter-pill"
+            data-category={category}
+            role="tab"
+            aria-selected="false"
+          >
+            <span class="pill-name">{category}</span>
+            <span class="pill-count">({count})</span>
+          </button>
+        );
+      })}
+
+      <button
+        type="button"
+        class="network-filter-pill network-standby-btn"
+        id="network-standby-toggle"
+        title="Return to quiet standby state"
+      >
+        <span>STANDBY [✕]</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Standby Idle HUD Display (Shown when no filter is active) -->
+  <div class="network-standby-hud is-visible" id="network-standby-hud" aria-live="polite">
+    <div class="standby-reticle">
+      <span class="reticle-line reticle-left"></span>
+      <span class="reticle-core">CONSOLE // IDLE</span>
+      <span class="reticle-line reticle-right"></span>
+    </div>
+    <p class="standby-prompt">
+      Select any category filter above to dispatch verified candidate dossiers, specialties, and
+      direct contact endpoints.
+    </p>
+  </div>
+
+  <!-- Profile Cards Grid (Revealed on-demand) -->
+  <div class="network-cards-grid" id="network-cards-grid" role="list">
+    {PEOPLE.map((person) => {
+      const categoriesJson = JSON.stringify(person.categories);
+      return (
+        <div
+          class="network-card"
+          id={`network-card-${person.id}`}
+          data-person-id={person.id}
+          data-categories={categoriesJson}
+          role="listitem"
+        >
+          <div class="network-card-top">
+            <div class="network-card-identity">
+              <h3 class="network-person-name">{person.name}</h3>
+              <p class="network-person-role">{person.role}</p>
+              <div class="network-card-badges">
+                {person.tier && (
+                  <span
+                    class:list={[
+                      'network-tier-badge',
+                      `tier-${person.tier.toLowerCase().replace(/[^a-z0-9]/g, '-')}`,
+                    ]}
+                  >
+                    {person.tier}
+                  </span>
+                )}
+                {person.experience && (
+                  <span
+                    class="network-exp-badge"
+                    title={
+                      person.company
+                        ? `Total Work Experience: ${person.experience} (Currently at ${person.company})`
+                        : `Total Work Experience: ${person.experience}`
+                    }
+                  >
+                    {person.experience}
+                  </span>
+                )}
+                <span class="network-since-badge">KNOWN SINCE {person.knownSince}</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="network-connection-row">
+            <span class="conn-label">CONNECTION //</span>
+            <div
+              class="conn-val-stack"
+              style="display: flex; flex-direction: column; gap: 4px; width: 100%;"
+            >
+              {Array.isArray(person.connectionContext) ? (
+                person.connectionContext.map((item) => (
+                  <div class="conn-val-line" style="display: block; width: 100%;">
+                    {item}
+                  </div>
+                ))
+              ) : (
+                <div class="conn-val-line" style="display: block; width: 100%;">
+                  {person.connectionContext}
+                </div>
+              )}
+            </div>
+          </div>
+
+          <blockquote class="network-vouch-quote">
+            <span class="vouch-bracket" aria-hidden="true">
+              "
+            </span>
+            <p class="vouch-text">{person.endorsement}</p>
+            <span class="vouch-author" aria-hidden="true">
+              — Bernard's Personal Endorsement
+            </span>
+          </blockquote>
+
+          <div class="network-tags-row" aria-label="Core Skill Tags">
+            {person.tags.map((tag) => (
+              <span class="network-tag-chip">{tag}</span>
+            ))}
+          </div>
+
+          <div class="network-card-actions">
+            {person.links.scholar && (
+              <a
+                href={person.links.scholar}
+                target="_blank"
+                rel="noopener noreferrer"
+                class="network-action-btn btn-scholar"
+                aria-label={`${person.name}'s Google Scholar profile`}
+              >
+                <span>SCHOLAR&nbsp;↗</span>
+              </a>
+            )}
+            {person.links.faculty && (
+              <a
+                href={person.links.faculty}
+                target="_blank"
+                rel="noopener noreferrer"
+                class="network-action-btn btn-faculty"
+                aria-label={`${person.name}'s Faculty page`}
+              >
+                <span>FACULTY&nbsp;↗</span>
+              </a>
+            )}
+            {person.links.website && (
+              <a
+                href={person.links.website}
+                target="_blank"
+                rel="noopener noreferrer"
+                class="network-action-btn btn-website"
+                aria-label={`${person.name}'s Portfolio website`}
+              >
+                <span>WEBSITE&nbsp;↗</span>
+              </a>
+            )}
+            {person.links.linkedin && (
+              <a
+                href={person.links.linkedin}
+                target="_blank"
+                rel="noopener noreferrer"
+                class="network-action-btn btn-linkedin"
+                aria-label={`${person.name}'s LinkedIn profile`}
+              >
+                <span>LINKEDIN&nbsp;↗</span>
+              </a>
+            )}
+            {person.links.github && (
+              <a
+                href={person.links.github}
+                target="_blank"
+                rel="noopener noreferrer"
+                class="network-action-btn btn-github"
+                aria-label={`${person.name}'s GitHub profile`}
+              >
+                <span>GITHUB&nbsp;↗</span>
+              </a>
+            )}
+          </div>
+        </div>
+      );
+    })}
+  </div>
+</section>
+
+<script>
+  class PeopleController {
+    private activeCategory: string | null = null;
+    private filterPills: HTMLButtonElement[] = [];
+    private cards: HTMLElement[] = [];
+    private standbyHud: HTMLElement | null = null;
+    private cardsGrid: HTMLElement | null = null;
+    private statusBadge: HTMLElement | null = null;
+    private standbyToggle: HTMLButtonElement | null = null;
+
+    constructor() {
+      this.initDom();
+      this.attachEvents();
+    }
+
+    private initDom() {
+      this.filterPills = Array.from(
+        document.querySelectorAll<HTMLButtonElement>('.network-filter-pill[data-category]'),
+      );
+      this.cards = Array.from(document.querySelectorAll<HTMLElement>('.network-card'));
+      this.standbyHud = document.getElementById('network-standby-hud');
+      this.cardsGrid = document.getElementById('network-cards-grid');
+      this.statusBadge = document.getElementById('network-status-badge');
+      this.standbyToggle = document.getElementById(
+        'network-standby-toggle',
+      ) as HTMLButtonElement | null;
+    }
+
+    private attachEvents() {
+      this.filterPills.forEach((pill) => {
+        pill.addEventListener('click', () => {
+          const cat = pill.getAttribute('data-category');
+          if (!cat) return;
+          if (this.activeCategory === cat) {
+            // Clicking active category again toggles back to standby
+            this.setStandby();
+          } else {
+            this.dispatchCategory(cat);
+          }
+        });
+      });
+
+      this.standbyToggle?.addEventListener('click', () => {
+        this.setStandby();
+      });
+    }
+
+    public dispatchCategory(category: string) {
+      this.activeCategory = category;
+
+      // Update filter pills active state
+      this.filterPills.forEach((p) => {
+        const isMatch = p.getAttribute('data-category') === category;
+        p.classList.toggle('is-active', isMatch);
+        p.setAttribute('aria-selected', isMatch ? 'true' : 'false');
+      });
+
+      // Filter cards
+      let visibleCount = 0;
+      this.cards.forEach((card) => {
+        const raw = card.getAttribute('data-categories') || '[]';
+        let categories: string[] = [];
+        try {
+          categories = JSON.parse(raw);
+        } catch {}
+
+        const match = category === 'ALL' || categories.includes(category);
+        if (match) {
+          card.style.display = 'flex';
+          visibleCount++;
+        } else {
+          card.style.display = 'none';
+        }
+      });
+
+      // Hide standby HUD & display cards grid
+      if (this.standbyHud) {
+        this.standbyHud.classList.remove('is-visible');
+        this.standbyHud.style.display = 'none';
+      }
+      if (this.cardsGrid) {
+        this.cardsGrid.classList.add('is-active');
+        this.cardsGrid.style.display = 'grid';
+      }
+
+      if (this.statusBadge) {
+        this.statusBadge.textContent = `[ DISPATCHED: ${visibleCount} PROFILE${visibleCount === 1 ? '' : 'S'} // ${category} ]`;
+        this.statusBadge.classList.add('is-active');
+      }
+
+      if (this.standbyToggle) {
+        this.standbyToggle.classList.add('is-visible');
+      }
+    }
+
+    public setStandby() {
+      this.activeCategory = null;
+
+      // Reset filter pills
+      this.filterPills.forEach((p) => {
+        p.classList.remove('is-active');
+        p.setAttribute('aria-selected', 'false');
+      });
+
+      // Hide cards grid & show standby HUD
+      if (this.cardsGrid) {
+        this.cardsGrid.classList.remove('is-active');
+        this.cardsGrid.style.display = 'none';
+      }
+      if (this.standbyHud) {
+        this.standbyHud.classList.add('is-visible');
+        this.standbyHud.style.display = 'flex';
+      }
+
+      if (this.statusBadge) {
+        this.statusBadge.textContent = '[ STATUS: STANDBY // SELECT QUERY ]';
+        this.statusBadge.classList.remove('is-active');
+      }
+
+      if (this.standbyToggle) {
+        this.standbyToggle.classList.remove('is-visible');
+      }
+    }
+  }
+
+  // Astro page-load lifecycle initialization
+  const initPeople = () => {
+    new PeopleController();
+  };
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initPeople);
+  } else {
+    initPeople();
+  }
+  document.addEventListener('astro:page-load', initPeople);
+</script>

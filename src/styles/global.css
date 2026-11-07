@@ -3223,7 +3223,7 @@ h6 {
 }
 
 /* ══════════════════════════════════════════════════════════════
-   NETWORK & TALENT DISPATCH SECTION
+   PEOPLE & TALENT DISPATCH SECTION
    ══════════════════════════════════════════════════════════════ */
 .network-recruiter-notice {
   margin-bottom: var(--gap-inner);
@@ -5680,7 +5680,349 @@ html[data-theme='light'] .station-subgenre-tag {
   text-transform: uppercase;
 }
 
-/* ── Active Playlist Queue Drawer ───────────────────────────── */
+/* ══════════════════════════════════════════════════════════════
+   SDR ACTIVE PLAYLIST DECK (SINGLE EXPANDED CONSOLE)
+   Replaces playlist grid when a playlist is queued.
+   Contains tracks list, progress scrubber & media controls.
+   ══════════════════════════════════════════════════════════════ */
+.sdr-active-playlist-deck {
+  background: rgba(var(--bg-rgb), 0.96);
+  border: 1px solid var(--accent);
+  padding: 20px 22px;
+  border-radius: var(--radius);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  box-shadow:
+    0 10px 32px rgba(0, 0, 0, 0.45),
+    0 0 16px rgba(var(--accent-rgb), 0.15);
+  position: relative;
+  width: 100%;
+}
+
+.active-pl-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  padding-bottom: 12px;
+  border-bottom: 1px dashed var(--hairline);
+  flex-wrap: wrap;
+}
+
+.active-pl-meta-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  flex: 1;
+  min-width: 260px;
+}
+
+.active-pl-badge-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.active-pl-status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--font-mono);
+  font-size: 8.5px;
+  letter-spacing: 0.14em;
+  padding: 2px 7px;
+  background: rgba(var(--accent-rgb), 0.15);
+  color: var(--accent);
+  border: 1px solid rgba(var(--accent-rgb), 0.45);
+  border-radius: 2px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.active-pl-carrier-tag {
+  font-family: var(--font-mono);
+  font-size: 8.5px;
+  letter-spacing: 0.12em;
+  padding: 2px 6px;
+  background: rgba(var(--bg-rgb), 0.8);
+  color: var(--accent);
+  border: 1px solid var(--hairline);
+  border-radius: 2px;
+  font-weight: 700;
+}
+
+.active-pl-subgenre-tag {
+  font-family: var(--font-mono);
+  font-size: 8.5px;
+  letter-spacing: 0.1em;
+  padding: 2px 6px;
+  background: rgba(var(--accent-rgb), 0.1);
+  color: var(--accent);
+  border: 1px solid rgba(var(--accent-rgb), 0.3);
+  border-radius: 2px;
+  text-transform: uppercase;
+}
+
+.active-pl-count-tag {
+  font-family: var(--font-mono);
+  font-size: 8.5px;
+  letter-spacing: 0.1em;
+  padding: 2px 6px;
+  background: rgba(var(--bg-rgb), 0.8);
+  color: var(--ink-dim);
+  border: 1px solid var(--hairline);
+  border-radius: 2px;
+  text-transform: uppercase;
+}
+
+.active-pl-title {
+  font-family: var(--font-mono);
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  color: var(--ink);
+  text-transform: uppercase;
+  margin: 0;
+}
+
+.active-pl-desc {
+  font-family: var(--serif);
+  font-size: 13.5px;
+  line-height: 1.45;
+  color: var(--ink-dim);
+  margin: 0;
+}
+
+.active-pl-exit-btn {
+  font-family: var(--font-mono);
+  font-size: 9.5px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  padding: 8px 14px;
+  background: var(--glass-bg-subtle);
+  border: 1px solid var(--accent);
+  color: var(--accent);
+  cursor: pointer;
+  border-radius: var(--radius);
+  transition: all 0.15s ease;
+  white-space: nowrap;
+}
+
+.active-pl-exit-btn:hover {
+  background: var(--accent);
+  color: #000;
+  box-shadow: 0 0 10px rgba(var(--accent-rgb), 0.4);
+}
+
+/* ── Current Track Hero Banner ──────────────────────────────── */
+.active-pl-track-hero {
+  background: rgba(var(--accent-rgb), 0.08);
+  border: 1px solid rgba(var(--accent-rgb), 0.28);
+  padding: 12px 16px;
+  border-radius: var(--radius);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.hero-left {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+}
+
+.hero-kicker {
+  font-family: var(--font-mono);
+  font-size: 8px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--accent);
+  font-weight: 700;
+}
+
+.hero-title {
+  font-family: var(--font-mono);
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: var(--ink);
+  margin: 0;
+  text-transform: uppercase;
+}
+
+.hero-meta {
+  font-family: var(--serif);
+  font-size: 12.5px;
+  color: var(--ink-dim);
+  margin: 0;
+  line-height: 1.4;
+}
+
+.hero-right {
+  flex-shrink: 0;
+}
+
+.hero-year-tag {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: 0.12em;
+  padding: 3px 8px;
+  background: rgba(var(--bg-rgb), 0.8);
+  color: var(--accent);
+  border: 1px solid var(--accent);
+  border-radius: 2px;
+  font-weight: 700;
+}
+
+/* ── Active Playlist Scrubber ───────────────────────────────── */
+.active-pl-scrubber-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 4px 0;
+}
+
+.active-pl-scrubber-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+}
+
+.active-pl-time-code {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  color: var(--accent);
+  min-width: 44px;
+  user-select: none;
+}
+
+.active-pl-track-bar {
+  flex: 1;
+  height: 8px;
+  background: rgba(var(--accent-rgb), 0.15);
+  border: 1px solid rgba(var(--accent-rgb), 0.35);
+  border-radius: 4px;
+  position: relative;
+  cursor: pointer;
+  outline: none;
+  transition: background 0.15s ease;
+}
+
+.active-pl-track-bar:hover {
+  background: rgba(var(--accent-rgb), 0.25);
+  border-color: var(--accent);
+}
+
+.active-pl-track-fill {
+  height: 100%;
+  background: var(--accent);
+  border-radius: 3px;
+  pointer-events: none;
+  transition: width 0.1s linear;
+}
+
+.active-pl-track-thumb {
+  position: absolute;
+  top: 50%;
+  width: 10px;
+  height: 14px;
+  background: #ffffff;
+  border: 1px solid var(--accent);
+  box-shadow: 0 0 6px var(--accent);
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  border-radius: 2px;
+}
+
+/* ── Shifted Controls Bar ───────────────────────────────────── */
+.active-pl-controls-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  padding: 6px 0;
+}
+
+.active-pl-playback-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.active-pl-play-btn {
+  font-size: 10px;
+  font-weight: 700;
+  gap: 6px;
+  padding: 6px 14px;
+  background: rgba(var(--accent-rgb), 0.18);
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.active-pl-play-btn:hover {
+  background: var(--accent);
+  color: #000;
+}
+
+.active-pl-play-icon {
+  font-size: 10px;
+  display: inline-block;
+}
+
+.active-pl-nav-btn {
+  font-size: 9px;
+  padding: 6px 10px;
+}
+
+.active-pl-seek-btn {
+  font-size: 9px;
+  padding: 6px 10px;
+}
+
+/* ── Active Playlist Tracks Section ─────────────────────────── */
+.active-pl-tracks-section {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding-top: 10px;
+  border-top: 1px dashed var(--hairline);
+}
+
+.active-pl-tracks-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.active-pl-tracks-label {
+  font-family: var(--font-mono);
+  font-size: 8.5px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--accent);
+  font-weight: 700;
+}
+
+.active-pl-tracks-count {
+  font-family: var(--font-mono);
+  font-size: 8px;
+  letter-spacing: 0.1em;
+  color: var(--ink-dim);
+  text-transform: uppercase;
+}
+
+/* ── Active Playlist Queue Drawer (Legacy Fallback) ──────────── */
 .sdr-queue-drawer {
   background: rgba(var(--bg-rgb), 0.9);
   border: 1px solid var(--accent);

@@ -1,47 +1,21 @@
 ---
 /**
- * network.astro — Trusted Network & Talent Dispatch Directory
- *
- * Dedicated directory of trusted collaborators, research peers,
- * and senior academic mentors Bernard vouches for.
+ * network.astro — Permanent redirect forwarding /network to /people
  */
-import BaseLayout from '../layouts/BaseLayout.astro';
-import ChromeNav from '../components/ChromeNav.astro';
-import ChromeFooter from '../components/ChromeFooter.astro';
-import Network from '../components/Network.astro';
+return Astro.redirect('/people', 301);
 ---
 
-<BaseLayout
-  title="Network // Talent & Research Directory — Bernard Birendra Das"
-  description="Curated talent, research, and academic network directory by Bernard Birendra Das: trusted practitioners, academic mentors, research scholars, and industry craftspeople."
->
-  <canvas id="scene" transition:persist="terrain-canvas" aria-hidden="true"></canvas>
-
-  <ChromeNav />
-
-  <div class="page-grid">
-    <!-- ─── LEFT: CONTENT COLUMN ─────────────────────────────── -->
-    <main class="content-col" id="top">
-      <Network />
-    </main>
-
-    <!-- ─── RIGHT: NEGATIVE SPACE SHOWING 3D TERRAIN ─────────── -->
-    <div class="bg-col" aria-hidden="true"></div>
-  </div>
-
-  <ChromeFooter />
-
-  <script>
-    // Defer 3D terrain canvas
-    const loadTerrain = () => {
-      import('../scripts/terrain.ts');
-    };
-    if (typeof window !== 'undefined') {
-      if ('requestIdleCallback' in window) {
-        window.requestIdleCallback(loadTerrain, { timeout: 1000 });
-      } else {
-        setTimeout(loadTerrain, 100);
-      }
-    }
-  </script>
-</BaseLayout>
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta http-equiv="refresh" content="0;url=/people" />
+    <link rel="canonical" href="https://bernardbdas.github.io/people" />
+    <title>Redirecting to People...</title>
+  </head>
+  <body>
+    <p>
+      Redirecting to <a href="/people">People</a>...
+    </p>
+  </body>
+</html>

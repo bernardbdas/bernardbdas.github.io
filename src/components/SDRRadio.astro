@@ -363,63 +363,6 @@ const defaultStation: FMStation = RADIO_STATIONS[0];
           >
             <span>NEXT ▶▶</span>
           </button>
-
-          <!-- Dedicated Track & Seek Controls (Active for Pre-Recorded Tracks) -->
-          <div class="sdr-track-controls" id="sdr-track-controls">
-            <span class="sdr-controls-divider" aria-hidden="true">
-              |
-            </span>
-
-            <button
-              type="button"
-              class:list={[
-                'sdr-btn sdr-media-btn',
-                { 'is-disabled': defaultStation.streamType === 'live' },
-              ]}
-              id="sdr-rewind-btn"
-              aria-label="Rewind 15 seconds"
-              title="Rewind 15 seconds (Pre-Recorded Tracks)"
-              aria-disabled={defaultStation.streamType === 'live' ? 'true' : 'false'}
-            >
-              <span>↺ -15S</span>
-            </button>
-
-            <button
-              type="button"
-              class:list={[
-                'sdr-btn sdr-media-btn',
-                { 'is-disabled': defaultStation.streamType === 'live' },
-              ]}
-              id="sdr-forward-btn"
-              aria-label="Forward 15 seconds"
-              title="Forward 15 seconds (Pre-Recorded Tracks)"
-              aria-disabled={defaultStation.streamType === 'live' ? 'true' : 'false'}
-            >
-              <span>↻ +15S</span>
-            </button>
-
-            <button
-              type="button"
-              class="sdr-btn sdr-media-btn sdr-playlist-ctrl-btn"
-              id="sdr-track-prev-btn"
-              aria-label="Previous Track in Playlist"
-              title="Previous Track in Playlist"
-              style="display: none;"
-            >
-              <span>⏮ PREV TRK</span>
-            </button>
-
-            <button
-              type="button"
-              class="sdr-btn sdr-media-btn sdr-playlist-ctrl-btn"
-              id="sdr-track-next-btn"
-              aria-label="Next Track in Playlist"
-              title="Next Track in Playlist"
-              style="display: none;"
-            >
-              <span>NEXT TRK ⏭</span>
-            </button>
-          </div>
         </div>
 
         <div class="sdr-volume-controls">
@@ -470,6 +413,217 @@ const defaultStation: FMStation = RADIO_STATIONS[0];
             <span class="club-btn-led" id="sdr-light-rig-led" aria-hidden="true"></span>
             <span id="sdr-light-rig-label">LIGHT RIG: ON</span>
           </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════
+       CURATED PLAYLIST ARCHIVES (GENRES & SUB-GENRES)
+       ══════════════════════════════════════════════════════════ -->
+  <div class="sdr-playlists-shelf" id="sdr-playlists-shelf">
+    <div class="sdr-section-title-row">
+      <div class="sdr-playlists-title-group">
+        <span class="subgenre-bracket">[</span>
+        <h2 class="sdr-playlists-title">CURATED PLAYLISTS // TRACK ARCHIVES</h2>
+        <span class="subgenre-bracket">]</span>
+      </div>
+      <span class="sdr-playlists-count-badge" id="sdr-playlists-count">
+        {SDR_PLAYLISTS.length} PLAYLISTS INDEXED
+      </span>
+    </div>
+
+    <div class="sdr-playlists-grid" id="sdr-playlists-grid">
+      {SDR_PLAYLISTS.map((pl) => (
+        <div
+          class="sdr-playlist-card"
+          id={`playlist-card-${pl.id}`}
+          data-playlist-id={pl.id}
+          data-genre={pl.genre}
+          data-subgenre={pl.subgenre || ''}
+          tabindex="0"
+          role="button"
+          aria-label={`Open playlist: ${pl.name}`}
+        >
+          <div class="playlist-card-top">
+            <span class="playlist-tag">PLAYLIST</span>
+            <span class="playlist-track-badge">{pl.tracks.length} TRACKS</span>
+            {pl.subgenre && <span class="playlist-subgenre-tag">{pl.subgenre}</span>}
+          </div>
+          <h3 class="playlist-title">{pl.name}</h3>
+          <p class="playlist-desc">{pl.desc}</p>
+          <div class="playlist-card-bottom">
+            <span class="playlist-genre-label">{pl.genre}</span>
+            <span class="playlist-open-cta">QUEUE PLAYLIST →</span>
+          </div>
+        </div>
+      ))}
+    </div>
+
+    <!-- ══════════════════════════════════════════════════════════
+         ACTIVE PLAYLIST PLAYER CARD (SINGLE EXPANDED CONSOLE)
+         Replaces playlist grid when a playlist is queued.
+         Contains tracks list, progress scrubber & media controls.
+         ══════════════════════════════════════════════════════════ -->
+    <div
+      class="sdr-active-playlist-deck"
+      id="sdr-active-playlist-deck"
+      style="display: none;"
+      role="region"
+      aria-label="Active Playlist Deck & Track Queue"
+    >
+      <!-- Top Meta Bar -->
+      <div class="active-pl-top">
+        <div class="active-pl-meta-wrap">
+          <div class="active-pl-badge-row">
+            <span class="active-pl-status-badge">
+              <span class="stream-pulse-dot" aria-hidden="true"></span>
+              <span>NOW PLAYING QUEUE</span>
+            </span>
+            <span class="active-pl-carrier-tag" id="active-pl-carrier-tag">
+              88.4 FM
+            </span>
+            <span class="active-pl-subgenre-tag" id="active-pl-subgenre-tag">
+              ROCK
+            </span>
+            <span class="active-pl-count-tag" id="active-pl-count-tag">
+              TRK 1 OF 6
+            </span>
+          </div>
+
+          <h3 class="active-pl-title" id="active-pl-name">
+            ...
+          </h3>
+          <p class="active-pl-desc" id="active-pl-desc">
+            ...
+          </p>
+        </div>
+
+        <button
+          type="button"
+          class="active-pl-exit-btn"
+          id="active-pl-exit-btn"
+          aria-label="Exit playlist and return to all playlists"
+          title="Exit Playlist Mode and Return to All Playlists"
+        >
+          <span>✕ EXIT PLAYLIST // BROWSE ALL</span>
+        </button>
+      </div>
+
+      <!-- Current Track Hero Banner -->
+      <div class="active-pl-track-hero">
+        <div class="hero-left">
+          <span class="hero-kicker">CURRENT TRACK</span>
+          <h4 class="hero-title" id="active-hero-track-title">
+            ...
+          </h4>
+          <p class="hero-meta" id="active-hero-track-meta">
+            ...
+          </p>
+        </div>
+        <div class="hero-right">
+          <span class="hero-year-tag" id="active-hero-year-badge">
+            --
+          </span>
+        </div>
+      </div>
+
+      <!-- Interactive Progress Bar / Scrubber -->
+      <div class="active-pl-scrubber-panel">
+        <div class="active-pl-scrubber-row">
+          <span class="active-pl-time-code" id="active-pl-time-current">
+            00:00
+          </span>
+          <div
+            class="active-pl-track-bar"
+            id="active-pl-track-bar"
+            role="slider"
+            aria-label="Playlist track progress scrubber"
+            aria-valuemin="0"
+            aria-valuemax="100"
+            aria-valuenow="0"
+            tabindex="0"
+            title="Click or drag to scrub track"
+          >
+            <div class="active-pl-track-fill" id="active-pl-track-fill" style="width: 0%;"></div>
+            <div class="active-pl-track-thumb" id="active-pl-track-thumb" style="left: 0%;"></div>
+          </div>
+          <span class="active-pl-time-code" id="active-pl-time-total">
+            --:--
+          </span>
+        </div>
+      </div>
+
+      <!-- Tactical Media Controls Row -->
+      <div class="active-pl-controls-bar">
+        <div class="active-pl-playback-group">
+          <button
+            type="button"
+            class="sdr-btn active-pl-play-btn"
+            id="active-pl-play-btn"
+            aria-label="Play or Pause Playlist Track"
+            title="Play / Pause Track"
+          >
+            <span class="active-pl-play-icon" id="active-pl-play-icon">
+              ❚❚
+            </span>
+            <span class="active-pl-play-label" id="active-pl-play-label">
+              PAUSE
+            </span>
+          </button>
+
+          <button
+            type="button"
+            class="sdr-btn active-pl-nav-btn"
+            id="active-pl-prev-trk-btn"
+            aria-label="Previous Track in Playlist"
+            title="Previous Track"
+          >
+            <span>⏮ PREV TRK</span>
+          </button>
+
+          <button
+            type="button"
+            class="sdr-btn active-pl-seek-btn"
+            id="active-pl-rewind-btn"
+            aria-label="Rewind 15 seconds"
+            title="Rewind 15 Seconds"
+          >
+            <span>↺ -15S</span>
+          </button>
+
+          <button
+            type="button"
+            class="sdr-btn active-pl-seek-btn"
+            id="active-pl-forward-btn"
+            aria-label="Forward 15 seconds"
+            title="Forward 15 Seconds"
+          >
+            <span>↻ +15S</span>
+          </button>
+
+          <button
+            type="button"
+            class="sdr-btn active-pl-nav-btn"
+            id="active-pl-next-trk-btn"
+            aria-label="Next Track in Playlist"
+            title="Next Track"
+          >
+            <span>NEXT TRK ⏭</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Tracks List within the Card -->
+      <div class="active-pl-tracks-section">
+        <div class="active-pl-tracks-header">
+          <span class="active-pl-tracks-label">PLAYLIST TRACKS // SELECT TO TUNE</span>
+          <span class="active-pl-tracks-count" id="active-pl-tracks-count">
+            6 TRACKS IN QUEUE
+          </span>
+        </div>
+        <div class="queue-tracks-list" id="queue-tracks-list" role="list">
+          <!-- Populated dynamically via SDRController -->
         </div>
       </div>
     </div>
@@ -545,73 +699,6 @@ const defaultStation: FMStation = RADIO_STATIONS[0];
           })}
         </div>
       ))}
-    </div>
-  </div>
-
-  <!-- ══════════════════════════════════════════════════════════
-       CURATED PLAYLIST ARCHIVES (GENRES & SUB-GENRES)
-       ══════════════════════════════════════════════════════════ -->
-  <div class="sdr-playlists-shelf" id="sdr-playlists-shelf">
-    <div class="sdr-section-title-row">
-      <div class="sdr-playlists-title-group">
-        <span class="subgenre-bracket">[</span>
-        <h2 class="sdr-playlists-title">CURATED PLAYLISTS // TRACK ARCHIVES</h2>
-        <span class="subgenre-bracket">]</span>
-      </div>
-      <span class="sdr-playlists-count-badge" id="sdr-playlists-count">
-        {SDR_PLAYLISTS.length} PLAYLISTS INDEXED
-      </span>
-    </div>
-
-    <div class="sdr-playlists-grid" id="sdr-playlists-grid">
-      {SDR_PLAYLISTS.map((pl) => (
-        <div
-          class="sdr-playlist-card"
-          id={`playlist-card-${pl.id}`}
-          data-playlist-id={pl.id}
-          data-genre={pl.genre}
-          data-subgenre={pl.subgenre || ''}
-          tabindex="0"
-          role="button"
-          aria-label={`Open playlist: ${pl.name}`}
-        >
-          <div class="playlist-card-top">
-            <span class="playlist-tag">PLAYLIST</span>
-            <span class="playlist-track-badge">{pl.tracks.length} TRACKS</span>
-            {pl.subgenre && <span class="playlist-subgenre-tag">{pl.subgenre}</span>}
-          </div>
-          <h3 class="playlist-title">{pl.name}</h3>
-          <p class="playlist-desc">{pl.desc}</p>
-          <div class="playlist-card-bottom">
-            <span class="playlist-genre-label">{pl.genre}</span>
-            <span class="playlist-open-cta">QUEUE PLAYLIST →</span>
-          </div>
-        </div>
-      ))}
-    </div>
-
-    <!-- Active Playlist Queue Drawer -->
-    <div class="sdr-queue-drawer" id="sdr-queue-drawer" style="display: none;">
-      <div class="queue-drawer-header">
-        <div class="queue-drawer-info">
-          <span class="queue-status-tag">ACTIVE PLAYLIST QUEUE</span>
-          <h4 class="queue-playlist-title" id="queue-playlist-title">
-            ...
-          </h4>
-        </div>
-        <button
-          type="button"
-          class="queue-close-btn"
-          id="queue-close-btn"
-          aria-label="Exit playlist queue"
-          title="Exit Playlist Mode"
-        >
-          <span>✕ EXIT PLAYLIST</span>
-        </button>
-      </div>
-      <div class="queue-tracks-list" id="queue-tracks-list" role="list">
-        <!-- Injected dynamically via SDRController -->
-      </div>
     </div>
   </div>
 
@@ -865,6 +952,22 @@ const defaultStation: FMStation = RADIO_STATIONS[0];
       }
     }
 
+    private syncPlayButtonState() {
+      const plPlayLabel = document.getElementById('active-pl-play-label');
+      const plPlayIcon = document.getElementById('active-pl-play-icon');
+      const plPlayBtn = document.getElementById('active-pl-play-btn');
+
+      if (this.isPlaying) {
+        if (plPlayLabel) plPlayLabel.textContent = 'PAUSE';
+        if (plPlayIcon) plPlayIcon.textContent = '❚❚';
+        if (plPlayBtn) plPlayBtn.classList.add('is-active');
+      } else {
+        if (plPlayLabel) plPlayLabel.textContent = 'PLAY';
+        if (plPlayIcon) plPlayIcon.textContent = '▶';
+        if (plPlayBtn) plPlayBtn.classList.remove('is-active');
+      }
+    }
+
     private handlePlayerState(state: number) {
       // 1: PLAYING, 2: PAUSED, 3: BUFFERING, 0: ENDED, 5: CUED
       const mainDot = document.getElementById('sdr-main-dot');
@@ -879,6 +982,7 @@ const defaultStation: FMStation = RADIO_STATIONS[0];
         mainDot?.classList.add('is-transmitting');
         powerBtn?.classList.add('is-active');
         if (powerLabel) powerLabel.textContent = 'MUTE / PAUSE';
+        this.syncPlayButtonState();
         this.updateActiveCard();
         this.updateClubLightingState();
         this.startScrubberTimer();
@@ -887,6 +991,8 @@ const defaultStation: FMStation = RADIO_STATIONS[0];
         // Buffering
         this.setStatusText('TUNING // ACQUIRING SIGNAL');
         if (powerLabel) powerLabel.textContent = 'BUFFERING...';
+        const plPlayLabel = document.getElementById('active-pl-play-label');
+        if (plPlayLabel) plPlayLabel.textContent = 'BUFFERING...';
       } else if (state === 2) {
         // Paused
         this.saveStationPosition();
@@ -894,6 +1000,7 @@ const defaultStation: FMStation = RADIO_STATIONS[0];
         mainDot?.classList.remove('is-transmitting');
         powerBtn?.classList.remove('is-active');
         if (powerLabel) powerLabel.textContent = 'RESUME AUDIO';
+        this.syncPlayButtonState();
         this.setStatusText('RECEIVER PAUSED');
         this.updateClubLightingState();
         if (!this.isPiping) {
@@ -909,6 +1016,7 @@ const defaultStation: FMStation = RADIO_STATIONS[0];
           mainDot?.classList.remove('is-transmitting');
           powerBtn?.classList.remove('is-active');
           if (powerLabel) powerLabel.textContent = 'RESUME AUDIO';
+          this.syncPlayButtonState();
           this.setStatusText('TRACK COMPLETE');
           this.updateClubLightingState();
           if (!this.isPiping) {
@@ -952,13 +1060,28 @@ const defaultStation: FMStation = RADIO_STATIONS[0];
       const thumbEl = document.getElementById('sdr-timeline-thumb');
       const trackEl = document.getElementById('sdr-timeline-track');
 
-      if (curEl) curEl.textContent = this.formatTime(cur);
-      if (totalEl) totalEl.textContent = dur > 0 ? this.formatTime(dur) : '--:--';
+      const plCurEl = document.getElementById('active-pl-time-current');
+      const plTotalEl = document.getElementById('active-pl-time-total');
+      const plFillEl = document.getElementById('active-pl-track-fill');
+      const plThumbEl = document.getElementById('active-pl-track-thumb');
+      const plTrackEl = document.getElementById('active-pl-track-bar');
 
+      const timeStr = this.formatTime(cur);
+      const totalStr = dur > 0 ? this.formatTime(dur) : '--:--';
       const pct = dur > 0 ? Math.min(100, Math.max(0, (cur / dur) * 100)) : 0;
-      if (fillEl) fillEl.style.width = `${pct}%`;
-      if (thumbEl) thumbEl.style.left = `${pct}%`;
+      const pctStr = `${pct}%`;
+
+      if (curEl) curEl.textContent = timeStr;
+      if (totalEl) totalEl.textContent = totalStr;
+      if (fillEl) fillEl.style.width = pctStr;
+      if (thumbEl) thumbEl.style.left = pctStr;
       if (trackEl) trackEl.setAttribute('aria-valuenow', pct.toFixed(0));
+
+      if (plCurEl) plCurEl.textContent = timeStr;
+      if (plTotalEl) plTotalEl.textContent = totalStr;
+      if (plFillEl) plFillEl.style.width = pctStr;
+      if (plThumbEl) plThumbEl.style.left = pctStr;
+      if (plTrackEl) plTrackEl.setAttribute('aria-valuenow', pct.toFixed(0));
     }
 
     private seekDelta(delta: number) {
@@ -984,17 +1107,66 @@ const defaultStation: FMStation = RADIO_STATIONS[0];
     }
 
     private renderPlaylistQueue() {
-      const drawer = document.getElementById('sdr-queue-drawer');
-      const titleEl = document.getElementById('queue-playlist-title');
-      const listEl = document.getElementById('queue-tracks-list');
+      const deck = document.getElementById('sdr-active-playlist-deck');
+      const grid = document.getElementById('sdr-playlists-grid');
+      const countBadge = document.getElementById('sdr-playlists-count');
       const prevTrk = document.getElementById('sdr-track-prev-btn');
       const nextTrk = document.getElementById('sdr-track-next-btn');
 
-      if (drawer) drawer.style.display = 'flex';
-      if (titleEl && this.activePlaylist) titleEl.textContent = this.activePlaylist.name;
+      // Hide all playlist cards, show only this single currently playing card
+      if (grid) grid.style.display = 'none';
+      if (deck) deck.style.display = 'flex';
+      if (countBadge && this.activePlaylist) {
+        countBadge.textContent = '1 PLAYLIST QUEUED // ACTIVE DECK';
+      }
       if (prevTrk) prevTrk.style.display = 'inline-flex';
       if (nextTrk) nextTrk.style.display = 'inline-flex';
 
+      if (!this.activePlaylist) return;
+      const track = this.activePlaylist.tracks[this.activeTrackIndex];
+
+      const carrierTag = document.getElementById('active-pl-carrier-tag');
+      const subgenreTag = document.getElementById('active-pl-subgenre-tag');
+      const countTag = document.getElementById('active-pl-count-tag');
+      const nameEl = document.getElementById('active-pl-name');
+      const descEl = document.getElementById('active-pl-desc');
+
+      if (carrierTag)
+        carrierTag.textContent = `${(this.activePlaylist.freqNum || 90.5).toFixed(1)} FM`;
+      if (subgenreTag)
+        subgenreTag.textContent = this.activePlaylist.subgenre || this.activePlaylist.genre;
+      if (countTag)
+        countTag.textContent = `TRK ${this.activeTrackIndex + 1} OF ${this.activePlaylist.tracks.length}`;
+      if (nameEl) nameEl.textContent = this.activePlaylist.name;
+      if (descEl) descEl.textContent = this.activePlaylist.desc;
+
+      const heroTitle = document.getElementById('active-hero-track-title');
+      const heroMeta = document.getElementById('active-hero-track-meta');
+      const heroYear = document.getElementById('active-hero-year-badge');
+      const tracksCountLabel = document.getElementById('active-pl-tracks-count');
+
+      if (track) {
+        if (heroTitle) heroTitle.textContent = `${track.artist} — ${track.title}`;
+        if (heroMeta)
+          heroMeta.textContent =
+            track.desc || `${this.activePlaylist.genre} Archive Master Recording`;
+        if (heroYear) {
+          if (track.year) {
+            heroYear.style.display = 'inline-block';
+            heroYear.textContent = String(track.year);
+          } else {
+            heroYear.style.display = 'none';
+          }
+        }
+      }
+
+      if (tracksCountLabel) {
+        tracksCountLabel.textContent = `${this.activePlaylist.tracks.length} TRACKS IN QUEUE`;
+      }
+
+      this.syncPlayButtonState();
+
+      const listEl = document.getElementById('queue-tracks-list');
       if (listEl && this.activePlaylist) {
         listEl.innerHTML = this.activePlaylist.tracks
           .map(
@@ -1036,6 +1208,8 @@ const defaultStation: FMStation = RADIO_STATIONS[0];
         this.isPoweredOn = true;
       }
       this.isPlaying = true;
+      this.syncPlayButtonState();
+      this.updateScrubberDisplay(0, 0);
 
       // Update VFD for playlist track
       const plFreq = this.activePlaylist.freqNum || 90.5;
@@ -1126,10 +1300,15 @@ const defaultStation: FMStation = RADIO_STATIONS[0];
 
     private exitPlaylistMode() {
       this.activePlaylist = null;
-      const drawer = document.getElementById('sdr-queue-drawer');
+      const deck = document.getElementById('sdr-active-playlist-deck');
+      const grid = document.getElementById('sdr-playlists-grid');
+      const countBadge = document.getElementById('sdr-playlists-count');
       const prevTrk = document.getElementById('sdr-track-prev-btn');
       const nextTrk = document.getElementById('sdr-track-next-btn');
-      if (drawer) drawer.style.display = 'none';
+
+      if (deck) deck.style.display = 'none';
+      if (grid) grid.style.display = 'grid';
+      if (countBadge) countBadge.textContent = `${SDR_PLAYLISTS.length} PLAYLISTS INDEXED`;
       if (prevTrk) prevTrk.style.display = 'none';
       if (nextTrk) nextTrk.style.display = 'none';
       this.updateDisplay();
@@ -1177,6 +1356,40 @@ const defaultStation: FMStation = RADIO_STATIONS[0];
       // Close playlist queue drawer
       const closeDrawerBtn = document.getElementById('queue-close-btn');
       closeDrawerBtn?.addEventListener('click', () => this.exitPlaylistMode());
+
+      // Active playlist deck controls
+      const plExitBtn = document.getElementById('active-pl-exit-btn');
+      plExitBtn?.addEventListener('click', () => this.exitPlaylistMode());
+
+      const plPlayBtn = document.getElementById('active-pl-play-btn');
+      plPlayBtn?.addEventListener('click', () => this.togglePower());
+
+      const plPrevTrk = document.getElementById('active-pl-prev-trk-btn');
+      plPrevTrk?.addEventListener('click', () => this.playPrevPlaylistTrack());
+
+      const plNextTrk = document.getElementById('active-pl-next-trk-btn');
+      plNextTrk?.addEventListener('click', () => this.playNextPlaylistTrack());
+
+      const plRewindBtn = document.getElementById('active-pl-rewind-btn');
+      plRewindBtn?.addEventListener('click', () => this.seekDelta(-15));
+
+      const plForwardBtn = document.getElementById('active-pl-forward-btn');
+      plForwardBtn?.addEventListener('click', () => this.seekDelta(15));
+
+      const plTrackBar = document.getElementById('active-pl-track-bar');
+      if (plTrackBar) {
+        plTrackBar.addEventListener('click', (e: MouseEvent) => {
+          if (!this.ytPlayer || typeof this.ytPlayer.getDuration !== 'function') return;
+          const rect = plTrackBar.getBoundingClientRect();
+          const ratio = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
+          const dur = this.ytPlayer.getDuration() || 0;
+          if (dur > 0) {
+            const target = ratio * dur;
+            this.ytPlayer.seekTo(target, true);
+            this.updateScrubberDisplay(target, dur);
+          }
+        });
+      }
 
       // Interactive timeline track scrub
       const timelineTrack = document.getElementById('sdr-timeline-track');
@@ -1490,6 +1703,9 @@ const defaultStation: FMStation = RADIO_STATIONS[0];
     }
 
     private tuneToStation(station: FMStation) {
+      if (this.activePlaylist && !station.id.startsWith('pl-')) {
+        this.exitPlaylistMode();
+      }
       this.saveStationPosition();
       this.currentStation = station;
       this.updateDisplay();
@@ -1577,6 +1793,9 @@ const defaultStation: FMStation = RADIO_STATIONS[0];
       this.volume = val;
       const volLabel = document.getElementById('vol-display-label');
       if (volLabel) volLabel.textContent = `VOL: ${val}%`;
+
+      const mainVol = document.getElementById('sdr-volume-slider') as HTMLInputElement | null;
+      if (mainVol && mainVol.value !== String(val)) mainVol.value = String(val);
 
       if (this.ytPlayer && typeof this.ytPlayer.setVolume === 'function') {
         this.ytPlayer.setVolume(val);
