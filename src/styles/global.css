@@ -9232,46 +9232,69 @@ body.weather-modal-open {
 /* ── Individual Tactical Telemetry Card ──────────────────────── */
 .weather-card {
   position: relative;
-  background: rgba(var(--bg-rgb), 0.76);
+  background: var(--glass-bg);
   backdrop-filter: var(--glass-blur);
   -webkit-backdrop-filter: var(--glass-blur);
-  border: 1px solid var(--hairline);
-  border-radius: 16px;
-  box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.25);
+  border: 1px solid var(--glass-border);
+  border-radius: 18px;
+  box-shadow:
+    var(--glass-specular),
+    0 16px 40px -10px rgba(0, 0, 0, 0.5),
+    0 0 0 1px rgba(255, 255, 255, 0.03);
   display: flex;
   flex-direction: column;
   overflow: hidden;
   transition:
-    border-color 0.2s ease,
-    box-shadow 0.2s ease,
+    border-color 0.25s ease,
+    box-shadow 0.25s ease,
     transform 0.15s ease;
 }
 
-/* Dynamic Liquid Glass Specular Sheen */
+html[data-theme='light'] .weather-card,
+html[data-theme='white'] .weather-card {
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.9) 0%,
+    rgba(255, 255, 255, 0.74) 50%,
+    rgba(240, 245, 252, 0.8) 100%
+  );
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  box-shadow:
+    inset 0 1px 1px 0 rgba(255, 255, 255, 0.95),
+    0 10px 28px -6px rgba(0, 0, 0, 0.06),
+    0 0 0 1px rgba(0, 0, 0, 0.02);
+}
+
+/* Dynamic Liquid Glass Specular Top Sheen */
 .weather-card::before {
   content: '';
   position: absolute;
-  inset: 0;
-  pointer-events: none;
-  background: radial-gradient(
-    circle 260px at var(--light-x, 50%) var(--light-y, 30%),
-    rgba(255, 255, 255, 0.1),
-    transparent 70%
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.25) 30%,
+    rgba(var(--accent-rgb), 0.45) 50%,
+    rgba(255, 255, 255, 0.25) 70%,
+    transparent 100%
   );
-  opacity: 0.5;
-  mix-blend-mode: overlay;
+  pointer-events: none;
   z-index: 2;
-  transition: opacity 0.3s ease;
 }
 
 html[data-theme='light'] .weather-card::before,
 html[data-theme='white'] .weather-card::before {
-  background: radial-gradient(
-    circle 260px at var(--light-x, 50%) var(--light-y, 30%),
-    rgba(0, 0, 0, 0.04),
-    transparent 70%
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.9) 30%,
+    rgba(var(--accent-rgb), 0.3) 50%,
+    rgba(255, 255, 255, 0.9) 70%,
+    transparent 100%
   );
-  opacity: 0.35;
 }
 
 .weather-card:hover {
@@ -9828,24 +9851,96 @@ html[data-theme='white'] .ascii-radar-bay {
   font-size: 11.5px;
 }
 
+/* ── Precision Instrument Glass Pod ───────────────────────────── */
+.instrument-glass-pod {
+  position: relative;
+  background: rgba(var(--ink-rgb), 0.035);
+  border: 1px solid rgba(var(--ink-rgb), 0.08);
+  border-radius: 14px;
+  padding: 10px 12px;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.08),
+    inset 0 0 16px rgba(var(--ink-rgb), 0.02);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  transition: all 0.25s ease;
+  overflow: hidden;
+}
+
+.instrument-glass-pod::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.2) 35%,
+    rgba(var(--accent-rgb), 0.35) 50%,
+    rgba(255, 255, 255, 0.2) 65%,
+    transparent 100%
+  );
+  pointer-events: none;
+}
+
+.instrument-glass-pod:hover {
+  border-color: rgba(var(--accent-rgb), 0.4);
+  background: rgba(var(--accent-rgb), 0.035);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.16),
+    0 8px 20px -6px rgba(0, 0, 0, 0.3),
+    0 0 16px rgba(var(--accent-rgb), 0.1);
+}
+
+html[data-theme='light'] .instrument-glass-pod,
+html[data-theme='white'] .instrument-glass-pod {
+  background: rgba(255, 255, 255, 0.65);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  box-shadow:
+    inset 0 1px 1px #ffffff,
+    0 4px 14px -2px rgba(0, 0, 0, 0.04);
+}
+
+html[data-theme='light'] .instrument-glass-pod:hover,
+html[data-theme='white'] .instrument-glass-pod:hover {
+  border-color: rgba(var(--accent-rgb), 0.45);
+  background: rgba(255, 255, 255, 0.85);
+  box-shadow:
+    inset 0 1px 1px #ffffff,
+    0 6px 18px -4px rgba(var(--accent-rgb), 0.15);
+}
+
 /* ── Module 4: Wind & Barometric Chamber ───────────────────────── */
 .atmosphere-dual-content {
   display: grid;
-  grid-template-columns: 1fr 1px 1fr;
-  gap: 16px;
-  align-items: center;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  align-items: stretch;
 }
 
-.tactical-gauge-box {
+.compass-dial-wrap,
+.pressure-gauge-wrap {
   display: flex;
   align-items: center;
-  gap: 16px;
+  justify-content: center;
+  flex-shrink: 0;
+  filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.25));
 }
 
-.tactical-divider {
-  width: 1px;
-  height: 80%;
-  background: var(--hairline);
+.compass-dial-svg,
+.pressure-svg {
+  overflow: visible;
+  transition: transform 0.25s ease;
+}
+
+.compass-dial-svg:hover,
+.pressure-svg:hover {
+  transform: scale(1.04);
 }
 
 .gauge-meta {
@@ -9853,6 +9948,7 @@ html[data-theme='white'] .ascii-radar-bay {
   flex-direction: column;
   gap: 2px;
   font-family: var(--font-mono);
+  min-width: 0;
 }
 
 .g-title {
@@ -9860,37 +9956,78 @@ html[data-theme='white'] .ascii-radar-bay {
   font-weight: 700;
   color: var(--ink-dim);
   letter-spacing: 0.08em;
+  white-space: nowrap;
 }
 
 .g-num {
-  font-size: 16px;
+  font-size: 17px;
   font-weight: 800;
   color: var(--ink);
+  letter-spacing: -0.01em;
+}
+
+.g-num-row {
+  display: flex;
+  align-items: baseline;
+  gap: 3px;
+}
+
+.g-unit {
+  font-size: 9.5px;
+  font-weight: 600;
+  color: var(--ink-dim);
 }
 
 .g-sub {
   font-size: 10px;
   font-weight: 600;
   color: var(--accent);
+  white-space: nowrap;
 }
 
 .g-note {
   font-size: 8.5px;
   color: var(--ink-dim);
+  white-space: nowrap;
+}
+
+.g-trend-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 8.5px;
+  color: var(--accent);
+  font-weight: 700;
+  margin-top: 2px;
+}
+
+.trend-pip {
+  width: 4.5px;
+  height: 4.5px;
+  border-radius: 50%;
+  background: #22c55e;
+  box-shadow: 0 0 6px #22c55e;
+  animation: pulseLiveDot 1.6s ease-in-out infinite;
 }
 
 /* ── Module 5: Astronomical Ephemeris ─────────────────────────── */
 .solar-lunar-content {
   display: grid;
-  grid-template-columns: 1fr 1px 1fr;
-  gap: 16px;
-  align-items: center;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  align-items: stretch;
 }
 
-.ephemeris-box {
+.solar-arc-svg-wrap {
   display: flex;
   align-items: center;
-  gap: 16px;
+  justify-content: center;
+  flex-shrink: 0;
+  filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.25));
+}
+
+.solar-arc-svg {
+  overflow: visible;
 }
 
 .moon-render-wrap {
@@ -9904,8 +10041,8 @@ html[data-theme='white'] .ascii-radar-bay {
 }
 
 .moon-sphere-svg {
-  width: 50px;
-  height: 50px;
+  width: 52px;
+  height: 52px;
   overflow: visible;
   transition: transform 0.3s ease;
 }
@@ -9919,6 +10056,7 @@ html[data-theme='white'] .ascii-radar-bay {
   flex-direction: column;
   gap: 3px;
   font-family: var(--font-mono);
+  min-width: 0;
 }
 
 .e-row {
@@ -9927,24 +10065,31 @@ html[data-theme='white'] .ascii-radar-bay {
 }
 
 .e-label {
-  font-size: 8.5px;
+  font-size: 7.5px;
   font-weight: 700;
   color: var(--ink-dim);
   letter-spacing: 0.08em;
+  white-space: nowrap;
 }
 
 .e-val {
-  font-size: 11.5px;
+  font-size: 11px;
   font-weight: 700;
   color: var(--ink);
+  white-space: nowrap;
+}
+
+#moonPhaseName {
+  font-size: 10px;
+  letter-spacing: 0.02em;
 }
 
 .e-sub-val {
   font-size: 9px;
   font-weight: 600;
   color: var(--accent);
-  letter-spacing: 0.06em;
-  margin-top: 1px;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
 }
 
 /* ── Weather Vector Glyphs ────────────────────────────────────── */
@@ -9959,18 +10104,19 @@ html[data-theme='white'] .ascii-radar-bay {
   transform: scale(1.1);
 }
 
-/* ── Module 6: AQI & UV Spectrum ─────────────────────────────── */
-.spectrum-content {
-  display: flex;
-  flex-direction: column;
+/* ── Module 6: AQI & UV Spectrum Hero Cockpit ────────────────── */
+.spectrum-content-hero {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
   gap: 12px;
-  justify-content: center;
 }
 
-.spectrum-row {
+.spectrum-pod {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 8px;
+  justify-content: center;
+  align-items: stretch;
 }
 
 .spectrum-top {
@@ -9978,6 +10124,12 @@ html[data-theme='white'] .ascii-radar-bay {
   align-items: center;
   justify-content: space-between;
   font-family: var(--font-mono);
+}
+
+.s-left-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
 .s-label {
@@ -9988,9 +10140,9 @@ html[data-theme='white'] .ascii-radar-bay {
 }
 
 .s-badge {
-  font-size: 9px;
+  font-size: 8.5px;
   font-weight: 700;
-  padding: 2px 8px;
+  padding: 1.5px 7px;
   border-radius: 9999px;
   background: rgba(var(--accent-rgb), 0.12);
   color: var(--accent);
@@ -9998,7 +10150,7 @@ html[data-theme='white'] .ascii-radar-bay {
 }
 
 .s-num {
-  font-size: 14.5px;
+  font-size: 15px;
   font-weight: 800;
   color: var(--ink);
 }
@@ -10008,6 +10160,7 @@ html[data-theme='white'] .ascii-radar-bay {
   border-radius: 9999px;
   position: relative;
   background: var(--hairline);
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.3);
 }
 
 .aqi-track {
@@ -10034,15 +10187,37 @@ html[data-theme='white'] .ascii-radar-bay {
 
 .spectrum-pip {
   position: absolute;
-  top: -3.5px;
-  width: 13px;
-  height: 13px;
+  top: -4px;
+  width: 14px;
+  height: 14px;
   border-radius: 50%;
-  background: var(--bg);
+  background: #ffffff;
   border: 2.5px solid var(--accent);
-  box-shadow: 0 0 6px var(--accent);
+  box-shadow:
+    0 0 10px var(--accent),
+    0 2px 4px rgba(0, 0, 0, 0.4);
   transform: translateX(-50%);
   transition: left 0.3s ease;
+}
+
+.spectrum-sub-telemetry {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-top: 2px;
+}
+
+.s-chip {
+  font-family: var(--font-mono);
+  font-size: 8px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  padding: 2px 7px;
+  border-radius: 6px;
+  background: rgba(var(--ink-rgb), 0.04);
+  color: var(--ink-dim);
+  border: 1px solid rgba(var(--ink-rgb), 0.08);
 }
 
 /* ── Responsive Adaptations ───────────────────────────────────── */

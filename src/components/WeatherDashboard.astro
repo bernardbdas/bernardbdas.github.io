@@ -402,10 +402,25 @@
           </div>
 
           <div class="card-content atmosphere-dual-content">
-            <!-- Wind Compass Bay -->
-            <div class="tactical-gauge-box">
+            <!-- Wind Compass Pod -->
+            <div class="instrument-glass-pod">
               <div class="compass-dial-wrap">
-                <svg class="compass-dial-svg" viewBox="0 0 100 100" width="84" height="84">
+                <svg class="compass-dial-svg" viewBox="0 0 100 100" width="64" height="64">
+                  <defs>
+                    <radialGradient id="compassGlow" cx="50%" cy="50%" r="50%">
+                      <stop offset="0%" stop-color="var(--accent)" stop-opacity="0.16" />
+                      <stop offset="65%" stop-color="var(--accent)" stop-opacity="0.04" />
+                      <stop offset="100%" stop-color="transparent" />
+                    </radialGradient>
+                    <linearGradient id="needleNorthGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                      <stop offset="0%" stop-color="#ffffff" />
+                      <stop offset="40%" stop-color="var(--accent)" />
+                      <stop offset="100%" stop-color="var(--accent)" />
+                    </linearGradient>
+                  </defs>
+                  <!-- Background Radar Halo -->
+                  <circle cx="50" cy="50" r="44" fill="url(#compassGlow)" />
+                  <!-- Outer Dial Track & Degree Ticks -->
                   <circle
                     cx="50"
                     cy="50"
@@ -415,73 +430,180 @@
                     stroke-width="0.8"
                     opacity="0.25"
                   />
-                  <line
-                    x1="50"
-                    y1="6"
-                    x2="50"
-                    y2="94"
+                  <circle
+                    cx="50"
+                    cy="50"
+                    r="32"
+                    fill="none"
                     stroke="currentColor"
                     stroke-width="0.5"
+                    stroke-dasharray="2 3"
                     opacity="0.15"
                   />
+                  <circle
+                    cx="50"
+                    cy="50"
+                    r="20"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="0.5"
+                    opacity="0.12"
+                  />
+                  <!-- Crosshairs -->
                   <line
-                    x1="6"
+                    x1="50"
+                    y1="8"
+                    x2="50"
+                    y2="92"
+                    stroke="currentColor"
+                    stroke-width="0.5"
+                    opacity="0.18"
+                  />
+                  <line
+                    x1="8"
                     y1="50"
-                    x2="94"
+                    x2="92"
                     y2="50"
                     stroke="currentColor"
                     stroke-width="0.5"
-                    opacity="0.15"
+                    opacity="0.18"
                   />
+                  <!-- Dial Degree Marks (30 deg ticks) -->
+                  <line
+                    x1="72"
+                    y1="12"
+                    x2="70"
+                    y2="16"
+                    stroke="currentColor"
+                    stroke-width="0.6"
+                    opacity="0.2"
+                  />
+                  <line
+                    x1="88"
+                    y1="28"
+                    x2="84"
+                    y2="30"
+                    stroke="currentColor"
+                    stroke-width="0.6"
+                    opacity="0.2"
+                  />
+                  <line
+                    x1="88"
+                    y1="72"
+                    x2="84"
+                    y2="70"
+                    stroke="currentColor"
+                    stroke-width="0.6"
+                    opacity="0.2"
+                  />
+                  <line
+                    x1="72"
+                    y1="88"
+                    x2="70"
+                    y2="84"
+                    stroke="currentColor"
+                    stroke-width="0.6"
+                    opacity="0.2"
+                  />
+                  <line
+                    x1="28"
+                    y1="88"
+                    x2="30"
+                    y2="84"
+                    stroke="currentColor"
+                    stroke-width="0.6"
+                    opacity="0.2"
+                  />
+                  <line
+                    x1="12"
+                    y1="72"
+                    x2="16"
+                    y2="70"
+                    stroke="currentColor"
+                    stroke-width="0.6"
+                    opacity="0.2"
+                  />
+                  <line
+                    x1="12"
+                    y1="28"
+                    x2="16"
+                    y2="30"
+                    stroke="currentColor"
+                    stroke-width="0.6"
+                    opacity="0.2"
+                  />
+                  <line
+                    x1="28"
+                    y1="12"
+                    x2="30"
+                    y2="16"
+                    stroke="currentColor"
+                    stroke-width="0.6"
+                    opacity="0.2"
+                  />
+                  <!-- Cardinal Indicators -->
                   <text
                     x="50"
                     y="16"
                     text-anchor="middle"
-                    font-size="8"
+                    font-size="7.5"
                     font-family="var(--font-mono)"
-                    font-weight="700"
-                    fill="currentColor"
-                    opacity="0.85"
+                    font-weight="800"
+                    fill="var(--accent)"
                   >
                     N
                   </text>
                   <text
                     x="88"
-                    y="53"
+                    y="52.5"
                     text-anchor="middle"
-                    font-size="8"
+                    font-size="7"
                     font-family="var(--font-mono)"
+                    font-weight="700"
                     fill="currentColor"
-                    opacity="0.4"
+                    opacity="0.45"
                   >
                     E
                   </text>
                   <text
                     x="50"
-                    y="90"
+                    y="89"
                     text-anchor="middle"
-                    font-size="8"
+                    font-size="7"
                     font-family="var(--font-mono)"
+                    font-weight="700"
                     fill="currentColor"
-                    opacity="0.4"
+                    opacity="0.45"
                   >
                     S
                   </text>
                   <text
                     x="12"
-                    y="53"
+                    y="52.5"
                     text-anchor="middle"
-                    font-size="8"
+                    font-size="7"
                     font-family="var(--font-mono)"
+                    font-weight="700"
                     fill="currentColor"
-                    opacity="0.4"
+                    opacity="0.45"
                   >
                     W
                   </text>
+                  <!-- High-Precision Dual Faceted Aerospace Compass Needle -->
                   <g id="windNeedleGroup" transform="rotate(207 50 50)">
-                    <polygon points="50,18 45,50 55,50" fill="var(--accent)" />
-                    <polygon points="50,82 45,50 55,50" fill="currentColor" opacity="0.3" />
-                    <circle cx="50" cy="50" r="3" fill="var(--accent)" />
+                    <polygon points="50,14 46,50 50,47" fill="url(#needleNorthGrad)" />
+                    <polygon points="50,14 50,47 54,50" fill="var(--accent)" opacity="0.85" />
+                    <polygon points="50,86 46,50 50,53" fill="currentColor" opacity="0.2" />
+                    <polygon points="50,86 50,53 54,50" fill="currentColor" opacity="0.32" />
+                    <circle
+                      cx="50"
+                      cy="50"
+                      r="4.2"
+                      fill="var(--bg)"
+                      stroke="var(--accent)"
+                      stroke-width="1.4"
+                    />
+                    <circle cx="50" cy="50" r="1.8" fill="var(--accent)" />
                   </g>
                 </svg>
               </div>
@@ -499,12 +621,20 @@
               </div>
             </div>
 
-            <div class="tactical-divider" aria-hidden="true"></div>
-
-            <!-- Pressure Gauge Bay -->
-            <div class="tactical-gauge-box">
+            <!-- Pressure Gauge Pod -->
+            <div class="instrument-glass-pod">
               <div class="pressure-gauge-wrap">
-                <svg class="pressure-svg" viewBox="0 0 100 100" width="84" height="84">
+                <svg class="pressure-svg" viewBox="0 0 100 100" width="64" height="64">
+                  <defs>
+                    <radialGradient id="baroGlow" cx="50%" cy="50%" r="50%">
+                      <stop offset="0%" stop-color="var(--accent)" stop-opacity="0.14" />
+                      <stop offset="60%" stop-color="var(--accent)" stop-opacity="0.03" />
+                      <stop offset="100%" stop-color="transparent" />
+                    </radialGradient>
+                  </defs>
+                  <!-- Background Halo -->
+                  <circle cx="50" cy="50" r="42" fill="url(#baroGlow)" />
+                  <!-- Calibrated Scale Track -->
                   <circle
                     cx="50"
                     cy="50"
@@ -514,9 +644,21 @@
                     stroke-width="2.5"
                     stroke-dasharray="190 260"
                     stroke-linecap="round"
-                    opacity="0.2"
+                    opacity="0.15"
                     transform="rotate(135 50 50)"
                   />
+                  <!-- Inner Track Line -->
+                  <circle
+                    cx="50"
+                    cy="50"
+                    r="34"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="0.5"
+                    stroke-dasharray="2 3"
+                    opacity="0.12"
+                  />
+                  <!-- Active Gradient Pressure Arc Fill -->
                   <circle
                     id="pressureArcFill"
                     cx="50"
@@ -524,29 +666,44 @@
                     r="42"
                     fill="none"
                     stroke="var(--accent)"
-                    stroke-width="3"
+                    stroke-width="3.5"
                     stroke-dasharray="120 260"
                     stroke-linecap="round"
                     transform="rotate(135 50 50)"
                   />
+                  <!-- Center Manometer Pivot & Needle -->
                   <line
                     x1="50"
-                    y1="32"
+                    y1="30"
                     x2="50"
                     y2="50"
                     stroke="var(--accent)"
                     stroke-width="2"
                     stroke-linecap="round"
                   />
+                  <circle
+                    cx="50"
+                    cy="50"
+                    r="3.5"
+                    fill="var(--bg)"
+                    stroke="var(--accent)"
+                    stroke-width="1.4"
+                  />
+                  <circle cx="50" cy="50" r="1.5" fill="var(--accent)" />
                 </svg>
               </div>
               <div class="gauge-meta">
                 <span class="g-title">BAROMETRIC TANK</span>
-                <span class="g-num" id="weatherPressure">
-                  758
+                <div class="g-num-row">
+                  <span class="g-num" id="weatherPressure">
+                    758
+                  </span>
+                  <span class="g-unit">mmHg</span>
+                </div>
+                <span class="g-sub">1010 hPa</span>
+                <span class="g-note g-trend-pill">
+                  <span class="trend-pip"></span>STABLE ↑
                 </span>
-                <span class="g-sub">mm Hg // 1010 hPa</span>
-                <span class="g-note">[ TANK STABLE ↑ ]</span>
               </div>
             </div>
           </div>
@@ -591,18 +748,35 @@
           </div>
 
           <div class="card-content solar-lunar-content">
-            <!-- Sun Daylight Arc -->
-            <div class="ephemeris-box">
+            <!-- Sun Daylight Arc Pod -->
+            <div class="instrument-glass-pod">
               <div class="solar-arc-svg-wrap">
-                <svg viewBox="0 0 140 56" width="110" height="46" class="solar-arc-svg">
+                <svg viewBox="0 0 140 56" width="70" height="34" class="solar-arc-svg">
+                  <defs>
+                    <linearGradient id="solarSkyGrad" x1="50%" y1="0%" x2="50%" y2="100%">
+                      <stop offset="0%" stop-color="var(--accent)" stop-opacity="0.22" />
+                      <stop offset="100%" stop-color="var(--accent)" stop-opacity="0.0" />
+                    </linearGradient>
+                  </defs>
+                  <!-- Celestial Sky Dome Fill -->
+                  <path d="M 10 44 Q 70 4 130 44 L 130 44 L 10 44 Z" fill="url(#solarSkyGrad)" />
+                  <!-- Parabolic Trajectory -->
                   <path
                     d="M 10 44 Q 70 4 130 44"
                     fill="none"
                     stroke="currentColor"
                     stroke-width="1.5"
                     stroke-dasharray="2 3"
-                    opacity="0.3"
+                    opacity="0.25"
                   />
+                  <path
+                    d="M 10 44 Q 70 4 130 44"
+                    fill="none"
+                    stroke="var(--accent)"
+                    stroke-width="1.8"
+                    opacity="0.75"
+                  />
+                  <!-- Horizon Baseline -->
                   <line
                     x1="10"
                     y1="44"
@@ -612,29 +786,33 @@
                     stroke-width="0.8"
                     opacity="0.25"
                   />
+                  <circle cx="10" cy="44" r="2" fill="currentColor" opacity="0.4" />
+                  <circle cx="130" cy="44" r="2" fill="currentColor" opacity="0.4" />
                   <circle id="solarDot" cx="70" cy="18" r="4.5" fill="var(--accent)" />
                 </svg>
               </div>
               <div class="ephemeris-readout">
                 <div class="e-row">
-                  <span class="e-label">DAWN // SUNRISE</span>
+                  <span class="e-label">SUNRISE</span>
                   <span class="e-val" id="weatherSunrise">
                     06:12
                   </span>
                 </div>
                 <div class="e-row">
-                  <span class="e-label">DUSK // SUNSET</span>
+                  <span class="e-label">SUNSET</span>
                   <span class="e-val" id="weatherSunset">
                     17:53
                   </span>
                 </div>
+                <div class="e-row">
+                  <span class="e-label">DAYLIGHT</span>
+                  <span class="e-val e-sub-val">11H 41M</span>
+                </div>
               </div>
             </div>
 
-            <div class="tactical-divider" aria-hidden="true"></div>
-
-            <!-- Photorealistic Vector Moon Phase -->
-            <div class="ephemeris-box">
+            <!-- Photorealistic Vector Moon Phase Pod -->
+            <div class="instrument-glass-pod">
               <div class="moon-render-wrap" id="moonRenderWrap">
                 <!-- Dynamically populated with high-fidelity vector moon sphere -->
               </div>
@@ -664,7 +842,7 @@
 
         <!-- Module 6: Environmental Radiance & AQI Spectrum -->
         <section
-          class="weather-card span-half"
+          class="weather-card span-hero"
           id="card-air-uv"
           draggable="true"
           data-card-id="card-air-uv"
@@ -700,14 +878,16 @@
             </div>
           </div>
 
-          <div class="card-content spectrum-content">
-            <!-- AQI Meter -->
-            <div class="spectrum-row">
+          <div class="card-content spectrum-content-hero">
+            <!-- AQI Cockpit Pod -->
+            <div class="instrument-glass-pod spectrum-pod">
               <div class="spectrum-top">
-                <span class="s-label">AIR QUALITY INDEX [AQI]</span>
-                <span class="s-badge" id="weatherAqiCategory">
-                  MODERATE
-                </span>
+                <div class="s-left-meta">
+                  <span class="s-label">AIR QUALITY INDEX [AQI]</span>
+                  <span class="s-badge" id="weatherAqiCategory">
+                    MODERATE
+                  </span>
+                </div>
                 <span class="s-num" id="weatherAqiVal">
                   136
                 </span>
@@ -715,21 +895,33 @@
               <div class="spectrum-track aqi-track">
                 <div class="spectrum-pip" id="weatherAqiPip" style="left: 45%;"></div>
               </div>
+              <div class="spectrum-sub-telemetry">
+                <span class="s-chip">PM2.5: 38 µg/m³</span>
+                <span class="s-chip">PM10: 52 µg/m³</span>
+                <span class="s-chip">O3: 42 ppb</span>
+              </div>
             </div>
 
-            <!-- UV Meter -->
-            <div class="spectrum-row">
+            <!-- UV Cockpit Pod -->
+            <div class="instrument-glass-pod spectrum-pod">
               <div class="spectrum-top">
-                <span class="s-label">ULTRAVIOLET RADIATION [UVI]</span>
-                <span class="s-badge" id="weatherUvCategory">
-                  VERY HIGH
-                </span>
+                <div class="s-left-meta">
+                  <span class="s-label">ULTRAVIOLET RADIATION [UVI]</span>
+                  <span class="s-badge" id="weatherUvCategory">
+                    VERY HIGH
+                  </span>
+                </div>
                 <span class="s-num" id="weatherUvVal">
                   8
                 </span>
               </div>
               <div class="spectrum-track uv-track">
                 <div class="spectrum-pip" id="weatherUvPip" style="left: 65%;"></div>
+              </div>
+              <div class="spectrum-sub-telemetry">
+                <span class="s-chip">PEAK: 12:45</span>
+                <span class="s-chip">SPF 30+ RECOMMENDED</span>
+                <span class="s-chip">RAD: 8.2 MAX</span>
               </div>
             </div>
           </div>

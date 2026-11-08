@@ -1096,7 +1096,7 @@ export class WeatherDashboardController {
       }
     }
 
-    return `<svg viewBox="0 0 54 54" width="50" height="50" class="moon-sphere-svg" role="img" aria-label="${phaseName}, ${illumination}% illuminated">
+    return `<svg viewBox="0 0 54 54" width="52" height="52" class="moon-sphere-svg" role="img" aria-label="${phaseName}, ${illumination}% illuminated">
       <defs>
         <clipPath id="lunarSphereClip">
           <circle cx="${cx}" cy="${cy}" r="${R}" />
@@ -1121,19 +1121,27 @@ export class WeatherDashboardController {
         </radialGradient>
       </defs>
 
+      <!-- Futuristic Orbital HUD Telemetry Rings -->
+      <circle cx="${cx}" cy="${cy}" r="${R + 3.5}" fill="none" stroke="var(--accent)" stroke-width="0.75" stroke-dasharray="3 4" opacity="0.45" />
+      <circle cx="${cx}" cy="${cy}" r="${R + 1.5}" fill="none" stroke="currentColor" stroke-width="0.5" opacity="0.2" />
+      <line x1="${cx}" y1="${cy - R - 4}" x2="${cx}" y2="${cy - R - 1}" stroke="var(--accent)" stroke-width="1.2" />
+      <line x1="${cx}" y1="${cy + R + 1}" x2="${cx}" y2="${cy + R + 4}" stroke="var(--accent)" stroke-width="1.2" />
+      <line x1="${cx - R - 4}" y1="${cy}" x2="${cx - R - 1}" y2="${cy}" stroke="var(--accent)" stroke-width="1.2" />
+      <line x1="${cx + R + 1}" y1="${cy}" x2="${cx + R + 4}" y2="${cy}" stroke="var(--accent)" stroke-width="1.2" />
+
       <!-- Soft Atmospheric Moonlight Glow -->
-      <circle cx="${cx}" cy="${cy}" r="${R + 1}" fill="none" stroke="rgba(255, 255, 255, 0.08)" stroke-width="2" />
+      <circle cx="${cx}" cy="${cy}" r="${R}" fill="none" stroke="rgba(255, 255, 255, 0.12)" stroke-width="1" />
 
       <!-- Base Dark Moon Sphere (Earthshine with Topography) -->
       <g clip-path="url(#lunarSphereClip)">
         <circle cx="${cx}" cy="${cy}" r="${R}" fill="url(#darkMoonGrad)" />
 
         <!-- Earthshine Maria (Basaltic Plains on unlit side) -->
-        <ellipse cx="33" cy="23" rx="4.5" ry="3.8" fill="rgba(255, 255, 255, 0.04)" />
-        <ellipse cx="31" cy="17" rx="4" ry="3.5" fill="rgba(255, 255, 255, 0.04)" />
-        <ellipse cx="22" cy="16" rx="5" ry="4.5" fill="rgba(255, 255, 255, 0.04)" />
-        <ellipse cx="39" cy="20" rx="2.5" ry="3" fill="rgba(255, 255, 255, 0.03)" />
-        <circle cx="25" cy="37" r="1.2" fill="rgba(255, 255, 255, 0.08)" />
+        <ellipse cx="33" cy="23" rx="4.5" ry="3.8" fill="rgba(255, 255, 255, 0.06)" />
+        <ellipse cx="31" cy="17" rx="4" ry="3.5" fill="rgba(255, 255, 255, 0.06)" />
+        <ellipse cx="22" cy="16" rx="5" ry="4.5" fill="rgba(255, 255, 255, 0.06)" />
+        <ellipse cx="39" cy="20" rx="2.5" ry="3" fill="rgba(255, 255, 255, 0.05)" />
+        <circle cx="25" cy="37" r="1.2" fill="rgba(255, 255, 255, 0.1)" />
 
         <!-- Illuminated Sunlit Moon Portion (Clipped to Mathematical Terminator) -->
         ${
