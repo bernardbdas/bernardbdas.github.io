@@ -157,34 +157,52 @@ export function initTerrainScene(): void {
       vec2 st = uv;
       st.x *= u_resolution.x / u_resolution.y;
 
-      // Fluid, slow atmospheric evolution
-      float t = u_time * 0.15;
+      // Slow organic celestial drift
+      float t = u_time * 0.04;
 
-      // Multi-layered organic simplex distortion
-      float n1 = snoise(vec3(st * 1.5, t));
-      float n2 = snoise(vec3(st * 3.0 - n1, t * 1.2));
-      float n3 = snoise(vec3(st * 1.0 + n2 * 0.5, t * 0.8));
-      float noiseVal = n1 * 0.5 + n2 * 0.3 + n3 * 0.2;
+      // Layered subtle noise for gaseous wisps and filaments
+      float n1 = snoise(vec3(st * 1.6, t));
+      float n2 = snoise(vec3(st * 2.8 - n1 * 0.35, t * 1.1));
+      float n3 = snoise(vec3(st * 1.1 + n2 * 0.25, t * 0.7));
 
-      // Domain warp coordinate space
-      vec2 warpedUv = uv + vec2(noiseVal * 0.2, n2 * 0.2);
+      // ── MULTIPLE SPARSELY DISTRIBUTED FADED GAS CLOUD REGIONS ──
+      // Cloud 1: Warm amber / sunset gas cloud (horizon-left)
+      vec2 p1 = vec2(0.24 + 0.05 * sin(t * 0.7), 0.65 + 0.04 * cos(t * 0.5));
+      float d1 = length((st - p1) * vec2(1.2, 0.85));
+      float cloud1 = smoothstep(0.42, 0.03, d1 + n1 * 0.14);
 
-      // Coordinate mixing
-      float mix1 = smoothstep(-0.5, 1.0, warpedUv.x + warpedUv.y * 0.5 + noiseVal);
-      float mix2 = smoothstep(-0.2, 0.8, warpedUv.y - warpedUv.x + n2 * 0.5);
-      float mix3 = smoothstep(0.0, 1.2, length(st - vec2(0.5)) - noiseVal * 0.5);
+      // Cloud 2: Deep cosmic violet / magenta gas cloud (upper-right)
+      vec2 p2 = vec2(0.82 + 0.05 * cos(t * 0.6), 0.75 + 0.04 * sin(t * 0.4));
+      float d2 = length((st - p2) * vec2(0.95, 1.25));
+      float cloud2 = smoothstep(0.40, 0.03, d2 + n2 * 0.13);
+
+      // Cloud 3: Ethereal cyan / teal nebula dust (center-right)
+      vec2 p3 = vec2(0.58 + 0.06 * sin(t * 0.5 + 1.8), 0.42 + 0.03 * cos(t * 0.8));
+      float d3 = length((st - p3) * vec2(1.3, 0.95));
+      float cloud3 = smoothstep(0.36, 0.04, d3 + n3 * 0.12);
+
+      // Cloud 4: Deep atmospheric blue pocket (far upper-left)
+      vec2 p4 = vec2(0.14 + 0.04 * cos(t * 0.4 + 2.2), 0.86 + 0.03 * sin(t * 0.6));
+      float d4 = length((st - p4) * vec2(1.1, 1.1));
+      float cloud4 = smoothstep(0.35, 0.05, d4 + (n1 + n2) * 0.10);
 
       vec3 finalColor = u_bg;
-      finalColor = mix(finalColor, u_c1, mix1 * 0.85);
-      finalColor = mix(finalColor, u_c2, mix2 * 0.75);
-      finalColor = mix(finalColor, u_c3, (1.0 - mix3) * 0.65);
-
-      // Extra vibrancy for dark mode
-      finalColor = mix(finalColor, finalColor * 1.25, (1.0 - u_theme) * 0.35);
+      if (u_theme < 0.5) {
+        // DARK MODE: Sparse faded gas clouds against deep space void
+        finalColor += u_c2 * cloud1 * 0.28; // Amber/warm cloud
+        finalColor += u_c3 * cloud2 * 0.24; // Violet/magenta cloud
+        finalColor += u_c1 * cloud3 * 0.20; // Teal/cyan dust cloud
+        finalColor += mix(u_c1, u_c3, 0.5) * cloud4 * 0.16; // Indigo pocket
+      } else {
+        // LIGHT MODE: Subtle delicate watercolor washes
+        finalColor = mix(finalColor, u_c2, cloud1 * 0.09);
+        finalColor = mix(finalColor, u_c3, cloud2 * 0.07);
+        finalColor = mix(finalColor, u_c1, cloud3 * 0.07);
+      }
 
       // High-frequency subtle film grain
       float grain = random(uv * 23.17 + fract(u_time * 0.08)) - 0.5;
-      float grainIntensity = mix(0.07, 0.025, u_theme);
+      float grainIntensity = mix(0.035, 0.015, u_theme);
       finalColor += grain * grainIntensity;
 
       gl_FragColor = vec4(finalColor, 1.0);
@@ -246,11 +264,15 @@ export function initTerrainScene(): void {
     // Gentle power curve to lift peaks above the average
     const shaped = Math.pow(h, 1.4);
 
-    // Edge falloff so the plate feels like an island
-    const r = Math.sqrt(x * x + z * z) / (SIZE * 0.5);
-    const falloff = Math.max(0, 1 - Math.pow(r, 2.2));
+    // Rectangular edge falloff preserving the sharp rectangular geometry of the terrain plate
+    const halfPlate = SIZE * 0.48;
+    const nx = Math.min(1, Math.abs(x) / halfPlate);
+    const nz = Math.min(1, Math.abs(z) / halfPlate);
+    const edgeX = Math.max(0, 1 - Math.pow(nx, 10.0));
+    const edgeZ = Math.max(0, 1 - Math.pow(nz, 10.0));
+    const rectFalloff = edgeX * edgeZ;
 
-    pos.setY(i, (shaped - 0.35) * HEIGHT_SCALE * falloff);
+    pos.setY(i, (shaped - 0.35) * HEIGHT_SCALE * rectFalloff);
   }
   geom.computeVertexNormals();
 
@@ -402,15 +424,16 @@ export function initTerrainScene(): void {
         col = mix(col, vec3(1.0, 0.92, 0.84), band * 0.30);
         col = mix(col, uScanColor, clamp(band * lineDetail, 0.0, 1.0));
 
-        // Distance falloff only at the outer rim of the island disk
-        float radial = length(vWorldPos.xz);
-        float edgeFalloff = 1.0 - smoothstep(112.0, 128.0, radial);
+        // Crisp rectangular plate border clipping
+        float halfW = 125.0;
+        float edgeX = 1.0 - smoothstep(halfW - 2.0, halfW, abs(vLocalPos.x));
+        float edgeZ = 1.0 - smoothstep(halfW - 2.0, halfW, abs(vLocalPos.z));
         float depth = length(vWorldPos - cameraPosition);
         float fogF = smoothstep(85.0, 230.0, depth);
         col = mix(col, uFogColor, fogF * 0.50);
-        alpha = clamp(edgeFalloff, 0.0, 1.0);
+        alpha = clamp(edgeX * edgeZ, 0.0, 1.0);
       } else {
-        // ── DARK MODE: FRONT-MOST CARTOGRAPHY OVER 90s SYNTHWAVE UNDERTONE ──
+        // ── DARK MODE: TACTICAL CARTOGRAPHY OVER FADED CELESTIAL AMBIENCE ──
         vec3 lowCol  = uBaseColor * 0.22;
         vec3 midCol  = uBaseColor * 0.85;
         vec3 highCol = mix(uBaseColor, uHighColor, 0.88);
@@ -419,49 +442,55 @@ export function initTerrainScene(): void {
         // Lambert: peaks lit, slopes shaded, valleys darker still
         base *= (0.38 + 0.72 * lambert) * (0.75 + 0.25 * upFacing);
 
-        // 90s Synthwave Undertone Horizon Chromatic Ramp (Terracotta -> Amber -> Cyan -> Teal)
+        // Calibrated subtle chromatic ramp (Terracotta -> Amber -> Cyan -> Teal)
         float normX = clamp(vWorldPos.x / 130.0 * 0.5 + 0.5, 0.0, 1.0);
-        vec3 synthwaveWarm = mix(vec3(0.91, 0.36, 0.02), vec3(0.92, 0.77, 0.42), smoothstep(0.0, 0.45, normX));
-        vec3 synthwaveCool = mix(vec3(0.22, 0.74, 0.97), vec3(0.16, 0.62, 0.56), smoothstep(0.45, 1.0, normX));
+        vec3 synthwaveWarm = mix(vec3(0.85, 0.35, 0.08), vec3(0.88, 0.65, 0.30), smoothstep(0.0, 0.45, normX));
+        vec3 synthwaveCool = mix(vec3(0.18, 0.60, 0.78), vec3(0.14, 0.48, 0.45), smoothstep(0.45, 1.0, normX));
         vec3 synthwaveChroma = mix(synthwaveWarm, synthwaveCool, smoothstep(0.35, 0.65, normX));
 
-        // Atmospheric horizon elevation glow in background region
-        float horizonGlow = smoothstep(-30.0, -115.0, vWorldPos.z) * smoothstep(-4.0, 10.0, vElevation);
-        base += synthwaveChroma * horizonGlow * 0.32;
+        // Soft distant horizon glow only in far-field background
+        float horizonGlow = smoothstep(-45.0, -115.0, vWorldPos.z) * smoothstep(-2.0, 10.0, vElevation);
+        base += synthwaveChroma * horizonGlow * 0.15;
 
-        // Front-most Cartography: crisp, luminous grid lines and elevation contours
+        // Tactical Cartography Grid: muted, elegant phosphor luminance (never blinding)
         col = base;
-        col += mix(uBaseColor, synthwaveChroma, 0.30) * gMicro * 0.18;
-        col += mix(uHighColor, synthwaveChroma, 0.40) * gMinor * 0.35;
-        col += mix(uHighColor, synthwaveChroma, 0.65) * gMajor * 0.65;
-        col += uHighColor * ctrMinor * 0.22;
-        col += mix(uHighColor, synthwaveChroma, 0.55) * ctrMajor * 0.50;
+        col += mix(uBaseColor, synthwaveChroma, 0.25) * gMicro * 0.05;
+        col += mix(uHighColor, synthwaveChroma, 0.35) * gMinor * 0.12;
+        col += mix(uHighColor, synthwaveChroma, 0.50) * gMajor * 0.22;
+        col += uHighColor * ctrMinor * 0.06;
+        col += mix(uHighColor, synthwaveChroma, 0.45) * ctrMajor * 0.16;
 
-        // Scan highlight — crisp grid and contour illumination without heavy flat base banding
+        // Controlled, elegant scan pulse illumination (prevents washed-out foreground glare)
         float scanBoost = band;
         col += uScanColor * scanBoost * (
-          0.08
-          + gMicro   * 0.60
-          + gMinor   * 1.10
-          + gMajor   * 1.80
-          + ctrMinor * 0.60
-          + ctrMajor * 1.20
+          0.02
+          + gMicro   * 0.10
+          + gMinor   * 0.22
+          + gMajor   * 0.38
+          + ctrMinor * 0.10
+          + ctrMajor * 0.24
         );
 
-        // Distance fog subtly blending base into horizon while keeping cartography crisp
+        // Foreground text-contrast buffer: gently deepens terrain in camera near-field
+        // where hero text sits (vWorldPos.z > -15.0) ensuring pristine white text contrast
+        float fgDepth = smoothstep(-25.0, 35.0, vWorldPos.z);
+        col = mix(col, col * 0.70, fgDepth * 0.40);
+
+        // Distance fog subtly blending base into horizon
         float depth = length(vWorldPos - cameraPosition);
         float fogF = smoothstep(85.0, 230.0, depth);
         vec3 fogSynthwave = mix(
           uFogColor,
-          synthwaveChroma * 0.35,
-          smoothstep(90.0, 210.0, depth) * (0.40 + 0.60 * clamp((vElevation + 2.0) / 14.0, 0.0, 1.0))
+          synthwaveChroma * 0.25,
+          smoothstep(90.0, 210.0, depth) * (0.35 + 0.65 * clamp((vElevation + 2.0) / 14.0, 0.0, 1.0))
         );
-        col = mix(col, fogSynthwave, fogF * 0.50);
+        col = mix(col, fogSynthwave, fogF * 0.45);
 
-        // Cartography firmly in the front-most layer: 100% solid landmass with clean outer rim falloff
-        float radial = length(vWorldPos.xz);
-        float edgeFalloff = 1.0 - smoothstep(112.0, 128.0, radial);
-        alpha = clamp(edgeFalloff, 0.0, 1.0);
+        // Sharp rectangular plate border clipping
+        float halfW = 125.0;
+        float edgeX = 1.0 - smoothstep(halfW - 2.0, halfW, abs(vLocalPos.x));
+        float edgeZ = 1.0 - smoothstep(halfW - 2.0, halfW, abs(vLocalPos.z));
+        alpha = clamp(edgeX * edgeZ, 0.0, 1.0);
       }
 
       gl_FragColor = vec4(col, alpha);
@@ -599,15 +628,15 @@ export function initTerrainScene(): void {
 
   const TERRAIN_PALETTES: Record<string, TerrainPalette> = {
     dark: {
-      clearColor: 0x080822,
-      fogColor: '#080822',
-      baseColor: '#4a5a3d',
-      highColor: '#c8d6a8',
-      scanColor: '#F29559',
-      skyBg: new THREE.Color(0.08, 0.08, 0.22),
-      skyC1: new THREE.Color(0.16, 0.18, 0.48),
-      skyC2: new THREE.Color(1.0, 0.42, 0.21),
-      skyC3: new THREE.Color(0.8, 0.2, 0.33),
+      clearColor: 0x05060a,
+      fogColor: '#05060a',
+      baseColor: '#3a4a30',
+      highColor: '#a0b482',
+      scanColor: '#e08240',
+      skyBg: new THREE.Color(0.02, 0.022, 0.038),
+      skyC1: new THREE.Color(0.12, 0.55, 0.65),
+      skyC2: new THREE.Color(0.85, 0.38, 0.14),
+      skyC3: new THREE.Color(0.55, 0.15, 0.5),
       isLight: false,
     },
     white: {

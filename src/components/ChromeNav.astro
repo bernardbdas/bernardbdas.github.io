@@ -33,18 +33,23 @@ const links: NavLink[] = [
 ---
 
 <nav class="chrome-top anim-chrome" aria-label="Main navigation">
-  <div class="brand-group">
-    <a href="/" class="brand" aria-label="Bernard Birendra Das (Home)">
-      bernardbdas<span class="brand-suffix">.github.io</span>
+  <!-- Docked Name (Pushed into header when scrolled past hero) -->
+  <div class="header-brand-name" id="headerBrandName">
+    <a href="#hero-heading" class="header-name-link" aria-label="Scroll back to top">
+      <span class="header-name-wrap" id="headerNameWrap" lang="en">
+        <span class="header-name-first" id="headerNameFirst">
+          Bernard
+        </span>
+        <span class="header-name-rest" id="headerNameRest">
+          {' '}
+          Birendra Das
+        </span>
+      </span>
     </a>
-    <span class="hud-sep nav-extra" aria-hidden="true">
-      //
-    </span>
-    <div
-      class="age-counter nav-extra"
-      id="age-counter"
-      title="Live Age Counter (Click to toggle format)"
-    >
+  </div>
+
+  <div class="brand-group nav-extra">
+    <div class="age-counter" id="age-counter" title="Live Age Counter (Click to toggle format)">
       <span class="age-badge">UPTIME</span>
       <span class="age-display" id="age-display">
         <span class="age-num age-y" id="age-y">
@@ -194,158 +199,154 @@ const links: NavLink[] = [
 
   <div class="chrome-nav-spacer" aria-hidden="true"></div>
 
-  <div class="nav-links" role="navigation">
-    {links.map((link, i) => (
-      <>
-        {i > 0 && (
-          <span class:list={['nav-sep', { 'nav-extra': link.isExtra }]} aria-hidden="true" />
-        )}
-        <a
-          href={link.href}
-          class:list={['nav-link-item', { active: isActive(link.href), 'nav-extra': link.isExtra }]}
-          {...(link.external ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
-        >
-          {link.label}
-          {link.external && (
-            <span class="arrow" aria-hidden="true">
-              ↗
-            </span>
-          )}
-        </a>
-      </>
-    ))}
-    <span class="nav-sep" aria-hidden="true"></span>
-    <div class="theme-dropdown-wrap">
-      <button
-        class="theme-toggle"
-        id="themeToggle"
-        type="button"
-        aria-label="Color theme selector (Click to cycle, hover for options)"
-        title="Color Theme (Click to cycle)"
+  <div class="nav-links" role="navigation" aria-label="Quick links">
+    {links.map((link) => (
+      <a
+        href={link.href}
+        class:list={['nav-link-item', { active: isActive(link.href), 'nav-extra': link.isExtra }]}
+        {...(link.external ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
       >
-        <span class="theme-label" id="themeLabel">
-          AMBER
-        </span>
-      </button>
-
-      <div class="theme-palette-menu" id="themePaletteMenu" role="menu" aria-label="Color themes">
-        <button class="palette-item" data-set-theme="dark" role="menuitem" type="button">
-          <span class="swatch-dot dot-amber"></span>
-          <span>Amber</span>
-        </button>
-        <button class="palette-item" data-set-theme="light" role="menuitem" type="button">
-          <span class="swatch-dot dot-light"></span>
-          <span>Light</span>
-        </button>
-        <button
-          class="palette-item nav-extra theme-extra"
-          data-set-theme="blue"
-          role="menuitem"
-          type="button"
-        >
-          <span class="swatch-dot dot-blue"></span>
-          <span>Blue</span>
-        </button>
-        <button
-          class="palette-item nav-extra theme-extra"
-          data-set-theme="white"
-          role="menuitem"
-          type="button"
-        >
-          <span class="swatch-dot dot-white"></span>
-          <span>White</span>
-        </button>
-        <button
-          class="palette-item nav-extra theme-extra"
-          data-set-theme="violet"
-          role="menuitem"
-          type="button"
-        >
-          <span class="swatch-dot dot-violet"></span>
-          <span>Violet</span>
-        </button>
-        <button
-          class="palette-item nav-extra theme-extra"
-          data-set-theme="emerald"
-          role="menuitem"
-          type="button"
-        >
-          <span class="swatch-dot dot-emerald"></span>
-          <span>Emerald</span>
-        </button>
-      </div>
-    </div>
-    <div class="sound-toggle-wrap nav-extra">
-      <button
-        class="sound-toggle ambient-toggle"
-        id="soundToggle"
-        type="button"
-        aria-label="Toggle atmospheric background audio"
-        title="Atmospheric Sound: [OFF] (Click to Play, Double-Click to Switch Track)"
-        aria-pressed="false"
-      >
-        <span class="sound-icon-wrap" aria-hidden="true">
-          <span class="sound-dot"></span>
-          <span class="eq-bars">
-            <span class="eq-bar bar-1"></span>
-            <span class="eq-bar bar-2"></span>
-            <span class="eq-bar bar-3"></span>
+        {link.label}
+        {link.external && (
+          <span class="arrow" aria-hidden="true">
+            ↗
           </span>
-        </span>
-        <span class="amb-badge">AMB</span>
-        <span class="sound-label" id="soundLabel">
-          // OFF
-        </span>
-      </button>
+        )}
+      </a>
+    ))}
+  </div>
 
-      <button
-        class="sound-toggle fx-toggle is-active"
-        id="fxToggle"
-        type="button"
-        aria-label="Toggle sound effects (FX)"
-        title="Sound Effects: FX [Active] (Click to toggle)"
-        aria-pressed="true"
-      >
-        <span class="fx-icon-wrap" aria-hidden="true">
-          <span class="fx-dot"></span>
-        </span>
-        <span class="fx-badge">FX</span>
-        <span class="sound-label" id="fxLabel">
-          // ON
-        </span>
-      </button>
+  <div class="theme-dropdown-wrap">
+    <button
+      class="theme-toggle"
+      id="themeToggle"
+      type="button"
+      aria-label="Color theme selector (Click to cycle, hover for options)"
+    >
+      <span class="theme-label" id="themeLabel">
+        AMBER
+      </span>
+    </button>
 
+    <div class="theme-palette-menu" id="themePaletteMenu" role="menu" aria-label="Color themes">
+      <button class="palette-item" data-set-theme="dark" role="menuitem" type="button">
+        <span class="swatch-dot dot-amber"></span>
+        <span>Amber</span>
+      </button>
+      <button class="palette-item" data-set-theme="light" role="menuitem" type="button">
+        <span class="swatch-dot dot-light"></span>
+        <span>Light</span>
+      </button>
       <button
-        class="sound-toggle persist-toggle is-active"
-        id="persistToggle"
+        class="palette-item nav-extra theme-extra"
+        data-set-theme="blue"
+        role="menuitem"
         type="button"
-        aria-label="Toggle background audio sync across tabs and windows"
-        title="Background Audio Sync: SYNC [Active] (Continuous playback across tabs/windows. Click to pause when tab is hidden)"
-        aria-pressed="true"
       >
-        <span class="persist-icon-wrap" aria-hidden="true">
-          <span class="persist-dot"></span>
-        </span>
-        <span class="persist-badge">SYNC</span>
-        <span class="sound-label" id="persistLabel">
-          // ON
-        </span>
+        <span class="swatch-dot dot-blue"></span>
+        <span>Blue</span>
+      </button>
+      <button
+        class="palette-item nav-extra theme-extra"
+        data-set-theme="white"
+        role="menuitem"
+        type="button"
+      >
+        <span class="swatch-dot dot-white"></span>
+        <span>White</span>
+      </button>
+      <button
+        class="palette-item nav-extra theme-extra"
+        data-set-theme="violet"
+        role="menuitem"
+        type="button"
+      >
+        <span class="swatch-dot dot-violet"></span>
+        <span>Violet</span>
+      </button>
+      <button
+        class="palette-item nav-extra theme-extra"
+        data-set-theme="emerald"
+        role="menuitem"
+        type="button"
+      >
+        <span class="swatch-dot dot-emerald"></span>
+        <span>Emerald</span>
       </button>
     </div>
+  </div>
+
+  <div class="sound-toggle-wrap nav-extra">
     <button
-      class="mobile-nav-toggle"
-      id="mobileNavToggle"
+      class="sound-toggle ambient-toggle"
+      id="soundToggle"
       type="button"
-      aria-label="Toggle navigation menu"
-      aria-expanded="false"
+      aria-label="Toggle atmospheric background audio"
+      title="Atmospheric Sound: [OFF] (Click to Play, Double-Click to Switch Track)"
+      aria-pressed="false"
     >
-      <span class="menu-icon-bars" aria-hidden="true">
-        <span></span>
-        <span></span>
+      <span class="sound-icon-wrap" aria-hidden="true">
+        <span class="sound-dot"></span>
+        <span class="eq-bars">
+          <span class="eq-bar bar-1"></span>
+          <span class="eq-bar bar-2"></span>
+          <span class="eq-bar bar-3"></span>
+        </span>
       </span>
-      <span class="mobile-nav-text">MENU</span>
+      <span class="amb-badge">AMB</span>
+      <span class="sound-label" id="soundLabel">
+        // OFF
+      </span>
+    </button>
+
+    <button
+      class="sound-toggle fx-toggle is-active"
+      id="fxToggle"
+      type="button"
+      aria-label="Toggle sound effects (FX)"
+      title="Sound Effects: FX [Active] (Click to toggle)"
+      aria-pressed="true"
+    >
+      <span class="fx-icon-wrap" aria-hidden="true">
+        <span class="fx-dot"></span>
+      </span>
+      <span class="fx-badge">FX</span>
+      <span class="sound-label" id="fxLabel">
+        // ON
+      </span>
+    </button>
+
+    <button
+      class="sound-toggle persist-toggle is-active"
+      id="persistToggle"
+      type="button"
+      aria-label="Toggle background audio sync across tabs and windows"
+      title="Background Audio Sync: SYNC [Active] (Continuous playback across tabs/windows. Click to pause when tab is hidden)"
+      aria-pressed="true"
+    >
+      <span class="persist-icon-wrap" aria-hidden="true">
+        <span class="persist-dot"></span>
+      </span>
+      <span class="persist-badge">SYNC</span>
+      <span class="sound-label" id="persistLabel">
+        // ON
+      </span>
     </button>
   </div>
+
+  <button
+    class="mobile-nav-toggle"
+    id="mobileNavToggle"
+    type="button"
+    aria-label="Toggle navigation menu"
+    aria-expanded="false"
+  >
+    <span class="menu-icon-bars" aria-hidden="true">
+      <span></span>
+      <span></span>
+    </span>
+    <span class="mobile-nav-text">MENU</span>
+  </button>
 </nav>
 
 <!-- Mobile HUD Drawer Overlay -->
@@ -515,7 +516,15 @@ const links: NavLink[] = [
 
     <div class="mobile-nav-footer">
       <div class="mobile-nav-status">
-        <span>&copy; 2026 BERNARD BIRENDRA DAS</span>
+        <button
+          type="button"
+          class="mobile-copyright-btn"
+          id="mobileCopyrightBtn"
+          title="Copyright 2026 Bernard Birendra Das (Tap 7 times to toggle hidden telemetry HUD)"
+          aria-label="Copyright 2026 Bernard Birendra Das"
+        >
+          <span>&copy; 2026 BERNARD BIRENDRA DAS</span>
+        </button>
       </div>
       <span class="mobile-sys-status">INSTRUMENT ONLINE</span>
     </div>

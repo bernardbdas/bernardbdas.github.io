@@ -21,9 +21,6 @@
   transition:persist="weather-dashboard"
 >
   <div class="weather-modal-card" id="weatherModalCard">
-    <div class="dev-card-corner-tl" aria-hidden="true"></div>
-    <div class="dev-card-corner-br" aria-hidden="true"></div>
-
     <!-- Console Tactical Header Bar -->
     <div class="weather-modal-bar">
       <div class="weather-modal-info">
@@ -46,8 +43,8 @@
         >
           <svg
             viewBox="0 0 16 16"
-            width="11"
-            height="11"
+            width="12"
+            height="12"
             fill="none"
             stroke="currentColor"
             stroke-width="1.8"
@@ -67,11 +64,12 @@
         >
           <svg
             viewBox="0 0 24 24"
-            width="14"
-            height="14"
+            width="13"
+            height="13"
             fill="none"
             stroke="currentColor"
             stroke-width="2"
+            stroke-linecap="round"
           >
             <line x1="18" y1="6" x2="6" y2="18"></line>
             <line x1="6" y1="6" x2="18" y2="18"></line>
@@ -91,21 +89,16 @@
           draggable="true"
           data-card-id="card-current"
         >
-          <div class="dev-card-corner-tl" aria-hidden="true"></div>
-          <div class="dev-card-corner-br" aria-hidden="true"></div>
-
           <div class="card-header">
             <div class="card-drag-handle" title="Drag to reorder module" aria-label="Drag handle">
               <svg viewBox="0 0 16 16" width="12" height="12" fill="currentColor">
-                <circle cx="5" cy="4" r="1.3" />
-                <circle cx="11" cy="4" r="1.3" />
-                <circle cx="5" cy="8" r="1.3" />
-                <circle cx="11" cy="8" r="1.3" />
-                <circle cx="5" cy="12" r="1.3" />
-                <circle cx="11" cy="12" r="1.3" />
+                <circle cx="5" cy="5" r="1.2" />
+                <circle cx="11" cy="5" r="1.2" />
+                <circle cx="5" cy="11" r="1.2" />
+                <circle cx="11" cy="11" r="1.2" />
               </svg>
             </div>
-            <span class="card-title">SYS // 01 • PRIMARY ATMOSPHERIC TELEMETRY</span>
+            <span class="card-title">SYS_01 // PRIMARY ATMOSPHERIC TELEMETRY</span>
             <div class="card-actions">
               <button
                 type="button"
@@ -141,7 +134,7 @@
                   <span class="temp-digit-val" id="weatherBigTemp">
                     25
                   </span>
-                  <span class="temp-digit-deg">.0°</span>
+                  <span class="temp-digit-deg">°</span>
                   <span class="temp-digit-unit">C</span>
                 </div>
                 <div class="hero-condition-status" id="weatherCondition">
@@ -151,17 +144,7 @@
 
               <div class="current-hero-right">
                 <div class="hero-weather-glyph" id="weatherConditionGlyph">
-                  <svg
-                    viewBox="0 0 24 24"
-                    width="56"
-                    height="56"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="1.6"
-                  >
-                    <path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9z" />
-                    <path d="M12 3v2m4.24 1.76l1.42-1.42M19 10h2" stroke-linecap="round" />
-                  </svg>
+                  <!-- Dynamically populated via controller -->
                 </div>
                 <div class="hero-extremes-box">
                   <span class="ext-label">DAILY EXTREMES</span>
@@ -227,21 +210,16 @@
           draggable="true"
           data-card-id="card-hourly"
         >
-          <div class="dev-card-corner-tl" aria-hidden="true"></div>
-          <div class="dev-card-corner-br" aria-hidden="true"></div>
-
           <div class="card-header">
             <div class="card-drag-handle" title="Drag to reorder module" aria-label="Drag handle">
               <svg viewBox="0 0 16 16" width="12" height="12" fill="currentColor">
-                <circle cx="5" cy="4" r="1.3" />
-                <circle cx="11" cy="4" r="1.3" />
-                <circle cx="5" cy="8" r="1.3" />
-                <circle cx="11" cy="8" r="1.3" />
-                <circle cx="5" cy="12" r="1.3" />
-                <circle cx="11" cy="12" r="1.3" />
+                <circle cx="5" cy="5" r="1.2" />
+                <circle cx="11" cy="5" r="1.2" />
+                <circle cx="5" cy="11" r="1.2" />
+                <circle cx="11" cy="11" r="1.2" />
               </svg>
             </div>
-            <span class="card-title">SYS // 02 • 24H HORIZON TIMELINE</span>
+            <span class="card-title">SYS_02 // 24-HOUR HORIZON</span>
             <div class="card-actions">
               <div class="tactical-tab-strip" role="tablist" aria-label="Hourly telemetry view">
                 <button
@@ -250,7 +228,7 @@
                   data-tab="temp"
                   title="Temperature"
                 >
-                  TEMP (°C)
+                  TEMP
                 </button>
                 <button
                   type="button"
@@ -258,10 +236,10 @@
                   data-tab="rain"
                   title="Precipitation"
                 >
-                  RAIN (%)
+                  RAIN
                 </button>
                 <button type="button" class="weather-cond-tab" data-tab="wind" title="Wind">
-                  WIND (km/h)
+                  WIND
                 </button>
               </div>
               <button
@@ -347,21 +325,16 @@
           draggable="true"
           data-card-id="card-forecast"
         >
-          <div class="dev-card-corner-tl" aria-hidden="true"></div>
-          <div class="dev-card-corner-br" aria-hidden="true"></div>
-
           <div class="card-header">
             <div class="card-drag-handle" title="Drag to reorder module" aria-label="Drag handle">
               <svg viewBox="0 0 16 16" width="12" height="12" fill="currentColor">
-                <circle cx="5" cy="4" r="1.3" />
-                <circle cx="11" cy="4" r="1.3" />
-                <circle cx="5" cy="8" r="1.3" />
-                <circle cx="11" cy="8" r="1.3" />
-                <circle cx="5" cy="12" r="1.3" />
-                <circle cx="11" cy="12" r="1.3" />
+                <circle cx="5" cy="5" r="1.2" />
+                <circle cx="11" cy="5" r="1.2" />
+                <circle cx="5" cy="11" r="1.2" />
+                <circle cx="11" cy="11" r="1.2" />
               </svg>
             </div>
-            <span class="card-title">SYS // 03 • 7-DAY SYNOPTIC OUTLOOK</span>
+            <span class="card-title">SYS_03 // 7-DAY SYNOPTIC OUTLOOK</span>
             <div class="card-actions">
               <button
                 type="button"
@@ -397,21 +370,16 @@
           draggable="true"
           data-card-id="card-atmosphere"
         >
-          <div class="dev-card-corner-tl" aria-hidden="true"></div>
-          <div class="dev-card-corner-br" aria-hidden="true"></div>
-
           <div class="card-header">
             <div class="card-drag-handle" title="Drag to reorder module" aria-label="Drag handle">
               <svg viewBox="0 0 16 16" width="12" height="12" fill="currentColor">
-                <circle cx="5" cy="4" r="1.3" />
-                <circle cx="11" cy="4" r="1.3" />
-                <circle cx="5" cy="8" r="1.3" />
-                <circle cx="11" cy="8" r="1.3" />
-                <circle cx="5" cy="12" r="1.3" />
-                <circle cx="11" cy="12" r="1.3" />
+                <circle cx="5" cy="5" r="1.2" />
+                <circle cx="11" cy="5" r="1.2" />
+                <circle cx="5" cy="11" r="1.2" />
+                <circle cx="11" cy="11" r="1.2" />
               </svg>
             </div>
-            <span class="card-title">SYS // 04 • WIND & BAROMETRIC CHAMBER</span>
+            <span class="card-title">SYS_04 // WIND & BAROMETRIC CHAMBER</span>
             <div class="card-actions">
               <button
                 type="button"
@@ -445,8 +413,7 @@
                     fill="none"
                     stroke="currentColor"
                     stroke-width="0.8"
-                    opacity="0.3"
-                    stroke-dasharray="2 3"
+                    opacity="0.25"
                   />
                   <line
                     x1="50"
@@ -455,7 +422,7 @@
                     y2="94"
                     stroke="currentColor"
                     stroke-width="0.5"
-                    opacity="0.2"
+                    opacity="0.15"
                   />
                   <line
                     x1="6"
@@ -464,7 +431,7 @@
                     y2="50"
                     stroke="currentColor"
                     stroke-width="0.5"
-                    opacity="0.2"
+                    opacity="0.15"
                   />
                   <text
                     x="50"
@@ -472,8 +439,9 @@
                     text-anchor="middle"
                     font-size="8"
                     font-family="var(--font-mono)"
+                    font-weight="700"
                     fill="currentColor"
-                    opacity="0.8"
+                    opacity="0.85"
                   >
                     N
                   </text>
@@ -543,10 +511,10 @@
                     r="42"
                     fill="none"
                     stroke="currentColor"
-                    stroke-width="3"
+                    stroke-width="2.5"
                     stroke-dasharray="190 260"
                     stroke-linecap="round"
-                    opacity="0.25"
+                    opacity="0.2"
                     transform="rotate(135 50 50)"
                   />
                   <circle
@@ -591,21 +559,16 @@
           draggable="true"
           data-card-id="card-solar-lunar"
         >
-          <div class="dev-card-corner-tl" aria-hidden="true"></div>
-          <div class="dev-card-corner-br" aria-hidden="true"></div>
-
           <div class="card-header">
             <div class="card-drag-handle" title="Drag to reorder module" aria-label="Drag handle">
               <svg viewBox="0 0 16 16" width="12" height="12" fill="currentColor">
-                <circle cx="5" cy="4" r="1.3" />
-                <circle cx="11" cy="4" r="1.3" />
-                <circle cx="5" cy="8" r="1.3" />
-                <circle cx="11" cy="8" r="1.3" />
-                <circle cx="5" cy="12" r="1.3" />
-                <circle cx="11" cy="12" r="1.3" />
+                <circle cx="5" cy="5" r="1.2" />
+                <circle cx="11" cy="5" r="1.2" />
+                <circle cx="5" cy="11" r="1.2" />
+                <circle cx="11" cy="11" r="1.2" />
               </svg>
             </div>
-            <span class="card-title">SYS // 05 • ASTRONOMICAL EPHEMERIS</span>
+            <span class="card-title">SYS_05 // ASTRONOMICAL EPHEMERIS</span>
             <div class="card-actions">
               <button
                 type="button"
@@ -670,45 +633,28 @@
 
             <div class="tactical-divider" aria-hidden="true"></div>
 
-            <!-- Moon Phase Disc -->
+            <!-- Photorealistic Vector Moon Phase -->
             <div class="ephemeris-box">
-              <div class="moon-render-wrap">
-                <svg viewBox="0 0 54 54" width="46" height="46" class="moon-disc-svg">
-                  <defs>
-                    <clipPath id="lunarClip">
-                      <circle cx="27" cy="27" r="23" />
-                    </clipPath>
-                  </defs>
-                  <circle
-                    cx="27"
-                    cy="27"
-                    r="23"
-                    fill="rgba(var(--ink-rgb), 0.08)"
-                    stroke="currentColor"
-                    stroke-width="1"
-                    opacity="0.3"
-                  />
-                  <g clip-path="url(#lunarClip)">
-                    <circle cx="27" cy="27" r="23" fill="var(--accent)" opacity="0.35" />
-                    <path
-                      id="lunarTerminator"
-                      d="M 27 4 A 23 23 0 0 1 27 50 A 16 23 0 0 0 27 4"
-                      fill="rgba(var(--bg-rgb), 0.95)"
-                    />
-                  </g>
-                </svg>
+              <div class="moon-render-wrap" id="moonRenderWrap">
+                <!-- Dynamically populated with high-fidelity vector moon sphere -->
               </div>
               <div class="ephemeris-readout">
                 <div class="e-row">
                   <span class="e-label">LUNAR PHASE</span>
                   <span class="e-val" id="moonPhaseName">
-                    WANING GIBBOUS
+                    WANING CRESCENT
                   </span>
                 </div>
                 <div class="e-row">
                   <span class="e-label">ILLUMINATION</span>
                   <span class="e-val" id="moonIllumPct">
-                    85%
+                    2%
+                  </span>
+                </div>
+                <div class="e-row">
+                  <span class="e-label">NEXT PHASE</span>
+                  <span class="e-val e-sub-val" id="moonNextPhase">
+                    NEW MOON IN 1D
                   </span>
                 </div>
               </div>
@@ -723,21 +669,16 @@
           draggable="true"
           data-card-id="card-air-uv"
         >
-          <div class="dev-card-corner-tl" aria-hidden="true"></div>
-          <div class="dev-card-corner-br" aria-hidden="true"></div>
-
           <div class="card-header">
             <div class="card-drag-handle" title="Drag to reorder module" aria-label="Drag handle">
               <svg viewBox="0 0 16 16" width="12" height="12" fill="currentColor">
-                <circle cx="5" cy="4" r="1.3" />
-                <circle cx="11" cy="4" r="1.3" />
-                <circle cx="5" cy="8" r="1.3" />
-                <circle cx="11" cy="8" r="1.3" />
-                <circle cx="5" cy="12" r="1.3" />
-                <circle cx="11" cy="12" r="1.3" />
+                <circle cx="5" cy="5" r="1.2" />
+                <circle cx="11" cy="5" r="1.2" />
+                <circle cx="5" cy="11" r="1.2" />
+                <circle cx="11" cy="11" r="1.2" />
               </svg>
             </div>
-            <span class="card-title">SYS // 06 • ENVIRONMENTAL RADIANCE & SPECTRUM</span>
+            <span class="card-title">SYS_06 // ENVIRONMENTAL RADIANCE & SPECTRUM</span>
             <div class="card-actions">
               <button
                 type="button"

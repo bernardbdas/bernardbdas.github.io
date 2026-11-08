@@ -1022,12 +1022,19 @@ export class WeatherDashboardController {
     return compass[val % 16];
   }
 
-  private calculateMoonPhase(date: Date): { phaseName: string; illumination: number } {
+  private calculateMoonPhase(date: Date): {
+    phaseName: string;
+    illumination: number;
+    phaseFraction: number;
+    nextPhase: string;
+    synodicDay: number;
+  } {
     const knownNewMoon = new Date(Date.UTC(2000, 0, 6, 18, 14, 0));
     const synodicMonth = 29.53058867;
     const diffDays = (date.getTime() - knownNewMoon.getTime()) / (1000 * 60 * 60 * 24);
     const phaseFraction = (diffDays % synodicMonth) / synodicMonth;
     const normalized = (phaseFraction + 1) % 1;
+    const synodicDay = Math.max(1, Math.round(normalized * synodicMonth));
 
     const illumination = Math.round(0.5 * (1 - Math.cos(2 * Math.PI * normalized)) * 100);
 
@@ -1041,58 +1048,209 @@ export class WeatherDashboardController {
     else if (normalized < 0.78) phaseName = 'Last Quarter';
     else phaseName = 'Waning Crescent';
 
-    return { phaseName, illumination };
+    // Calculate countdown to next major phase milestone
+    const milestones = [
+      { name: 'First Quarter', target: 0.25 },
+      { name: 'Full Moon', target: 0.5 },
+      { name: 'Last Quarter', target: 0.75 },
+      { name: 'New Moon', target: 1.0 },
+    ];
+    let nextMs = milestones.find((m) => m.target > normalized) || milestones[3];
+    let daysToNext = Math.round((nextMs.target - normalized) * synodicMonth);
+    if (daysToNext <= 0) daysToNext = 1;
+    const nextPhase = `${nextMs.name.toUpperCase()} IN ${daysToNext}D`;
+
+    return { phaseName, illumination, phaseFraction: normalized, nextPhase, synodicDay };
   }
 
-  // ── Render SVG Weather Glyphs (Zero Emoji Policy) ─────────────
-  private getIconGlyph(icon: string): string {
+  // ── Render High-Fidelity 3D Vector Moon Phase ──────────────────
+  private renderMoonPhaseSphere(
+    phaseFraction: number,
+    illumination: number,
+    phaseName: string,
+  ): string {
+    const cx = 27;
+    const cy = 27;
+    const R = 23;
+    const p = phaseFraction;
+
+    let litPath = '';
+    if (illumination <= 2) {
+      litPath = ''; // New moon: purely dark with earthshine
+    } else if (illumination >= 98) {
+      litPath = `M ${cx - R} ${cy} A ${R} ${R} 0 1 0 ${cx + R} ${cy} A ${R} ${R} 0 1 0 ${cx - R} ${cy}`;
+    } else {
+      const rx = Math.max(0.1, R * Math.abs(Math.cos(2 * Math.PI * p)));
+      if (p < 0.25) {
+        // Waxing Crescent: right outer arc, terminator curves right
+        litPath = `M ${cx} ${cy - R} A ${R} ${R} 0 0 1 ${cx} ${cy + R} A ${rx.toFixed(2)} ${R} 0 0 0 ${cx} ${cy - R} Z`;
+      } else if (p < 0.5) {
+        // Waxing Gibbous: right outer arc, terminator bulges left
+        litPath = `M ${cx} ${cy - R} A ${R} ${R} 0 0 1 ${cx} ${cy + R} A ${rx.toFixed(2)} ${R} 0 0 1 ${cx} ${cy - R} Z`;
+      } else if (p < 0.75) {
+        // Waning Gibbous: left outer arc, terminator bulges right
+        litPath = `M ${cx} ${cy - R} A ${R} ${R} 0 0 0 ${cx} ${cy + R} A ${rx.toFixed(2)} ${R} 0 0 0 ${cx} ${cy - R} Z`;
+      } else {
+        // Waning Crescent: left outer arc, terminator curves left
+        litPath = `M ${cx} ${cy - R} A ${R} ${R} 0 0 0 ${cx} ${cy + R} A ${rx.toFixed(2)} ${R} 0 0 1 ${cx} ${cy - R} Z`;
+      }
+    }
+
+    return `<svg viewBox="0 0 54 54" width="50" height="50" class="moon-sphere-svg" role="img" aria-label="${phaseName}, ${illumination}% illuminated">
+      <defs>
+        <clipPath id="lunarSphereClip">
+          <circle cx="${cx}" cy="${cy}" r="${R}" />
+        </clipPath>
+        <clipPath id="lunarLitClip">
+          <path d="${litPath}" />
+        </clipPath>
+        <radialGradient id="darkMoonGrad" cx="38%" cy="32%" r="68%">
+          <stop offset="0%" stop-color="#1e293b" />
+          <stop offset="65%" stop-color="#0f172a" />
+          <stop offset="100%" stop-color="#020617" />
+        </radialGradient>
+        <radialGradient id="litMoonGrad" cx="${p < 0.5 ? '65%' : '35%'}" cy="32%" r="72%">
+          <stop offset="0%" stop-color="#ffffff" />
+          <stop offset="40%" stop-color="#f8fafc" />
+          <stop offset="75%" stop-color="#e2e8f0" />
+          <stop offset="100%" stop-color="#cbd5e1" />
+        </radialGradient>
+        <radialGradient id="sphereShadow" cx="50%" cy="50%" r="50%">
+          <stop offset="70%" stop-color="transparent" />
+          <stop offset="100%" stop-color="rgba(0, 0, 0, 0.45)" />
+        </radialGradient>
+      </defs>
+
+      <!-- Soft Atmospheric Moonlight Glow -->
+      <circle cx="${cx}" cy="${cy}" r="${R + 1}" fill="none" stroke="rgba(255, 255, 255, 0.08)" stroke-width="2" />
+
+      <!-- Base Dark Moon Sphere (Earthshine with Topography) -->
+      <g clip-path="url(#lunarSphereClip)">
+        <circle cx="${cx}" cy="${cy}" r="${R}" fill="url(#darkMoonGrad)" />
+
+        <!-- Earthshine Maria (Basaltic Plains on unlit side) -->
+        <ellipse cx="33" cy="23" rx="4.5" ry="3.8" fill="rgba(255, 255, 255, 0.04)" />
+        <ellipse cx="31" cy="17" rx="4" ry="3.5" fill="rgba(255, 255, 255, 0.04)" />
+        <ellipse cx="22" cy="16" rx="5" ry="4.5" fill="rgba(255, 255, 255, 0.04)" />
+        <ellipse cx="39" cy="20" rx="2.5" ry="3" fill="rgba(255, 255, 255, 0.03)" />
+        <circle cx="25" cy="37" r="1.2" fill="rgba(255, 255, 255, 0.08)" />
+
+        <!-- Illuminated Sunlit Moon Portion (Clipped to Mathematical Terminator) -->
+        ${
+          litPath
+            ? `
+        <g clip-path="url(#lunarLitClip)">
+          <!-- Lit lunar surface base -->
+          <circle cx="${cx}" cy="${cy}" r="${R}" fill="url(#litMoonGrad)" />
+
+          <!-- High-Contrast Lunar Maria on Lit Face -->
+          <path d="M 30 22 Q 35 20 37 24 Q 35 28 31 26 Z" fill="#94a3b8" opacity="0.45" />
+          <circle cx="32" cy="17" r="3.5" fill="#94a3b8" opacity="0.45" />
+          <circle cx="22" cy="15" r="4.8" fill="#94a3b8" opacity="0.45" />
+          <path d="M 15 19 Q 19 26 17 35 Q 13 31 14 20 Z" fill="#94a3b8" opacity="0.42" />
+          <ellipse cx="41" cy="20" rx="2.2" ry="3.2" fill="#94a3b8" opacity="0.45" />
+          <ellipse cx="23" cy="31" rx="3.2" ry="2.8" fill="#94a3b8" opacity="0.4" />
+
+          <!-- Tycho Impact Crater & Ejecta Rays -->
+          <circle cx="26" cy="39" r="1.2" fill="#ffffff" />
+          <line x1="26" y1="39" x2="32" y2="45" stroke="#ffffff" stroke-width="0.5" opacity="0.5" />
+          <line x1="26" y1="39" x2="19" y2="43" stroke="#ffffff" stroke-width="0.5" opacity="0.5" />
+          <line x1="26" y1="39" x2="25" y2="32" stroke="#ffffff" stroke-width="0.5" opacity="0.5" />
+
+          <!-- Copernicus Crater -->
+          <circle cx="21" cy="23" r="1" fill="#ffffff" opacity="0.85" />
+        </g>
+        `
+            : ''
+        }
+
+        <!-- 3D Spherical Edge Shadow Overlay -->
+        <circle cx="${cx}" cy="${cy}" r="${R}" fill="url(#sphereShadow)" />
+      </g>
+
+      <!-- Outer Limb Ring -->
+      <circle cx="${cx}" cy="${cy}" r="${R}" fill="none" stroke="currentColor" stroke-width="0.8" opacity="0.25" />
+    </svg>`;
+  }
+
+  // ── Render Modern Minimalist SVG Weather Glyphs ───────────────
+  private getIconGlyph(icon: string, size = 20): string {
+    const s = size;
     switch (icon) {
       case 'sunny':
-        return `<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8">
-          <circle cx="12" cy="12" r="4" fill="var(--accent)"/>
-          <path d="M12 2v2m0 16v2M4.93 4.93l1.41 1.41m11.32 11.32l1.41 1.41M2 12h2m16 0h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/>
+        return `<svg viewBox="0 0 24 24" width="${s}" height="${s}" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" class="w-glyph w-glyph-sunny">
+          <circle cx="12" cy="12" r="4.2" fill="rgba(245, 158, 11, 0.22)" stroke="#f59e0b" stroke-width="1.8"/>
+          <path d="M12 2.5v2.2M12 19.3v2.2M3.7 12h2.2M18.1 12h2.2M5.5 5.5l1.6 1.6M16.9 16.9l1.6 1.6M5.5 18.5l1.6-1.6M16.9 7.1l1.6-1.6" stroke="#f59e0b"/>
         </svg>`;
+
       case 'clear-night':
-        return `<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8">
-          <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" fill="var(--accent)"/>
+        return `<svg viewBox="0 0 24 24" width="${s}" height="${s}" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" class="w-glyph w-glyph-night">
+          <path d="M20.5 13.05A8.5 8.5 0 1 1 11 3.5a6.5 6.5 0 0 0 9.5 9.55z" fill="rgba(96, 165, 250, 0.18)" stroke="#60a5fa"/>
+          <path d="M18.5 4.5l.3.9.9.3-.9.3-.3.9-.3-.9-.9-.3.9-.3z" fill="#93c5fd" stroke="none"/>
         </svg>`;
+
       case 'partly-cloudy':
-        return `<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8">
-          <path d="M12 3v2m4.24 1.76l1.42-1.42M19 10h2" stroke-linecap="round"/>
-          <path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9z" fill="rgba(var(--accent-rgb), 0.2)"/>
+        return `<svg viewBox="0 0 24 24" width="${s}" height="${s}" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" class="w-glyph w-glyph-partly-cloudy">
+          <circle cx="15.5" cy="8.5" r="3.2" fill="rgba(245, 158, 11, 0.28)" stroke="#f59e0b" stroke-width="1.6"/>
+          <path d="M15.5 3.5v1.2M20.5 8.5h-1.2M19 5l-.9.9M12 7l-.8.8" stroke="#f59e0b" stroke-width="1.5"/>
+          <path d="M16 19.5H7.5a4.5 4.5 0 0 1-.5-8.97 5.5 5.5 0 0 1 10.32-1.78A3.75 3.75 0 0 1 16 19.5z" fill="rgba(var(--bg-rgb), 0.85)" stroke="var(--ink)"/>
         </svg>`;
+
       case 'partly-cloudy-night':
-        return `<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8">
-          <path d="M16 4a5 5 0 0 0-3.8 8.2A6 6 0 1 0 16 18h1.5a3.5 3.5 0 0 0 0-7A5 5 0 0 0 16 4z" fill="rgba(var(--accent-rgb), 0.2)"/>
+        return `<svg viewBox="0 0 24 24" width="${s}" height="${s}" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" class="w-glyph w-glyph-partly-night">
+          <path d="M17.5 6.5A4.5 4.5 0 0 1 14 3.2a4.5 4.5 0 1 0 4.8 5.6c-.4.4-.8.6-1.3.7z" fill="rgba(96, 165, 250, 0.22)" stroke="#60a5fa" stroke-width="1.5"/>
+          <path d="M16.5 19.5H8a4.5 4.5 0 0 1-.5-8.97 5.5 5.5 0 0 1 10.32-1.78A3.75 3.75 0 0 1 16.5 19.5z" fill="rgba(var(--bg-rgb), 0.85)" stroke="var(--ink)"/>
         </svg>`;
+
       case 'cloudy':
-        return `<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8">
-          <path d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z" fill="rgba(var(--ink-rgb), 0.12)"/>
+        return `<svg viewBox="0 0 24 24" width="${s}" height="${s}" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" class="w-glyph w-glyph-cloudy">
+          <path d="M7.5 9.5a4 4 0 0 1 7.4-1.8 3.5 3.5 0 0 1 3.1 3.5c0 .3-.05.6-.13.88" stroke="var(--ink-dim)" opacity="0.5" stroke-dasharray="2 2"/>
+          <path d="M17 19.5H6.5a4.5 4.5 0 0 1-.5-8.97 5.5 5.5 0 0 1 10.32-1.78A3.75 3.75 0 0 1 17 19.5z" fill="rgba(var(--bg-rgb), 0.75)" stroke="var(--ink)"/>
         </svg>`;
+
       case 'rain':
-        return `<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8">
-          <path d="M16 13v6m-4-6v6m-4-6v6" stroke="var(--accent)" stroke-linecap="round"/>
-          <path d="M20 16.58A5 5 0 0 0 18 7h-1.26A8 8 0 1 0 4 15.25" stroke-linecap="round"/>
+        return `<svg viewBox="0 0 24 24" width="${s}" height="${s}" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" class="w-glyph w-glyph-rain">
+          <path d="M17 15.5H6.5a4.5 4.5 0 0 1-.5-8.97 5.5 5.5 0 0 1 10.32-1.78A3.75 3.75 0 0 1 17 15.5z" fill="rgba(var(--bg-rgb), 0.75)" stroke="var(--ink)"/>
+          <path d="M8.5 18l-1 3.5M12.5 18l-1 3.5M16.5 18l-1 3.5" stroke="#38bdf8" stroke-width="1.8"/>
         </svg>`;
+
       case 'snow':
-        return `<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8">
-          <path d="M20 17.58A5 5 0 0 0 18 8h-1.26A8 8 0 1 0 4 16.25"/>
-          <path d="M8 15h.01M8 19h.01M12 17h.01M12 21h.01M16 15h.01M16 19h.01" stroke-width="2.5" stroke-linecap="round"/>
+        return `<svg viewBox="0 0 24 24" width="${s}" height="${s}" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" class="w-glyph w-glyph-snow">
+          <path d="M17 15H6.5a4.5 4.5 0 0 1-.5-8.97 5.5 5.5 0 0 1 10.32-1.78A3.75 3.75 0 0 1 17 15z" fill="rgba(var(--bg-rgb), 0.75)" stroke="var(--ink)"/>
+          <path d="M9 19h.01M12 18h.01M12 21h.01M15 19h.01" stroke="#93c5fd" stroke-width="2.5"/>
         </svg>`;
+
       case 'storm':
-        return `<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8">
-          <path d="M19 16.9A5 5 0 0 0 18 7h-1.26A8 8 0 1 0 4 15.25"/>
-          <polyline points="13 11 9 17 15 17 11 23" fill="var(--accent)"/>
+        return `<svg viewBox="0 0 24 24" width="${s}" height="${s}" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" class="w-glyph w-glyph-storm">
+          <path d="M17 14.5H6.5a4.5 4.5 0 0 1-.5-8.97 5.5 5.5 0 0 1 10.32-1.78A3.75 3.75 0 0 1 17 14.5z" fill="rgba(var(--bg-rgb), 0.75)" stroke="var(--ink)"/>
+          <path d="M12.5 14l-2 4h3l-1.5 4.5 4.5-5.5h-3z" fill="#f59e0b" stroke="#f59e0b" stroke-width="0.8" stroke-linejoin="miter"/>
         </svg>`;
+
       case 'fog':
-        return `<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8">
-          <path d="M4 14h16M4 18h16M4 10h16M8 6h8" stroke-linecap="round"/>
+        return `<svg viewBox="0 0 24 24" width="${s}" height="${s}" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" class="w-glyph w-glyph-fog">
+          <path d="M4 11h16M6 14.5h12M4 18h16M8 7.5h8" stroke="var(--ink-dim)" opacity="0.8"/>
         </svg>`;
+
       default:
-        return `<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8">
+        return `<svg viewBox="0 0 24 24" width="${s}" height="${s}" fill="none" stroke="currentColor" stroke-width="1.7">
           <circle cx="12" cy="12" r="5" fill="var(--accent)"/>
         </svg>`;
     }
+  }
+
+  private getHeroIconGlyph(condition: string): string {
+    const c = condition.toLowerCase();
+    const isNight = new Date().getHours() < 6 || new Date().getHours() >= 18;
+    let iconKey = 'sunny';
+    if (c.includes('rain') || c.includes('drizzle')) iconKey = 'rain';
+    else if (c.includes('thunder') || c.includes('storm')) iconKey = 'storm';
+    else if (c.includes('snow')) iconKey = 'snow';
+    else if (c.includes('fog') || c.includes('mist')) iconKey = 'fog';
+    else if (c.includes('partly')) iconKey = isNight ? 'partly-cloudy-night' : 'partly-cloudy';
+    else if (c.includes('cloud') || c.includes('overcast')) iconKey = 'cloudy';
+    else if (isNight) iconKey = 'clear-night';
+
+    return this.getIconGlyph(iconKey, 54);
   }
 
   // ── Render DOM Elements ───────────────────────────────────────
@@ -1129,17 +1287,23 @@ export class WeatherDashboardController {
     setText('weatherUvVal', s.uvIndex);
     setText('weatherUvCategory', s.uvCategory);
 
-    // Weather Condition Hero Glyph
+    // Weather Condition Hero Glyph (Large Minimalist Icon)
     const glyphWrap = el('weatherConditionGlyph');
     if (glyphWrap) {
-      glyphWrap.innerHTML = this.getIconGlyph(
-        s.condition.toLowerCase().includes('rain')
-          ? 'rain'
-          : s.condition.toLowerCase().includes('cloud')
-            ? 'partly-cloudy'
-            : 'sunny',
+      glyphWrap.innerHTML = this.getHeroIconGlyph(s.condition);
+    }
+
+    // High-Fidelity Photorealistic Vector Moon Sphere
+    const moonWrap = el('moonRenderWrap');
+    const moon = this.calculateMoonPhase(new Date());
+    if (moonWrap) {
+      moonWrap.innerHTML = this.renderMoonPhaseSphere(
+        moon.phaseFraction,
+        moon.illumination,
+        moon.phaseName,
       );
     }
+    setText('moonNextPhase', moon.nextPhase);
 
     // Compass Needle Rotation (Center: 50 50)
     const needle = el('windNeedleGroup');
@@ -1237,12 +1401,25 @@ export class WeatherDashboardController {
       const leftPct = Math.round(((item.min - minAll) / rangeAll) * 100);
       const widthPct = Math.max(Math.round(((item.max - item.min) / rangeAll) * 100), 14);
 
+      // Current temperature indicator dot on Today's bar
+      const isToday = item.day.toLowerCase() === 'today';
+      let currentPipHtml = '';
+      if (isToday) {
+        const curTempClamped = Math.max(item.min, Math.min(item.max, this.state.temp));
+        const curPct = Math.round(
+          ((curTempClamped - item.min) / Math.max(item.max - item.min, 1)) * 100,
+        );
+        currentPipHtml = `<div class="f-bar-cur-pip" style="left: ${curPct}%;" title="Current: ${this.state.temp}°C"></div>`;
+      }
+
       row.innerHTML = `
         <span class="f-day">${item.day}</span>
         <span class="f-icon">${this.getIconGlyph(item.icon)}</span>
         <span class="f-min">${item.min}°</span>
         <div class="f-bar-track">
-          <div class="f-bar-fill" style="left: ${leftPct}%; width: ${widthPct}%;"></div>
+          <div class="f-bar-fill" style="left: ${leftPct}%; width: ${widthPct}%;">
+            ${currentPipHtml}
+          </div>
         </div>
         <span class="f-max">${item.max}°</span>
       `;

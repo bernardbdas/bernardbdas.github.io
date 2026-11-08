@@ -16,10 +16,7 @@ const currentYear = new Date().getFullYear();
       <span class="copyright-year" id="copyrightYear">
         {currentYear}
       </span>
-      <span class="author-name">
-        <span class="author-full">Bernard Birendra Das</span>
-        <span class="author-short">BBD</span>
-      </span>
+      <span class="author-name">Bernard Birendra Das</span>
     </button>
     <span class="hud-sep footer-extra" aria-hidden="true">
       //
@@ -241,61 +238,75 @@ const currentYear = new Date().getFullYear();
 
   let eggClicks = 0;
   let lastEggClickTime = 0;
-  // User must click fast: max 500ms between consecutive clicks
-  const MAX_CLICK_GAP_MS = 500;
+  // User must tap/click quickly: max 650ms between consecutive taps
+  const MAX_CLICK_GAP_MS = 650;
 
   function resetClicks(): void {
     eggClicks = 0;
   }
 
-  if (copyrightBtn) {
-    // Reset immediately if cursor leaves button, button loses focus, or window blurs
-    copyrightBtn.addEventListener('mouseleave', resetClicks);
-    copyrightBtn.addEventListener('pointerleave', resetClicks);
-    copyrightBtn.addEventListener('blur', resetClicks);
+  function toggleEasterEgg(): void {
+    const html = document.documentElement;
+    const isUnlocked = html.classList.contains('easter-egg-unlocked');
 
-    copyrightBtn.addEventListener('click', (e) => {
-      e.stopPropagation();
-      const now = Date.now();
-
-      // Enforce fast consecutive clicks: if user pauses longer than 500ms, start count over
-      if (now - lastEggClickTime > MAX_CLICK_GAP_MS) {
-        eggClicks = 0;
-      }
-      lastEggClickTime = now;
-      eggClicks++;
-
-      if (eggClicks === 7) {
-        eggClicks = 0;
-        const html = document.documentElement;
-        const isUnlocked = html.classList.contains('easter-egg-unlocked');
-
-        if (isUnlocked) {
-          // Hide features again
-          html.classList.remove('easter-egg-unlocked');
-          try {
-            sessionStorage.removeItem('easter_egg_unlocked');
-          } catch {}
-          showToast('NOX');
-          window.dispatchEvent(new CustomEvent('easter-egg:lock'));
-          window.dispatchEvent(new CustomEvent('cartography:recalibrate'));
-        } else {
-          // Unlock hidden features
-          html.classList.add('easter-egg-unlocked');
-          try {
-            sessionStorage.setItem('easter_egg_unlocked', 'true');
-          } catch {}
-          showToast('LUMOS');
-          window.dispatchEvent(new CustomEvent('easter-egg:unlock'));
-          window.dispatchEvent(new CustomEvent('cartography:recalibrate'));
-        }
-      }
-    });
+    if (isUnlocked) {
+      // Hide features again
+      html.classList.remove('easter-egg-unlocked');
+      try {
+        sessionStorage.removeItem('easter_egg_unlocked');
+      } catch {}
+      showToast('NOX');
+      window.dispatchEvent(new CustomEvent('easter-egg:lock'));
+      window.dispatchEvent(new CustomEvent('cartography:recalibrate'));
+    } else {
+      // Unlock hidden features
+      html.classList.add('easter-egg-unlocked');
+      try {
+        sessionStorage.setItem('easter_egg_unlocked', 'true');
+      } catch {}
+      showToast('LUMOS');
+      window.dispatchEvent(new CustomEvent('easter-egg:unlock'));
+      window.dispatchEvent(new CustomEvent('cartography:recalibrate'));
+    }
   }
+
+  function handleEggTrigger(e: Event): void {
+    e.stopPropagation();
+    const now = Date.now();
+
+    if (now - lastEggClickTime > MAX_CLICK_GAP_MS) {
+      eggClicks = 0;
+    }
+    lastEggClickTime = now;
+    eggClicks++;
+
+    if (eggClicks === 7) {
+      eggClicks = 0;
+      toggleEasterEgg();
+    }
+  }
+
+  // Bind to copyright triggers on desktop & mobile drawer
+  const eggTriggers = [
+    copyrightBtn,
+    document.getElementById('mobileCopyrightBtn'),
+    document.querySelector('.mobile-nav-brand'),
+  ].filter(Boolean) as HTMLElement[];
+
+  eggTriggers.forEach((btn) => {
+    btn.addEventListener('mouseleave', resetClicks);
+    btn.addEventListener('pointerleave', resetClicks);
+    btn.addEventListener('blur', resetClicks);
+    btn.addEventListener('click', handleEggTrigger);
+  });
+
+  window.addEventListener('easter-egg:toggle', toggleEasterEgg);
 
   // If user clicks anywhere else on the document, reset click counter immediately
   document.addEventListener('pointerdown', (e) => {
-    if (copyrightBtn && !copyrightBtn.contains(e.target as Node)) {
+    const target = e.target as Node;
+    const clickedTrigger = eggTriggers.some((btn) => btn.contains(target));
+    if (!clickedTrigger) {
       resetClicks();
     }
   });

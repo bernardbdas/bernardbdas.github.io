@@ -1,12 +1,11 @@
 ---
 /**
  * Hero — Main landing section.
- * Micro-label, H1 with blinking caret, focus strip, links, and educational experience.
+ * Focus strip, resume/systems links, and educational experience.
  */
-import Loader from './Loader.astro';
-
 interface WorkEntry {
   period: string;
+  duration?: string;
   company: string;
   role: string;
   location?: string;
@@ -14,13 +13,15 @@ interface WorkEntry {
 
 interface EduEntry {
   period: string;
+  duration?: string;
   institute: string;
   degree: string;
 }
 
 const experience: WorkEntry[] = [
   {
-    period: '2023 – 2025',
+    period: '2023 - 2025',
+    duration: '2 years',
     company: 'Simplify3x Software Private Limited',
     role: 'Software Engineer',
     location: 'Bengaluru, Karnataka',
@@ -29,22 +30,26 @@ const experience: WorkEntry[] = [
 
 const education: EduEntry[] = [
   {
-    period: '2024 – Present',
+    period: '2024 - Present',
+    duration: 'Ongoing',
     institute: 'CHRIST (Deemed-to-be-University), Bangalore, Karnataka',
     degree: 'PhD in Data Science',
   },
   {
-    period: '2021 – 2023',
+    period: '2021 - 2023',
+    duration: '2 years',
     institute: 'CHRIST (Deemed-to-be-University), Bangalore, Karnataka',
     degree: 'MCA with Data Analytics',
   },
   {
-    period: '2018 – 2021',
+    period: '2018 - 2021',
+    duration: '3 years',
     institute: "St. Xavier's College (Autonomous), Kolkata, West Bengal",
     degree: 'BSc (Honours) Computer Science with Physics and Mathematics',
   },
   {
-    period: '2004 – 2018',
+    period: '2004 - 2018',
+    duration: '14 years',
     institute: 'Auxilium Convent School, Barasat, West Bengal',
     degree: 'High School (ISC & ICSE)',
   },
@@ -52,13 +57,17 @@ const education: EduEntry[] = [
 ---
 
 <section class="section hero anim-hero" aria-labelledby="hero-heading">
-  <p class="micro-label">
-    <Loader />
-    AI &amp; Machine Learning Engineer
-  </p>
-
-  <h1 id="hero-heading">
-    Bernard Birendra Das<span class="caret" aria-hidden="true"></span>
+  <h1 id="hero-heading" class="hero-name">
+    <span class="hero-name-wrap" id="heroNameWrap" lang="en">
+      <span class="hero-name-first" id="heroNameFirst">
+        Bernard
+      </span>
+      <span class="hero-name-rest" id="heroNameRest">
+        {' '}
+        Birendra Das
+      </span>
+    </span>
+    <span class="caret" aria-hidden="true"></span>
   </h1>
 
   <p class="focus-strip">
@@ -92,27 +101,10 @@ const education: EduEntry[] = [
     <div class="edu-list" role="list">
       {experience.map((item) => (
         <div class="edu-item" role="listitem">
-          <span class="edu-period">
-            {item.period.includes('–') ? (
-              <>
-                <span>{item.period.split('–')[0].trim()}</span>
-                <span class="period-sep" aria-hidden="true">
-                  /
-                </span>
-                <span>{item.period.split('–')[1].trim()}</span>
-              </>
-            ) : item.period.includes('-') ? (
-              <>
-                <span>{item.period.split('-')[0].trim()}</span>
-                <span class="period-sep" aria-hidden="true">
-                  /
-                </span>
-                <span>{item.period.split('-')[1].trim()}</span>
-              </>
-            ) : (
-              item.period
-            )}
-          </span>
+          <div class="edu-period-col">
+            <span class="edu-period">{item.period}</span>
+            {item.duration && <span class="edu-duration">{item.duration}</span>}
+          </div>
           <div class="edu-details">
             <span class="edu-institute">{item.company}</span>
             <span class="edu-degree">
@@ -130,27 +122,10 @@ const education: EduEntry[] = [
     <div class="edu-list" role="list">
       {education.map((item) => (
         <div class="edu-item" role="listitem">
-          <span class="edu-period">
-            {item.period.includes('–') ? (
-              <>
-                <span>{item.period.split('–')[0].trim()}</span>
-                <span class="period-sep" aria-hidden="true">
-                  /
-                </span>
-                <span>{item.period.split('–')[1].trim()}</span>
-              </>
-            ) : item.period.includes('-') ? (
-              <>
-                <span>{item.period.split('-')[0].trim()}</span>
-                <span class="period-sep" aria-hidden="true">
-                  /
-                </span>
-                <span>{item.period.split('-')[1].trim()}</span>
-              </>
-            ) : (
-              item.period
-            )}
-          </span>
+          <div class="edu-period-col">
+            <span class="edu-period">{item.period}</span>
+            {item.duration && <span class="edu-duration">{item.duration}</span>}
+          </div>
           <div class="edu-details">
             <span class="edu-institute">{item.institute}</span>
             <span class="edu-degree">{item.degree}</span>
@@ -160,3 +135,205 @@ const education: EduEntry[] = [
     </div>
   </div>
 </section>
+
+<script>
+  interface Signature {
+    first: string;
+    rest: string;
+    lang: string;
+  }
+
+  const SIGNATURES: Signature[] = [
+    { first: 'Bernard', rest: ' Birendra Das', lang: 'en' },
+    { first: 'बर्नार्ड', rest: ' बीरेंद्र दास', lang: 'hi' },
+    { first: 'বার্নার্ড', rest: ' বীরেন্দ্র দাস', lang: 'bn' },
+  ];
+
+  let heroTypewriterTimer: number | null = null;
+  let currentSigIndex = 0;
+  let isErasing = false;
+  let currentGraphemeIndex = 0;
+
+  function getGraphemes(str: string): string[] {
+    if (typeof Intl !== 'undefined' && 'Segmenter' in Intl) {
+      const segmenter = new (Intl as any).Segmenter(undefined, { granularity: 'grapheme' });
+      return Array.from(segmenter.segment(str), (s: any) => s.segment);
+    }
+    return Array.from(str);
+  }
+
+  function initHeroTypewriter(): void {
+    if (heroTypewriterTimer !== null) {
+      clearTimeout(heroTypewriterTimer);
+      heroTypewriterTimer = null;
+    }
+
+    const wrapEl = document.getElementById('heroNameWrap');
+    const firstEl = document.getElementById('heroNameFirst');
+    const restEl = document.getElementById('heroNameRest');
+
+    const headerWrapEl = document.getElementById('headerNameWrap');
+    const headerFirstEl = document.getElementById('headerNameFirst');
+    const headerRestEl = document.getElementById('headerNameRest');
+
+    if (!wrapEl || !firstEl || !restEl) return;
+
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      firstEl.textContent = SIGNATURES[0].first;
+      restEl.textContent = SIGNATURES[0].rest;
+      wrapEl.setAttribute('lang', SIGNATURES[0].lang);
+      if (headerFirstEl) headerFirstEl.textContent = SIGNATURES[0].first;
+      if (headerRestEl) headerRestEl.textContent = SIGNATURES[0].rest;
+      if (headerWrapEl) headerWrapEl.setAttribute('lang', SIGNATURES[0].lang);
+      return;
+    }
+
+    let sigIndex = currentSigIndex;
+    let erasing = isErasing;
+
+    function renderGraphemes(sig: Signature, count: number): void {
+      const fg = getGraphemes(sig.first);
+      const rg = getGraphemes(sig.rest);
+      let firstText = '';
+      let restText = '';
+      if (count <= fg.length) {
+        firstText = fg.slice(0, count).join('');
+        restText = '';
+      } else {
+        firstText = fg.join('');
+        restText = rg.slice(0, count - fg.length).join('');
+      }
+
+      firstEl!.textContent = firstText;
+      restEl!.textContent = restText;
+      if (headerFirstEl) headerFirstEl.textContent = firstText;
+      if (headerRestEl) headerRestEl.textContent = restText;
+    }
+
+    const initialSig = SIGNATURES[sigIndex];
+    const initialFg = getGraphemes(initialSig.first);
+    const initialRg = getGraphemes(initialSig.rest);
+    const totalChars = initialFg.length + initialRg.length;
+    let charIdx = currentGraphemeIndex > 0 ? currentGraphemeIndex : totalChars;
+
+    function step(): void {
+      const currentSig = SIGNATURES[sigIndex];
+      const fg = getGraphemes(currentSig.first);
+      const rg = getGraphemes(currentSig.rest);
+      const maxCount = fg.length + rg.length;
+
+      if (erasing) {
+        if (charIdx > 0) {
+          charIdx--;
+          renderGraphemes(currentSig, charIdx);
+          heroTypewriterTimer = window.setTimeout(step, 40);
+        } else {
+          erasing = false;
+          sigIndex = (sigIndex + 1) % SIGNATURES.length;
+          currentSigIndex = sigIndex;
+          isErasing = false;
+          currentGraphemeIndex = 0;
+          wrapEl!.setAttribute('lang', SIGNATURES[sigIndex].lang);
+          if (headerWrapEl) headerWrapEl.setAttribute('lang', SIGNATURES[sigIndex].lang);
+          heroTypewriterTimer = window.setTimeout(step, 400);
+        }
+      } else {
+        if (charIdx < maxCount) {
+          charIdx++;
+          renderGraphemes(currentSig, charIdx);
+          heroTypewriterTimer = window.setTimeout(step, 80);
+        } else {
+          erasing = true;
+          isErasing = true;
+          currentGraphemeIndex = charIdx;
+          heroTypewriterTimer = window.setTimeout(step, 3000);
+        }
+      }
+    }
+
+    if (firstEl.textContent === initialSig.first && restEl.textContent === initialSig.rest) {
+      charIdx = totalChars;
+      erasing = true;
+      heroTypewriterTimer = window.setTimeout(step, 3200);
+    } else {
+      step();
+    }
+  }
+
+  function initHeaderScrollDock(): void {
+    const heroHeading = document.getElementById('hero-heading');
+    const contentCol = document.querySelector('.content-col');
+    const html = document.documentElement;
+    if (!heroHeading) return;
+
+    function updateDock(): void {
+      const rect = heroHeading!.getBoundingClientRect();
+      // The fixed header is ~46px - 50px tall.
+      // When the hero heading scrolls past the header (rect.bottom <= 52), dock the name.
+      const shouldDock = rect.bottom <= 52;
+
+      if (shouldDock) {
+        if (!html.classList.contains('header-name-docked')) {
+          html.classList.add('header-name-docked');
+        }
+      } else {
+        if (html.classList.contains('header-name-docked')) {
+          html.classList.remove('header-name-docked');
+        }
+      }
+    }
+
+    // Instant direct event bindings during active touch drag, inertial scroll, or mouse wheel
+    window.addEventListener('scroll', updateDock, { passive: true });
+    window.addEventListener('touchmove', updateDock, { passive: true });
+    window.addEventListener('wheel', updateDock, { passive: true });
+    contentCol?.addEventListener('scroll', updateDock, { passive: true });
+    contentCol?.addEventListener('touchmove', updateDock, { passive: true });
+    document.addEventListener('scroll', updateDock, { passive: true });
+    window.addEventListener('resize', updateDock, { passive: true });
+
+    // IntersectionObserver for compositor-level frame updates
+    if ('IntersectionObserver' in window) {
+      const observer = new IntersectionObserver(
+        (entries) => {
+          for (const entry of entries) {
+            const isAbove = entry.boundingClientRect.bottom <= 52;
+            if (!entry.isIntersecting && isAbove) {
+              html.classList.add('header-name-docked');
+            } else if (entry.isIntersecting || !isAbove) {
+              html.classList.remove('header-name-docked');
+            }
+          }
+        },
+        { root: null, rootMargin: '-48px 0px 0px 0px', threshold: 0 },
+      );
+      observer.observe(heroHeading);
+    }
+
+    // Smooth scroll back to top when clicked on header name
+    const headerNameLink = document.querySelector('.header-name-link');
+    headerNameLink?.addEventListener('click', (e) => {
+      e.preventDefault();
+      if (contentCol && contentCol.scrollTop > 0) {
+        contentCol.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+
+    // Run initial check
+    updateDock();
+  }
+
+  function initAll(): void {
+    initHeroTypewriter();
+    initHeaderScrollDock();
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initAll);
+  } else {
+    initAll();
+  }
+
+  document.addEventListener('astro:page-load', initAll);
+</script>
