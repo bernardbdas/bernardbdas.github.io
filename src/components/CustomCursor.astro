@@ -1,0 +1,174 @@
+---
+/**
+ * CustomCursor — Tactical Center Dot & Reactive Orbiting Name Ring.
+ * Replaces system cursor with a precision glowing dot surrounded by
+ * a tight, highly reactive rotating circular text ring.
+ */
+---
+
+<div
+  class="custom-cursor-wrap"
+  id="customCursorWrap"
+  aria-hidden="true"
+  transition:persist="custom-cursor"
+>
+  <!-- Orbiting Circular Name Ring (Tight Circumference & Highly Reactive) -->
+  <div class="cursor-ring" id="cursorRing">
+    <svg class="cursor-ring-svg" viewBox="0 0 84 84" width="84" height="84">
+      <defs>
+        <path id="cursorCirclePath" d="M 42,42 m -28,0 a 28,28 0 1,1 56,0 a 28,28 0 1,1 -56,0" />
+      </defs>
+      <text class="cursor-ring-text">
+        <textPath href="#cursorCirclePath" textLength="175.9" lengthAdjust="spacing">
+          • BERNARD BIRENDRA DAS •
+        </textPath>
+      </text>
+    </svg>
+  </div>
+  <!-- Center Precision Tactical Dot -->
+  <div class="cursor-dot" id="cursorDot"></div>
+</div>
+
+<script>
+  class CustomCursorController {
+    private wrap: HTMLElement | null = null;
+    private dot: HTMLElement | null = null;
+    private ring: HTMLElement | null = null;
+
+    private mouseX = -100;
+    private mouseY = -100;
+    private ringX = -100;
+    private ringY = -100;
+
+    private isHovering = false;
+    private isClicking = false;
+    private isVisible = false;
+    private rafId: number | null = null;
+
+    constructor() {
+      this.init();
+    }
+
+    public init(): void {
+      // Disable on coarse touch-only devices
+      if (
+        typeof window === 'undefined' ||
+        !window.matchMedia('(hover: hover) and (pointer: fine)').matches
+      ) {
+        return;
+      }
+
+      this.wrap = document.getElementById('customCursorWrap');
+      this.dot = document.getElementById('cursorDot');
+      this.ring = document.getElementById('cursorRing');
+
+      if (!this.wrap || !this.dot || !this.ring) return;
+
+      this.bindEvents();
+      this.startLoop();
+    }
+
+    private bindEvents(): void {
+      const onMove = (e: PointerEvent | MouseEvent) => {
+        this.mouseX = e.clientX;
+        this.mouseY = e.clientY;
+
+        if (!this.isVisible) {
+          this.isVisible = true;
+          this.ringX = this.mouseX;
+          this.ringY = this.mouseY;
+          if (this.wrap) this.wrap.style.opacity = '1';
+        }
+
+        // Check if hovering interactive target
+        const target = e.target as HTMLElement | null;
+        if (target) {
+          const isBackdropEdge =
+            target.classList?.contains('resume-modal-backdrop') ||
+            target.classList?.contains('demo-modal-backdrop') ||
+            target.id === 'resumeModalOverlay';
+          const interactive =
+            isBackdropEdge ||
+            target.closest(
+              'a, button, [role="button"], input, select, textarea, .tab-btn, .clickable, .card-action-btn, summary, [data-cursor-hover]',
+            );
+          const shouldHover = !!interactive;
+          if (shouldHover !== this.isHovering) {
+            this.isHovering = shouldHover;
+            this.wrap?.classList.toggle('is-hovering', this.isHovering);
+          }
+        }
+      };
+
+      const onDown = () => {
+        this.isClicking = true;
+        this.wrap?.classList.add('is-clicking');
+      };
+
+      const onUp = () => {
+        this.isClicking = false;
+        this.wrap?.classList.remove('is-clicking');
+      };
+
+      const onLeave = () => {
+        this.isVisible = false;
+        if (this.wrap) this.wrap.style.opacity = '0';
+      };
+
+      const onEnter = () => {
+        this.isVisible = true;
+        if (this.wrap) this.wrap.style.opacity = '1';
+      };
+
+      window.addEventListener('pointermove', onMove, { passive: true });
+      window.addEventListener('pointerdown', onDown, { passive: true });
+      window.addEventListener('pointerup', onUp, { passive: true });
+      document.addEventListener('mouseleave', onLeave, { passive: true });
+      document.addEventListener('mouseenter', onEnter, { passive: true });
+    }
+
+    private startLoop(): void {
+      const update = () => {
+        if (this.isVisible && this.dot && this.ring) {
+          // Instant tracking on center dot for zero-lag precision aiming
+          const dotScale = this.isHovering ? 1.6 : this.isClicking ? 0.65 : 1;
+          this.dot.style.transform = `translate3d(${this.mouseX}px, ${this.mouseY}px, 0) translate(-50%, -50%) scale(${dotScale})`;
+
+          // Highly responsive lerp physics on the circular name ring (factor 0.45 for snappy tracking)
+          this.ringX += (this.mouseX - this.ringX) * 0.45;
+          this.ringY += (this.mouseY - this.ringY) * 0.45;
+          const ringScale = this.isHovering ? 1.2 : this.isClicking ? 0.88 : 1;
+          this.ring.style.transform = `translate3d(${this.ringX}px, ${this.ringY}px, 0) translate(-50%, -50%) scale(${ringScale})`;
+        }
+        this.rafId = requestAnimationFrame(update);
+      };
+
+      if (!this.rafId) {
+        this.rafId = requestAnimationFrame(update);
+      }
+    }
+  }
+
+  // Initialize once on window
+  declare global {
+    interface Window {
+      __customCursorInstance?: CustomCursorController;
+    }
+  }
+
+  function setupCursor() {
+    if (!window.__customCursorInstance) {
+      window.__customCursorInstance = new CustomCursorController();
+    } else {
+      window.__customCursorInstance.init();
+    }
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', setupCursor);
+  } else {
+    setupCursor();
+  }
+
+  document.addEventListener('astro:page-load', setupCursor);
+</script>
