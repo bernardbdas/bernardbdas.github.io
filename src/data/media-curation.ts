@@ -2950,6 +2950,305 @@ export const CURATED_MOVIES: MovieItem[] = [
     takeaway:
       'Jackie Earle Haley’s chilling, gravelly Rorschach ("I\'m not locked in here with you... you\'re locked in here with me!"), the Bob Dylan intro montage, and Alan Moore’s deconstructive brilliance.',
   },
+  {
+    id: 'guide',
+    title: 'Guide',
+    year: 1965,
+    director: 'Vijay Anand',
+    cast: ['Dev Anand', 'Waheeda Rehman', 'Leela Chitnis', 'Kishore Sahu'],
+    genres: ['Classic Indian Cinema', 'Drama', 'Philosophy'],
+    ottPlatforms: ['Primevideo', 'Apple TV'],
+    rating: '9.6',
+    runtime: '183 min',
+    synopsis:
+      'Based on R.K. Narayan’s novel, Raju, a charismatic tour guide, helps Rosie escape an oppressive marriage to become a celebrated classical dancer, before walking a tortuous spiritual path from prison inmate to venerated saint during a severe drought.',
+    takeaway:
+      'The philosophical pinnacle of Indian cinema; S.D. Burman’s immortal musical compositions, Vijay Anand’s modern cinematic framing, and Waheeda Rehman’s fierce, liberating snake dance.',
+  },
+  {
+    id: 'mother-india',
+    title: 'Mother India',
+    year: 1957,
+    director: 'Mehboob Khan',
+    cast: ['Nargis', 'Sunil Dutt', 'Rajendra Kumar', 'Raaj Kumar'],
+    genres: ['Classic Indian Cinema', 'Epic', 'Drama'],
+    ottPlatforms: ['Primevideo', 'JioHotstar'],
+    rating: '9.7',
+    runtime: '172 min',
+    synopsis:
+      'Radha, an impoverished rural mother abandoned by her disabled husband, battles devastating floods, famine, and an extortionate moneylender to raise her sons, ultimately sacrificing her rebellious son to uphold community moral law.',
+    takeaway:
+      'India’s monumental Oscar-nominated agrarian epic; Nargis delivers one of world cinema’s most majestic, mythic performances defining maternal rectitude against feudal exploitation.',
+  },
+  {
+    id: 'gunga-jumna',
+    title: 'Gunga Jumna',
+    year: 1961,
+    director: 'Nitin Bose',
+    cast: ['Dilip Kumar', 'Vyjayanthimala', 'Nasir Khan', 'Kanhaiyalal'],
+    genres: ['Classic Indian Cinema', 'Crime', 'Drama', 'Action'],
+    ottPlatforms: ['Primevideo', 'Apple TV'],
+    rating: '9.5',
+    runtime: '169 min',
+    synopsis:
+      'Two close-knit rural brothers diverge under oppressive zamindari tyranny: Gunga is pushed into the ravines as an outlaw dacoit, while Jumna joins the police, precipitating an inevitable, tragic fratricidal showdown.',
+    takeaway:
+      'The foundational blueprint for modern Indian brother-versus-brother crime sagas and the angry young man archetype; Dilip Kumar’s Bhojpuri dialect mastery and tragic intensity remain legendary.',
+  },
+  {
+    id: 'krantiveer',
+    title: 'Krantiveer',
+    year: 1994,
+    director: 'Mehul Kumar',
+    cast: [
+      'Nana Patekar',
+      'Dimple Kapadia',
+      'Atul Agnihotri',
+      'Mamta Kulkarni',
+      'Danny Denzongpa',
+      'Paresh Rawal',
+    ],
+    genres: ['Classic Indian Cinema', 'Action', 'Drama', 'Crime'],
+    ottPlatforms: ['Primevideo', 'JioHotstar'],
+    rating: '9.3',
+    runtime: '160 min',
+    synopsis:
+      'Pratap, an outspoken alcoholic disowned by his village, is inspired by an unyielding investigative journalist to wage war against a consortium of communal politicians, corrupt bureaucrats, and underworld racketeers.',
+    takeaway:
+      'Nana Patekar’s career-defining National Award-winning tour de force; his climactic gallows soliloquy confronting public apathy and religious hypocrisy is the most visceral monologue in Indian film history.',
+  },
+  {
+    id: 'ab-tak-chhappan',
+    title: 'Ab Tak Chhappan',
+    year: 2004,
+    director: 'Shimit Amin',
+    cast: ['Nana Patekar', 'Revathi', 'Yashpal Sharma', 'Mohan Agashe', 'Jeeva', 'Nakul Vaid'],
+    genres: ['Classic Indian Cinema', 'Crime', 'Neo-Noir', 'Drama'],
+    ottPlatforms: ['Primevideo', 'JioHotstar'],
+    rating: '9.4',
+    runtime: '132 min',
+    synopsis:
+      'Inspector Sadhu Agashe, head of Mumbai Crime Branch’s ruthless encounter squad with 56 eliminations, balances gang rivalries between syndicate dons while confronting fatal betrayal from within his own compromised hierarchy.',
+    takeaway:
+      'Shimit Amin’s ice-cold, docu-realist neo-noir masterpiece; Nana Patekar stripped of theatricality, delivering an uncompromising, chilling portrait of state-sanctioned violence.',
+  },
+  {
+    id: 'ab-tak-chhappan-2',
+    title: 'Ab Tak Chhappan 2',
+    year: 2015,
+    director: 'Aejaz Gulab',
+    cast: ['Nana Patekar', 'Gul Panag', 'Ashutosh Rana', 'Vikram Gokhale', 'Mohan Agashe'],
+    genres: ['Classic Indian Cinema', 'Crime', 'Action', 'Drama'],
+    ottPlatforms: ['JioHotstar', 'Primevideo'],
+    rating: '8.6',
+    runtime: '124 min',
+    synopsis:
+      'Living in quiet coastal retirement in Goa, veteran encounter specialist Sadhu Agashe is summoned back to Mumbai to spearhead an inquiry into a high-profile political assassination and criminal nexus.',
+    takeaway:
+      'Nana Patekar returning to his legendary Sadhu Agashe persona; an austere, contemplative reflection on aging reflexes, loyalty, and the irreversible personal toll of an encounter specialist’s life.',
+  },
+  {
+    id: 'pather-panchali',
+    title: 'Pather Panchali',
+    year: 1955,
+    director: 'Satyajit Ray',
+    cast: ['Subir Banerjee', 'Kanu Banerjee', 'Karuna Banerjee', 'Uma Dasgupta', 'Chunibala Devi'],
+    genres: ['Classic Indian Cinema', 'Drama', 'Philosophy'],
+    ottPlatforms: ['Mubi', 'Apple TV', 'Primevideo'],
+    rating: '9.9',
+    runtime: '125 min',
+    synopsis:
+      'Young Apu and his vivacious sister Durga experience the beauty, sorrow, and harsh poverty of rural Bengal, through passing candy-peddlers, rains in the forest, and the haunting distant rumble of a train through kash fields.',
+    takeaway:
+      'Winner of Best Human Document at Cannes; Satyajit Ray’s lyrical neorealist debut, Pandit Ravi Shankar’s sitar ragas, and Subrata Mitra’s revolutionary natural-light cinematography changed world cinema forever.',
+  },
+  {
+    id: 'aparajito',
+    title: 'Aparajito',
+    year: 1956,
+    director: 'Satyajit Ray',
+    cast: ['Pinaki Sengupta', 'Smaran Ghosal', 'Karuna Banerjee', 'Kanu Banerjee'],
+    genres: ['Classic Indian Cinema', 'Drama', 'Philosophy'],
+    ottPlatforms: ['Mubi', 'Apple TV'],
+    rating: '9.8',
+    runtime: '110 min',
+    synopsis:
+      'Following his priest father’s death in the holy city of Varanasi, young scholar Apu wins admission to university in Calcutta, precipitating a quiet, heart-rending emotional separation from his lonely, ailing mother Sarbajaya.',
+    takeaway:
+      'Venice Film Festival Golden Lion winner; unmatched psychological study of youthful intellectual awakening and maternal yearning, captured with poignant emotional economy.',
+  },
+  {
+    id: 'apur-sansar',
+    title: 'Apur Sansar',
+    year: 1959,
+    director: 'Satyajit Ray',
+    cast: ['Soumitra Chatterjee', 'Sharmila Tagore', 'Alok Chakravarty', 'Swapan Mukherjee'],
+    genres: ['Classic Indian Cinema', 'Drama', 'Philosophy'],
+    ottPlatforms: ['Mubi', 'Apple TV'],
+    rating: '9.8',
+    runtime: '106 min',
+    synopsis:
+      'In the final chapter of The Apu Trilogy, aspiring novelist Apu unexpectedly enters an arranged marriage with the gentle Aparna, discovering brief domestic harmony before tragedy forces him into nomadic exile until he reconciles with his young son.',
+    takeaway:
+      'The screen debuts of Soumitra Chatterjee and 14-year-old Sharmila Tagore; one of cinema’s most tender depictions of marital intimacy, grief, and ultimate paternal redemption.',
+  },
+  {
+    id: 'charulata',
+    title: 'Charulata',
+    year: 1964,
+    director: 'Satyajit Ray',
+    cast: ['Madhabi Mukherjee', 'Soumitra Chatterjee', 'Sailen Mukherjee', 'Shyamal Ghoshal'],
+    genres: ['Classic Indian Cinema', 'Drama', 'Philosophy'],
+    ottPlatforms: ['Mubi', 'Apple TV'],
+    rating: '9.8',
+    runtime: '117 min',
+    synopsis:
+      'In 1870s Victorian Calcutta, intellectually vibrant Charu is neglected in a grand mansion by her newspaper-publisher husband, until his visiting poet cousin Amal nurtures her latent literary talent and awakens forbidden emotions.',
+    takeaway:
+      'Ray’s personal masterpiece (Berlin Silver Bear for Best Director); the opera-glass opening sequence and garden swing montage remain the pinnacle of visual poetry and female interiority.',
+  },
+  {
+    id: 'nayak',
+    title: 'Nayak',
+    year: 1966,
+    director: 'Satyajit Ray',
+    cast: ['Uttam Kumar', 'Sharmila Tagore', 'Bireswar Sen', 'Somen Bose'],
+    genres: ['Classic Indian Cinema', 'Drama', 'Psychological'],
+    ottPlatforms: ['Mubi', 'Apple TV', 'Primevideo'],
+    rating: '9.6',
+    runtime: '120 min',
+    synopsis:
+      'Matinee idol Arindam Mukherjee travels by express train from Calcutta to Delhi to accept a prestigious award, opening his insecurities, guilt, and surreal nightmares to an austere young female editor interviewing him.',
+    takeaway:
+      'Bengal’s legendary superstar Uttam Kumar in a vulnerable, tour-de-force deconstruction of fame, paired with Ray’s striking surrealist dreamscapes of drowning in quicksand and currency notes.',
+  },
+  {
+    id: 'shatranj-ke-khilari',
+    title: 'Shatranj Ke Khilari',
+    year: 1977,
+    director: 'Satyajit Ray',
+    cast: [
+      'Sanjeev Kumar',
+      'Saeed Jaffrey',
+      'Amjad Khan',
+      'Shabana Azmi',
+      'Richard Attenborough',
+      'Victor Banerjee',
+    ],
+    genres: ['Classic Indian Cinema', 'History', 'Drama', 'Satire'],
+    ottPlatforms: ['Primevideo', 'Mubi'],
+    rating: '9.6',
+    runtime: '129 min',
+    synopsis:
+      'In 1856 Awadh, as General Outram and the British East India Company orchestrate the deposition of poet-king Wajid Ali Shah, two aristocratic nawabs remain oblivious, completely consumed by their obsessive chess games.',
+    takeaway:
+      'Satyajit Ray’s sumptuous Hindi-Urdu historical epic; biting political satire on feudal decay and colonial cunning, narrated by Amitabh Bachchan and featuring Richard Attenborough.',
+  },
+  {
+    id: 'parinda',
+    title: 'Parinda',
+    year: 1989,
+    director: 'Vidhu Vinod Chopra',
+    cast: [
+      'Nana Patekar',
+      'Anil Kapoor',
+      'Jackie Shroff',
+      'Madhuri Dixit',
+      'Anupam Kher',
+      'Suresh Oberoi',
+    ],
+    genres: ['Classic Indian Cinema', 'Crime', 'Neo-Noir', 'Drama'],
+    ottPlatforms: ['Primevideo', 'Netflix'],
+    rating: '9.5',
+    runtime: '154 min',
+    synopsis:
+      'Two orphaned brothers are caught in Mumbai’s ruthless underworld; when his childhood companion is murdered, Karan infiltrates the syndicate of the volatile, pyromaniac ganglord Anna Seth to exact vengeance.',
+    takeaway:
+      'The benchmark of Indian crime realism and precursor to modern gangster cinema; Nana Patekar won the National Award for his incendiary, terrifying performance as Anna Seth.',
+  },
+  {
+    id: 'pyaasa',
+    title: 'Pyaasa',
+    year: 1957,
+    director: 'Guru Dutt',
+    cast: ['Guru Dutt', 'Waheeda Rehman', 'Mala Sinha', 'Johnny Walker', 'Rehman'],
+    genres: ['Classic Indian Cinema', 'Drama', 'Philosophy'],
+    ottPlatforms: ['Primevideo', 'JioHotstar'],
+    rating: '9.8',
+    runtime: '146 min',
+    synopsis:
+      'Vijay, an impoverished and unappreciated poet shunned by his family and mercenary publishers, finds compassionate solace in a noble courtesan Gulabo, who arranges for his work to be published after he is presumed dead.',
+    takeaway:
+      'One of Time magazine’s All-Time 100 Films; V.K. Murthy’s breathtaking black-and-white lighting, Sahir Ludhianvi’s searing social critique, and Guru Dutt’s tragic, iconic crucified doorway silhouette.',
+  },
+  {
+    id: 'mughal-e-azam',
+    title: 'Mughal-e-Azam',
+    year: 1960,
+    director: 'K. Asif',
+    cast: ['Prithviraj Kapoor', 'Dilip Kumar', 'Madhubala', 'Durga Khote', 'Ajit'],
+    genres: ['Classic Indian Cinema', 'Epic', 'History', 'Drama'],
+    ottPlatforms: ['Primevideo', 'JioHotstar'],
+    rating: '9.9',
+    runtime: '197 min',
+    synopsis:
+      'Crown Prince Salim falls deeply in love with court dancer Anarkali, rebelling against his austere father Emperor Akbar and precipitating a devastating civil war that fractures the Mughal empire.',
+    takeaway:
+      'The gold standard of Indian cinematic majesty; sixteen years in creation, the dazzling Sheesh Mahal glass palace sequence, and Madhubala’s incandescent defiance opposite Dilip Kumar’s regal stoicism.',
+  },
+  {
+    id: 'jaane-bhi-do-yaaro',
+    title: 'Jaane Bhi Do Yaaro',
+    year: 1983,
+    director: 'Kundan Shah',
+    cast: [
+      'Naseeruddin Shah',
+      'Ravi Baswani',
+      'Bhakti Barve',
+      'Om Puri',
+      'Pankaj Kapur',
+      'Satish Shah',
+      'Neena Gupta',
+    ],
+    genres: ['Classic Indian Cinema', 'Comedy', 'Satire', 'Crime'],
+    ottPlatforms: ['Primevideo', 'JioHotstar'],
+    rating: '9.5',
+    runtime: '132 min',
+    synopsis:
+      'Two down-on-their-luck studio photographers accidentally capture a real-estate magnate murdering a municipal commissioner, unleashing an escalating farce of corruption, media collusion, and a dead corpse on stage.',
+    takeaway:
+      'The crown jewel of Indian dark political comedy; the climactic Mahabharata stage sequence ("Draupadi cheer haran") remains an unmatched masterpiece of high-wire slapstick and anti-establishment satire.',
+  },
+  {
+    id: 'do-bigha-zamin',
+    title: 'Do Bigha Zamin',
+    year: 1953,
+    director: 'Bimal Roy',
+    cast: ['Balraj Sahni', 'Nirupa Roy', 'Ratan Kumar', 'Murad'],
+    genres: ['Classic Indian Cinema', 'Drama'],
+    ottPlatforms: ['Primevideo', 'JioHotstar'],
+    rating: '9.5',
+    runtime: '131 min',
+    synopsis:
+      'A humble farmer in Bengal migrates with his son to the unforgiving streets of Calcutta, striving as a hand-rickshaw puller under the blazing sun to earn enough to save his ancestral land from a ruthless zamindar.',
+    takeaway:
+      'Prix International winner at Cannes 1954; the pioneering masterpiece of Indian neorealism inspired by Bicycle Thieves, carried by Balraj Sahni’s heartbreaking, dignified human performance.',
+  },
+  {
+    id: 'anand',
+    title: 'Anand',
+    year: 1971,
+    director: 'Hrishikesh Mukherjee',
+    cast: ['Rajesh Khanna', 'Amitabh Bachchan', 'Sumita Sanyal', 'Ramesh Deo', 'Lalita Pawar'],
+    genres: ['Classic Indian Cinema', 'Drama', 'Philosophy'],
+    ottPlatforms: ['Primevideo', 'JioHotstar'],
+    rating: '9.7',
+    runtime: '132 min',
+    synopsis:
+      'Diagnosed with terminal cancer, the effervescent Anand travels to Bombay to spend his remaining days spreading joy, profoundly transforming his somber oncologist Dr. Bhaskar Banerjee.',
+    takeaway:
+      'The emotional high point of humanistic Indian cinema; Salil Chowdhury’s melodies, Yogesh’s immortal lyrics, and the tape-recorder monologue that established Amitabh Bachchan’s legendary career.',
+  },
 ];
 
 export const CURATED_TV_SHOWS: TVShowItem[] = [

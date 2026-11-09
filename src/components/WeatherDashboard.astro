@@ -37,6 +37,48 @@
         <button
           type="button"
           class="weather-modal-btn"
+          id="weatherAsciiGameToggleBtn"
+          title="Toggle STRATOS Atmospheric Sensor Game"
+          aria-label="Toggle STRATOS Game"
+        >
+          <svg
+            viewBox="0 0 16 16"
+            width="12"
+            height="12"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.8"
+          >
+            <rect x="2" y="3" width="12" height="10" rx="2" />
+            <path d="M5 8h2M6 7v2M10 7.5h.01M12 8.5h.01" />
+          </svg>
+          <span id="weatherAsciiToggleText">STRATOS</span>
+        </button>
+
+        <button
+          type="button"
+          class="weather-modal-btn"
+          id="weatherLocateBtn"
+          title="Auto-detect current location"
+          aria-label="Auto-detect location"
+        >
+          <svg
+            viewBox="0 0 16 16"
+            width="12"
+            height="12"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.8"
+          >
+            <circle cx="8" cy="8" r="3" />
+            <path d="M8 1v2M8 13v2M1 8h2M13 8h2" />
+          </svg>
+          <span>LOCATE</span>
+        </button>
+
+        <button
+          type="button"
+          class="weather-modal-btn"
           id="weatherResetLayoutBtn"
           title="Reset telemetry widgets"
           aria-label="Reset telemetry widgets"
@@ -128,7 +170,9 @@
                   <span class="badge-city" id="weatherCity">
                     BENGALURU
                   </span>
-                  <span class="badge-coords">[12.97°N, 77.59°E]</span>
+                  <span class="badge-coords" id="weatherCoords">
+                    [12.97°N, 77.59°E]
+                  </span>
                 </div>
                 <div class="digital-hero-temp">
                   <span class="temp-digit-val" id="weatherBigTemp">
@@ -926,6 +970,432 @@
             </div>
           </div>
         </section>
+      </div>
+
+      <!-- Module Fallback: Interactive Atmospheric ASCII Probe Runner Game (STRATOS) -->
+      <div class="weather-ascii-game-bay" id="weatherAsciiGameBay" style="display: none;">
+        <!-- Terminal Diagnostics Header -->
+        <div class="ascii-terminal-banner">
+          <div class="banner-status-line">
+            <span class="ascii-beacon-dot" aria-hidden="true"></span>
+            <span class="banner-status-tag" id="asciiGameStatusTag">
+              // STRATOS SATELLITE BEACON: OFFLINE // LOCATION INDETERMINATE
+            </span>
+          </div>
+          <div class="banner-aux-info">
+            <!-- Interactive Difficulty Selector -->
+            <div
+              class="ascii-diff-selector"
+              id="asciiDiffSelector"
+              role="radiogroup"
+              aria-label="STRATOS Flight Difficulty"
+            >
+              <span class="diff-selector-label">DIFF:</span>
+              <button
+                type="button"
+                class="ascii-diff-btn is-active"
+                data-diff="CADET"
+                title="Cadet difficulty (1.0x score multiplier)"
+              >
+                CADET
+              </button>
+              <button
+                type="button"
+                class="ascii-diff-btn"
+                data-diff="VETERAN"
+                title="Veteran storm difficulty (2.0x score multiplier)"
+              >
+                VETERAN
+              </button>
+              <button
+                type="button"
+                class="ascii-diff-btn"
+                data-diff="APEX"
+                title="Apex hyper-stratosphere difficulty (3.5x score multiplier)"
+              >
+                APEX
+              </button>
+            </div>
+
+            <button
+              type="button"
+              class="banner-aux-btn"
+              id="asciiBtnRulesTop"
+              title="View STRATOS flight rules and manual [H]"
+            >
+              RULES [H]
+            </button>
+            <button
+              type="button"
+              class="banner-aux-btn"
+              id="asciiBtnFullscreen"
+              title="Toggle Fullscreen display [F]"
+            >
+              <span id="asciiFullscreenLabel">FULLSCREEN [F]</span>
+            </button>
+            <button
+              type="button"
+              class="banner-aux-btn"
+              id="asciiBtnAudio"
+              title="Toggle Audio synthesizers [M]"
+            >
+              <span id="asciiAudioLabel">AUDIO: ON</span>
+            </button>
+            <span class="banner-badge">[ STRATOS PROBE PROTOCOL ]</span>
+          </div>
+        </div>
+
+        <!-- Terminal Viewport Frame -->
+        <div class="ascii-terminal-frame">
+          <!-- Terminal Upper Telemetry Bar -->
+          <div class="ascii-hud-bar">
+            <div class="hud-stat-cell hud-cell-diff">
+              <span class="hud-lbl">DIFFICULTY</span>
+              <span class="hud-val diff-cadet" id="asciiHudDifficulty">
+                CADET [1.0x]
+              </span>
+            </div>
+            <div class="hud-stat-cell">
+              <span class="hud-lbl">ALTITUDE</span>
+              <span class="hud-val" id="asciiHudAltitude">
+                10,000 M
+              </span>
+            </div>
+            <div class="hud-stat-cell">
+              <span class="hud-lbl">TELEMETRY SCORE</span>
+              <span class="hud-val" id="asciiHudScore">
+                00000
+              </span>
+            </div>
+            <div class="hud-stat-cell">
+              <span class="hud-lbl">RECORD ARCHIVE</span>
+              <span class="hud-val" id="asciiHudBest">
+                00000
+              </span>
+            </div>
+            <div class="hud-stat-cell hud-cell-weap">
+              <span class="hud-lbl">WEAPON CORE</span>
+              <span class="hud-val hud-weap-lvl" id="asciiHudWeapon">
+                LVL 1 [1x PULSE]
+              </span>
+            </div>
+            <div class="hud-stat-cell hud-cell-shield">
+              <span class="hud-lbl">PROBE HULL INTEGRITY</span>
+              <span class="hud-val" id="asciiHudShield">
+                [||||||||||] 100%
+              </span>
+            </div>
+            <div class="hud-stat-cell">
+              <span class="hud-lbl">RADAR EMP</span>
+              <span class="hud-val hud-emp-ready" id="asciiHudEmp">
+                READY [E]
+              </span>
+            </div>
+          </div>
+
+          <!-- Main ASCII Screen Container -->
+          <div class="ascii-screen-container">
+            <pre
+              class="ascii-game-screen"
+              id="asciiGameScreen"
+              tabindex="0"
+              role="region"
+              aria-label="STRATOS Atmospheric Probe ASCII Radar Game Display"
+            ></pre>
+            <div class="ascii-crt-overlay" aria-hidden="true"></div>
+            <div class="ascii-screen-glow" aria-hidden="true"></div>
+
+            <!-- Tactical Rules & Flight Manual Modal Overlay -->
+            <div class="ascii-rules-overlay" id="asciiRulesOverlay" style="display: none;">
+              <div class="ascii-rules-modal">
+                <div class="ascii-rules-header">
+                  <div class="rules-header-title">
+                    <span class="ascii-beacon-dot" aria-hidden="true"></span>
+                    <h3>// STRATOS // FLIGHT MANUAL & ENGAGEMENT RULES //</h3>
+                  </div>
+                  <button
+                    type="button"
+                    class="ascii-rules-close-btn"
+                    id="asciiRulesCloseBtn"
+                    aria-label="Close Manual"
+                  >
+                    ✕
+                  </button>
+                </div>
+                <div class="ascii-rules-body">
+                  <div class="rules-section">
+                    <span class="rules-sec-heading">01 // MISSION DIRECTIVE</span>
+                    <p>
+                      In project <strong>STRATOS</strong>, escort Weather Sensor Probe-01 through
+                      severe ionospheric de-orbit turbulence. Maintain hull integrity, harvest
+                      high-altitude telemetry packets, and deploy pulse cannons to vaporize incoming
+                      hazards.
+                    </p>
+                  </div>
+
+                  <div class="rules-section">
+                    <span class="rules-sec-heading">02 // DIFFICULTY TIERS</span>
+                    <div class="rules-grid-2">
+                      <div class="rule-card">
+                        <span class="rule-tag tag-weap">CADET (1.0x MULTIPLIER)</span>
+                        <strong>Standard Atmospheric Recon</strong>
+                        <p>
+                          Baseline hazard velocity and moderate density. Recommended for flight
+                          certification.
+                        </p>
+                      </div>
+                      <div class="rule-card">
+                        <span class="rule-tag tag-weap">VETERAN (2.0x MULTIPLIER)</span>
+                        <strong>Severe Storm Front</strong>
+                        <p>
+                          1.35x velocity with tracking drone interceptors that actively swoop
+                          towards probe coordinates.
+                        </p>
+                      </div>
+                      <div class="rule-card">
+                        <span class="rule-tag tag-emp">APEX (3.5x MULTIPLIER)</span>
+                        <strong>Hyper-Stratosphere Hurricane</strong>
+                        <p>
+                          1.75x velocity, armoured Supercell Dreadnought bosses, erratic zig-zag
+                          flares, and sparse repairs.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="rules-section">
+                    <span class="rules-sec-heading">03 // CANNON ARSENAL & WEAPON PROGRESSION</span>
+                    <div class="rules-grid-2">
+                      <div class="rule-card">
+                        <span class="rule-tag tag-weap">LEVEL 1</span>
+                        <strong>Kinetic Pulse Beam (1x)</strong>
+                        <p>Single forward kinetic beam. Fast precision velocity.</p>
+                      </div>
+                      <div class="rule-card">
+                        <span class="rule-tag tag-weap">LEVEL 2</span>
+                        <strong>Dual Ion Blasters (2x)</strong>
+                        <p>Twin parallel blasters firing dual synchronized salvos.</p>
+                      </div>
+                      <div class="rule-card">
+                        <span class="rule-tag tag-weap">LEVEL 3</span>
+                        <strong>Triple Plasma Spread (3x)</strong>
+                        <p>3-way angled spread shot clearing entire sectors.</p>
+                      </div>
+                      <div class="rule-card">
+                        <span class="rule-tag tag-emp">RADAR EMP</span>
+                        <strong>Shockwave [E / EMP]</strong>
+                        <p>Omnidirectional pulse vaporizing hazards on cooldown.</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="rules-section">
+                    <span class="rules-sec-heading">
+                      04 // HAZARDS (COLOR: RED / CRIMSON / ORANGE / AMBER)
+                    </span>
+                    <div class="rules-hazards-list">
+                      <div class="hazard-item">
+                        <span class="badge-char col-hazard-meteor">[###]</span>
+                        <span class="hazard-desc">
+                          <strong>Dense Aerolite (Crimson):</strong> Heavy armor (takes 2 hits).
+                          Deals 25% hull damage.
+                        </span>
+                      </div>
+                      <div class="hazard-item">
+                        <span class="badge-char col-hazard-flare">&gt;==&gt;</span>
+                        <span class="hazard-desc">
+                          <strong>Storm Interceptor Drone (Red):</strong> Actively tracks probe X
+                          position to collide. Deals 22% hull damage.
+                        </span>
+                      </div>
+                      <div class="hazard-item">
+                        <span class="badge-char col-hazard-flare">/\/\</span>
+                        <span class="hazard-desc">
+                          <strong>Ion Flare Arc (Orange):</strong> Erratic zig-zagging plasma
+                          tendrils. Deals 20% hull damage.
+                        </span>
+                      </div>
+                      <div class="hazard-item">
+                        <span class="badge-char col-hazard-mine">(@*)</span>
+                        <span class="hazard-desc">
+                          <strong>Ion Cluster Mine (Violet):</strong> High explosive payload. Deals
+                          35% hull damage!
+                        </span>
+                      </div>
+                      <div class="hazard-item">
+                        <span class="badge-char col-upgrade">[==#==]</span>
+                        <span class="hazard-desc">
+                          <strong>Supercell Dreadnought (Amber Boss):</strong> Heavy armored boss
+                          (120 HP) yielding +800 PTS upon destruction!
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="rules-section">
+                    <span class="rules-sec-heading">05 // CARGO & SALVAGE DROPS</span>
+                    <div class="rules-drops-list">
+                      <div class="drop-item">
+                        <span class="badge-char col-collect">(+) [o] &lt;*&gt;</span>
+                        <span class="drop-desc">
+                          <strong>Telemetry Packets (Cyan):</strong> Collect for +100 / +250 / +500
+                          telemetry points.
+                        </span>
+                      </div>
+                      <div class="drop-item">
+                        <span class="badge-char col-upgrade">[^UPG^]</span>
+                        <span class="drop-desc">
+                          <strong>Weapon Core Upgrade (Gold):</strong> Upgrades cannon from 1 bullet
+                          &rarr; 2 bullets &rarr; 3 bullets spread shot!
+                        </span>
+                      </div>
+                      <div class="drop-item">
+                        <span class="badge-char col-heal">[HULL+]</span>
+                        <span class="drop-desc">
+                          <strong>Hull Repair Nanites (Green):</strong> Sparse restorative drop.
+                          Restores +25% hull integrity!
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="rules-section">
+                    <span class="rules-sec-heading">06 // TACTICAL KEYBINDINGS</span>
+                    <div class="keybinds-table">
+                      <span>
+                        <code>[A] / [D] / [←] / [→]</code> Steer Probe
+                      </span>
+                      <span>
+                        <code>[SPACE] / [CLICK]</code> Fire Cannons
+                      </span>
+                      <span>
+                        <code>[1] / [2] / [3]</code> Select Difficulty (CADET / VETERAN / APEX)
+                      </span>
+                      <span>
+                        <code>[E]</code> Radar EMP Sweep
+                      </span>
+                      <span>
+                        <code>[F]</code> Toggle Fullscreen
+                      </span>
+                      <span>
+                        <code>[H] / [?]</code> Toggle Flight Rules
+                      </span>
+                      <span>
+                        <code>[M]</code> Toggle Audio FX
+                      </span>
+                      <span>
+                        <code>[P]</code> Pause Mission
+                      </span>
+                      <span>
+                        <code>[R]</code> Re-Deploy Probe
+                      </span>
+                    </div>
+                  </div>
+                </div>
+                <div class="ascii-rules-footer">
+                  <button type="button" class="ascii-btn" id="asciiRulesDismissBtn">
+                    <span>ENGAGE STRATOS MISSION</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Control Deck (Touch & Directional Action Buttons) -->
+          <div class="ascii-control-deck">
+            <div class="touch-steer-controls">
+              <button
+                type="button"
+                class="ascii-btn ascii-touch-btn"
+                id="asciiBtnLeft"
+                aria-label="Steer Probe Left"
+              >
+                &lt; STEER LEFT [A]
+              </button>
+              <button
+                type="button"
+                class="ascii-btn ascii-touch-btn ascii-fire-btn"
+                id="asciiBtnFire"
+                aria-label="Fire Weapons"
+              >
+                FIRE CANNONS [SPACE]
+              </button>
+              <button
+                type="button"
+                class="ascii-btn ascii-touch-btn ascii-pulse-btn"
+                id="asciiBtnPulse"
+                aria-label="Discharge Radar EMP"
+              >
+                RADAR EMP [E]
+              </button>
+              <button
+                type="button"
+                class="ascii-btn ascii-touch-btn"
+                id="asciiBtnRight"
+                aria-label="Steer Probe Right"
+              >
+                STEER RIGHT [D] &gt;
+              </button>
+            </div>
+
+            <div class="ascii-action-controls">
+              <button
+                type="button"
+                class="ascii-btn"
+                id="asciiBtnRulesBottom"
+                title="View flight rules & engagement manual"
+              >
+                <span>RULES & MANUAL [H]</span>
+              </button>
+              <button
+                type="button"
+                class="ascii-btn ascii-retry-loc-btn"
+                id="asciiRetryLocBtn"
+                title="Retry GPS & IP location detection"
+              >
+                <svg
+                  viewBox="0 0 16 16"
+                  width="12"
+                  height="12"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="1.8"
+                >
+                  <circle cx="8" cy="8" r="3" />
+                  <path d="M8 1v2M8 13v2M1 8h2M13 8h2" />
+                </svg>
+                <span>RETRY LOCATION DETECTION</span>
+              </button>
+
+              <button
+                type="button"
+                class="ascii-btn"
+                id="asciiBtnRestart"
+                title="Restart ASCII game mission"
+              >
+                <span>RE-DEPLOY PROBE</span>
+              </button>
+
+              <button
+                type="button"
+                class="ascii-btn"
+                id="asciiBtnPause"
+                title="Pause or resume mission"
+              >
+                <span id="asciiPauseLabel">PAUSE</span>
+              </button>
+
+              <button
+                type="button"
+                class="ascii-btn ascii-telemetry-btn"
+                id="asciiReturnTelemetryBtn"
+                title="Return to weather telemetry grid"
+              >
+                <span>VIEW TELEMETRY</span>
+              </button>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   </div>

@@ -8,6 +8,7 @@ import { CURATED_MOVIES, USER_OTT_PLATFORMS, type MovieItem } from '../data/medi
 
 const coreGenres = [
   'ALL',
+  'Classic Indian Cinema',
   'Sci-Fi',
   'Cyberpunk',
   'Anime',
@@ -88,18 +89,76 @@ const coreGenres = [
 
       <!-- Tactical Dropdown Controls -->
       <div class="toolbar-dropdown-controls">
-        <div class="hud-select-wrap">
-          <label for="cinema-genre-select" class="hud-select-label">
+        <div class="hud-glass-select-wrap" id="cinema-genre-glass-wrap">
+          <label id="cinema-genre-label" class="hud-select-label">
             GENRE
           </label>
-          <select id="cinema-genre-select" class="hud-select" aria-label="Filter films by genre">
+          <button
+            type="button"
+            class="hud-glass-select-trigger"
+            id="cinema-genre-trigger"
+            aria-haspopup="listbox"
+            aria-expanded="false"
+            aria-labelledby="cinema-genre-label cinema-genre-selected-val"
+          >
+            <span class="glass-select-val" id="cinema-genre-selected-val">
+              ALL GENRES
+            </span>
+            <span class="glass-select-chevron" aria-hidden="true">
+              <svg
+                viewBox="0 0 10 6"
+                width="9"
+                height="6"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.6"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <path d="M1 1l4 4 4-4"></path>
+              </svg>
+            </span>
+          </button>
+
+          <!-- Custom Tactical Glass Dropdown Menu -->
+          <div
+            class="hud-glass-dropdown-menu"
+            id="cinema-genre-menu"
+            role="listbox"
+            aria-labelledby="cinema-genre-label"
+            tabindex="-1"
+            style="display: none;"
+          >
+            <div class="glass-dropdown-specular-edge" aria-hidden="true"></div>
+            <div class="glass-dropdown-scroll">
+              {coreGenres.map((g) => (
+                <div
+                  class:list={['glass-dropdown-item', { 'is-active': g === 'ALL' }]}
+                  role="option"
+                  data-value={g}
+                  aria-selected={g === 'ALL' ? 'true' : 'false'}
+                  tabindex="0"
+                >
+                  <span class="item-text">{g === 'ALL' ? 'ALL GENRES' : g.toUpperCase()}</span>
+                  <span class="item-check" aria-hidden="true">
+                    ✓
+                  </span>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <!-- Synchronized Hidden Select for Accessibility & Event Compatibility -->
+          <select
+            id="cinema-genre-select"
+            class="hud-select-hidden"
+            aria-hidden="true"
+            tabindex="-1"
+          >
             {coreGenres.map((g) => (
               <option value={g}>{g === 'ALL' ? 'ALL GENRES' : g.toUpperCase()}</option>
             ))}
           </select>
-          <span class="select-chevron" aria-hidden="true">
-            ▾
-          </span>
         </div>
 
         <button

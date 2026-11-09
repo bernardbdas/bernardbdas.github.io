@@ -110,6 +110,1464 @@ interface WindParticle {
   hue: number;
 }
 
+interface GameBullet {
+  x: number;
+  y: number;
+  vx: number;
+  vy: number;
+  symbol: string;
+  damage: number;
+  colorType: 'col-bullet-1' | 'col-bullet-2' | 'col-bullet-3';
+}
+
+export type GameDifficulty = 'CADET' | 'VETERAN' | 'APEX';
+
+export interface DifficultySettings {
+  name: GameDifficulty;
+  label: string;
+  speedMultiplier: number;
+  spawnRate: number;
+  maxObstacles: number;
+  scoreMultiplier: number;
+  damageMultiplier: number;
+  healDropChance: number;
+  upgradeDropChance: number;
+}
+
+export const DIFFICULTY_CONFIG: Record<GameDifficulty, DifficultySettings> = {
+  CADET: {
+    name: 'CADET',
+    label: 'CADET [1.0x]',
+    speedMultiplier: 1.0,
+    spawnRate: 0.045,
+    maxObstacles: 5,
+    scoreMultiplier: 1.0,
+    damageMultiplier: 1.0,
+    healDropChance: 0.012,
+    upgradeDropChance: 0.018,
+  },
+  VETERAN: {
+    name: 'VETERAN',
+    label: 'VETERAN [2.0x]',
+    speedMultiplier: 1.35,
+    spawnRate: 0.068,
+    maxObstacles: 7,
+    scoreMultiplier: 2.0,
+    damageMultiplier: 1.25,
+    healDropChance: 0.007,
+    upgradeDropChance: 0.013,
+  },
+  APEX: {
+    name: 'APEX',
+    label: 'APEX [3.5x]',
+    speedMultiplier: 1.75,
+    spawnRate: 0.095,
+    maxObstacles: 10,
+    scoreMultiplier: 3.5,
+    damageMultiplier: 1.5,
+    healDropChance: 0.003,
+    upgradeDropChance: 0.009,
+  },
+};
+
+interface GameObstacle {
+  x: number;
+  y: number;
+  symbol: string;
+  width: number;
+  damage: number;
+  hp: number;
+  colorType:
+    | 'col-hazard-meteor'
+    | 'col-hazard-flare'
+    | 'col-hazard-plasma'
+    | 'col-hazard-mine'
+    | 'col-hazard-interceptor'
+    | 'col-hazard-dreadnought'
+    | 'col-upgrade';
+  type?: 'meteor' | 'interceptor' | 'flare' | 'mine' | 'dreadnought';
+}
+
+interface GameCollectible {
+  x: number;
+  y: number;
+  symbol: string;
+  width: number;
+  type: 'points' | 'weapon' | 'health';
+  points: number;
+  heal: number;
+  colorType: 'col-collect' | 'col-upgrade' | 'col-heal';
+}
+
+interface WindStreamer {
+  x: number;
+  y: number;
+  char: string;
+  speed: number;
+}
+
+interface AsciiCell {
+  char: string;
+  color: string;
+}
+
+/**
+ * AsciiAudioSynthesizer — Retro 8-bit / Sci-Fi Audio Synthesizer
+ * Uses Web Audio API to produce zero-latency hardware synth audio effects.
+ */
+class AsciiAudioSynthesizer {
+  private ctx: AudioContext | null = null;
+  private isMuted: boolean = false;
+
+  private getAudioContext(): AudioContext | null {
+    if (this.isMuted) return null;
+    if (!this.ctx && typeof window !== 'undefined') {
+      const AudioCtx = window.AudioContext || (window as any).webkitAudioContext;
+      if (AudioCtx) {
+        this.ctx = new AudioCtx();
+      }
+    }
+    if (this.ctx && this.ctx.state === 'suspended') {
+      this.ctx.resume().catch(() => {});
+    }
+    return this.ctx;
+  }
+
+  public toggleMute(): boolean {
+    this.isMuted = !this.isMuted;
+    return this.isMuted;
+  }
+
+  public getMuted(): boolean {
+    return this.isMuted;
+  }
+
+  public playLaser(level: number): void {
+    const ctx = this.getAudioContext();
+    if (!ctx) return;
+    try {
+      const now = ctx.currentTime;
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+
+      const baseFreq = level === 1 ? 880 : level === 2 ? 1100 : 1320;
+      osc.type = level === 3 ? 'sawtooth' : 'triangle';
+      osc.frequency.setValueAtTime(baseFreq, now);
+      osc.frequency.exponentialRampToValueAtTime(110, now + 0.09);
+
+      gain.gain.setValueAtTime(0.08, now);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.09);
+
+      osc.start(now);
+      osc.stop(now + 0.09);
+    } catch {
+      // AudioContext policy suppression fallback
+    }
+  }
+
+  public playHit(): void {
+    const ctx = this.getAudioContext();
+    if (!ctx) return;
+    try {
+      const now = ctx.currentTime;
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+
+      osc.type = 'square';
+      osc.frequency.setValueAtTime(260, now);
+      osc.frequency.exponentialRampToValueAtTime(50, now + 0.12);
+
+      gain.gain.setValueAtTime(0.1, now);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.12);
+
+      osc.start(now);
+      osc.stop(now + 0.12);
+    } catch {}
+  }
+
+  public playCollect(): void {
+    const ctx = this.getAudioContext();
+    if (!ctx) return;
+    try {
+      const now = ctx.currentTime;
+      [587.33, 880].forEach((freq, idx) => {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(freq, now + idx * 0.06);
+        gain.gain.setValueAtTime(0.07, now + idx * 0.06);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.06 + 0.1);
+        osc.start(now + idx * 0.06);
+        osc.stop(now + idx * 0.06 + 0.1);
+      });
+    } catch {}
+  }
+
+  public playUpgrade(): void {
+    const ctx = this.getAudioContext();
+    if (!ctx) return;
+    try {
+      const now = ctx.currentTime;
+      [523.25, 659.25, 783.99, 1046.5].forEach((freq, idx) => {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(freq, now + idx * 0.07);
+        gain.gain.setValueAtTime(0.09, now + idx * 0.07);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.07 + 0.12);
+        osc.start(now + idx * 0.07);
+        osc.stop(now + idx * 0.07 + 0.12);
+      });
+    } catch {}
+  }
+
+  public playHeal(): void {
+    const ctx = this.getAudioContext();
+    if (!ctx) return;
+    try {
+      const now = ctx.currentTime;
+      [440, 554.37, 659.25].forEach((freq, idx) => {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(freq, now + idx * 0.08);
+        gain.gain.setValueAtTime(0.09, now + idx * 0.08);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.08 + 0.16);
+        osc.start(now + idx * 0.08);
+        osc.stop(now + idx * 0.08 + 0.16);
+      });
+    } catch {}
+  }
+
+  public playDamage(): void {
+    const ctx = this.getAudioContext();
+    if (!ctx) return;
+    try {
+      const now = ctx.currentTime;
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.type = 'sawtooth';
+      osc.frequency.setValueAtTime(140, now);
+      osc.frequency.linearRampToValueAtTime(50, now + 0.22);
+      gain.gain.setValueAtTime(0.14, now);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.22);
+      osc.start(now);
+      osc.stop(now + 0.22);
+    } catch {}
+  }
+
+  public playPulse(): void {
+    const ctx = this.getAudioContext();
+    if (!ctx) return;
+    try {
+      const now = ctx.currentTime;
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.type = 'sawtooth';
+      osc.frequency.setValueAtTime(180, now);
+      osc.frequency.exponentialRampToValueAtTime(1100, now + 0.3);
+      gain.gain.setValueAtTime(0.12, now);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.35);
+      osc.start(now);
+      osc.stop(now + 0.35);
+    } catch {}
+  }
+
+  public playGameOver(): void {
+    const ctx = this.getAudioContext();
+    if (!ctx) return;
+    try {
+      const now = ctx.currentTime;
+      [329.63, 293.66, 261.63, 196.0].forEach((freq, idx) => {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(freq, now + idx * 0.14);
+        gain.gain.setValueAtTime(0.09, now + idx * 0.14);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.14 + 0.18);
+        osc.start(now + idx * 0.14);
+        osc.stop(now + idx * 0.14 + 0.18);
+      });
+    } catch {}
+  }
+
+  public playDifficulty(): void {
+    const ctx = this.getAudioContext();
+    if (!ctx) return;
+    try {
+      const now = ctx.currentTime;
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.type = 'triangle';
+      osc.frequency.setValueAtTime(587.33, now); // D5
+      osc.frequency.setValueAtTime(880, now + 0.05); // A5
+      gain.gain.setValueAtTime(0.08, now);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.14);
+      osc.start(now);
+      osc.stop(now + 0.14);
+    } catch {}
+  }
+}
+
+/**
+ * AsciiAtmosphericGame — Multi-Color Atmospheric Sensor Probe Escort Game
+ * Features full CRT rendering, upgradeable 1-to-3 bullet blasters, sparse hull repairs,
+ * fullscreen mode, audio synthesizers, and tactical flight manual.
+ */
+export class AsciiAtmosphericGame {
+  private screenEl: HTMLElement | null = null;
+  private altEl: HTMLElement | null = null;
+  private scoreEl: HTMLElement | null = null;
+  private bestEl: HTMLElement | null = null;
+  private shieldEl: HTMLElement | null = null;
+  private empEl: HTMLElement | null = null;
+  private wepEl: HTMLElement | null = null;
+  private pauseLabelEl: HTMLElement | null = null;
+  private fsLabelEl: HTMLElement | null = null;
+  private audioLabelEl: HTMLElement | null = null;
+  private rulesOverlayEl: HTMLElement | null = null;
+  private diffHudEl: HTMLElement | null = null;
+  private diffBtns: NodeListOf<HTMLButtonElement> | null = null;
+
+  // Active Difficulty
+  private difficulty: GameDifficulty = 'CADET';
+
+  private mode: 'START' | 'PLAYING' | 'PAUSED' | 'GAMEOVER' = 'START';
+  private frameId: number | null = null;
+  private lastTime: number = 0;
+  private animTick: number = 0;
+
+  private readonly cols = 52;
+  private readonly rows = 21;
+
+  private probeX = 26;
+  private shield = 100;
+  private score = 0;
+  private altitude = 10000;
+  private highScore = 0;
+  private empCooldown = 0;
+  private pulseActive = false;
+  private pulseY = 0;
+
+  // Weapon systems & bullet arsenal
+  private weaponLevel = 1; // 1: Single Pulse, 2: Dual Blaster, 3: Triple Plasma Spread
+  private bullets: GameBullet[] = [];
+  private fireCooldown = 0;
+
+  // Audio synthesizer
+  private audio = new AsciiAudioSynthesizer();
+
+  private obstacles: GameObstacle[] = [];
+  private collectibles: GameCollectible[] = [];
+  private streamers: WindStreamer[] = [];
+
+  private statusMessage = '';
+  private statusTimer = 0;
+
+  private isFullscreen = false;
+  private isRulesOpen = false;
+
+  private keys = { left: false, right: false, space: false };
+  private isBound = false;
+
+  constructor() {
+    try {
+      this.highScore = parseInt(localStorage.getItem('weather_ascii_game_highscore') || '0', 10);
+      const savedDiff = localStorage.getItem('stratos_game_difficulty') as GameDifficulty;
+      if (savedDiff && DIFFICULTY_CONFIG[savedDiff]) {
+        this.difficulty = savedDiff;
+      }
+    } catch {
+      this.highScore = 0;
+    }
+    this.initDOM();
+    this.initStreamers();
+  }
+
+  public initDOM(): void {
+    this.screenEl = document.getElementById('asciiGameScreen');
+    this.altEl = document.getElementById('asciiHudAltitude');
+    this.scoreEl = document.getElementById('asciiHudScore');
+    this.bestEl = document.getElementById('asciiHudBest');
+    this.shieldEl = document.getElementById('asciiHudShield');
+    this.empEl = document.getElementById('asciiHudEmp');
+    this.wepEl = document.getElementById('asciiHudWeapon');
+    this.pauseLabelEl = document.getElementById('asciiPauseLabel');
+    this.fsLabelEl = document.getElementById('asciiFullscreenLabel');
+    this.audioLabelEl = document.getElementById('asciiAudioLabel');
+    this.rulesOverlayEl = document.getElementById('asciiRulesOverlay');
+    this.diffHudEl = document.getElementById('asciiHudDifficulty');
+    this.diffBtns = document.querySelectorAll('.ascii-diff-btn');
+
+    this.syncDifficultyUI();
+    this.bindControls();
+    this.render();
+  }
+
+  public setDifficulty(diff: GameDifficulty): void {
+    if (!DIFFICULTY_CONFIG[diff]) return;
+    this.difficulty = diff;
+    try {
+      localStorage.setItem('stratos_game_difficulty', diff);
+    } catch {}
+    this.syncDifficultyUI();
+    this.audio.playDifficulty();
+    this.statusMessage = `DIFFICULTY ENGAGED: ${diff} (${DIFFICULTY_CONFIG[diff].scoreMultiplier}x SCORE MULTIPLIER)`;
+    this.statusTimer = 2200;
+    this.render();
+  }
+
+  private syncDifficultyUI(): void {
+    if (this.diffBtns) {
+      this.diffBtns.forEach((btn) => {
+        const d = btn.getAttribute('data-diff');
+        btn.classList.toggle('is-active', d === this.difficulty);
+      });
+    }
+    if (this.diffHudEl) {
+      const cfg = DIFFICULTY_CONFIG[this.difficulty];
+      this.diffHudEl.textContent = cfg.label;
+      this.diffHudEl.className =
+        'hud-val ' +
+        (this.difficulty === 'CADET'
+          ? 'diff-cadet'
+          : this.difficulty === 'VETERAN'
+            ? 'diff-veteran'
+            : 'diff-apex');
+    }
+  }
+
+  private initStreamers(): void {
+    this.streamers = [];
+    const chars = ['·', '.', "'", ':', '|', '`'];
+    for (let i = 0; i < 24; i++) {
+      this.streamers.push({
+        x: Math.floor(Math.random() * (this.cols - 4)) + 2,
+        y: Math.floor(Math.random() * (this.rows - 2)) + 1,
+        char: chars[Math.floor(Math.random() * chars.length)],
+        speed: 0.25 + Math.random() * 0.45,
+      });
+    }
+  }
+
+  private bindControls(): void {
+    if (this.isBound || typeof window === 'undefined') return;
+    this.isBound = true;
+
+    window.addEventListener('keydown', (e) => {
+      const bay = document.getElementById('weatherAsciiGameBay');
+      if (!bay || bay.style.display === 'none') return;
+
+      if (e.key === 'ArrowLeft' || e.key === 'a' || e.key === 'A') {
+        this.keys.left = true;
+        e.preventDefault();
+      } else if (e.key === 'ArrowRight' || e.key === 'd' || e.key === 'D') {
+        this.keys.right = true;
+        e.preventDefault();
+      } else if (e.key === ' ' || e.key === 'ArrowUp' || e.key === 'w' || e.key === 'W') {
+        e.preventDefault();
+        this.keys.space = true;
+        if (this.mode === 'START' || this.mode === 'GAMEOVER') {
+          this.startMission();
+        } else if (this.mode === 'PLAYING') {
+          this.fireBullets();
+        }
+      } else if (e.key === 'e' || e.key === 'E') {
+        e.preventDefault();
+        if (this.mode === 'PLAYING') {
+          this.triggerRadarPulse();
+        }
+      } else if (e.key === 'f' || e.key === 'F') {
+        e.preventDefault();
+        this.toggleFullscreen();
+      } else if (e.key === 'h' || e.key === 'H' || e.key === '?') {
+        e.preventDefault();
+        this.toggleRules();
+      } else if (e.key === 'm' || e.key === 'M') {
+        e.preventDefault();
+        this.toggleAudio();
+      } else if (e.key === 'p' || e.key === 'P') {
+        e.preventDefault();
+        this.togglePause();
+      } else if (e.key === 'r' || e.key === 'R') {
+        e.preventDefault();
+        this.startMission();
+      } else if (e.key === '1') {
+        e.preventDefault();
+        this.setDifficulty('CADET');
+      } else if (e.key === '2') {
+        e.preventDefault();
+        this.setDifficulty('VETERAN');
+      } else if (e.key === '3') {
+        e.preventDefault();
+        this.setDifficulty('APEX');
+      } else if (e.key === 'Escape') {
+        if (this.isRulesOpen) {
+          this.toggleRules();
+        } else if (this.isFullscreen) {
+          this.toggleFullscreen();
+        }
+      }
+    });
+
+    window.addEventListener('keyup', (e) => {
+      if (e.key === 'ArrowLeft' || e.key === 'a' || e.key === 'A') {
+        this.keys.left = false;
+      } else if (e.key === 'ArrowRight' || e.key === 'd' || e.key === 'D') {
+        this.keys.right = false;
+      } else if (e.key === ' ' || e.key === 'ArrowUp' || e.key === 'w' || e.key === 'W') {
+        this.keys.space = false;
+      }
+    });
+
+    // Button controls
+    const btnLeft = document.getElementById('asciiBtnLeft');
+    const btnRight = document.getElementById('asciiBtnRight');
+    const btnFire = document.getElementById('asciiBtnFire');
+    const btnPulse = document.getElementById('asciiBtnPulse');
+    const btnRestart = document.getElementById('asciiBtnRestart');
+    const btnPause = document.getElementById('asciiBtnPause');
+    const btnRulesTop = document.getElementById('asciiBtnRulesTop');
+    const btnRulesBottom = document.getElementById('asciiBtnRulesBottom');
+    const btnRulesClose = document.getElementById('asciiRulesCloseBtn');
+    const btnRulesDismiss = document.getElementById('asciiRulesDismissBtn');
+    const btnFullscreen = document.getElementById('asciiBtnFullscreen');
+    const btnAudio = document.getElementById('asciiBtnAudio');
+    const screen = this.screenEl;
+
+    const bindTouch = (el: HTMLElement | null, onDown: () => void, onUp: () => void) => {
+      if (!el) return;
+      el.addEventListener('mousedown', (e) => {
+        e.preventDefault();
+        onDown();
+      });
+      el.addEventListener('mouseup', (e) => {
+        e.preventDefault();
+        onUp();
+      });
+      el.addEventListener('mouseleave', (e) => {
+        e.preventDefault();
+        onUp();
+      });
+      el.addEventListener(
+        'touchstart',
+        (e) => {
+          e.preventDefault();
+          onDown();
+        },
+        { passive: false },
+      );
+      el.addEventListener('touchend', (e) => {
+        e.preventDefault();
+        onUp();
+      });
+    };
+
+    bindTouch(
+      btnLeft,
+      () => {
+        this.keys.left = true;
+      },
+      () => {
+        this.keys.left = false;
+      },
+    );
+    bindTouch(
+      btnRight,
+      () => {
+        this.keys.right = true;
+      },
+      () => {
+        this.keys.right = false;
+      },
+    );
+
+    btnFire?.addEventListener('click', (e) => {
+      e.preventDefault();
+      if (this.mode === 'START' || this.mode === 'GAMEOVER') {
+        this.startMission();
+      } else {
+        this.fireBullets();
+      }
+    });
+
+    btnPulse?.addEventListener('click', (e) => {
+      e.preventDefault();
+      if (this.mode === 'START' || this.mode === 'GAMEOVER') {
+        this.startMission();
+      } else {
+        this.triggerRadarPulse();
+      }
+    });
+
+    btnRestart?.addEventListener('click', (e) => {
+      e.preventDefault();
+      this.startMission();
+    });
+
+    btnPause?.addEventListener('click', (e) => {
+      e.preventDefault();
+      this.togglePause();
+    });
+
+    btnRulesTop?.addEventListener('click', (e) => {
+      e.preventDefault();
+      this.toggleRules();
+    });
+    btnRulesBottom?.addEventListener('click', (e) => {
+      e.preventDefault();
+      this.toggleRules();
+    });
+    btnRulesClose?.addEventListener('click', (e) => {
+      e.preventDefault();
+      this.toggleRules();
+    });
+    btnRulesDismiss?.addEventListener('click', (e) => {
+      e.preventDefault();
+      this.toggleRules();
+    });
+
+    btnFullscreen?.addEventListener('click', (e) => {
+      e.preventDefault();
+      this.toggleFullscreen();
+    });
+
+    btnAudio?.addEventListener('click', (e) => {
+      e.preventDefault();
+      this.toggleAudio();
+    });
+
+    document.querySelectorAll<HTMLButtonElement>('.ascii-diff-btn').forEach((btn) => {
+      btn.addEventListener('click', (e) => {
+        e.preventDefault();
+        const diff = btn.getAttribute('data-diff') as GameDifficulty;
+        if (diff) this.setDifficulty(diff);
+      });
+    });
+
+    screen?.addEventListener('click', (e) => {
+      e.preventDefault();
+      if (this.mode === 'START' || this.mode === 'GAMEOVER') {
+        this.startMission();
+      } else if (this.mode === 'PLAYING') {
+        this.fireBullets();
+      }
+    });
+
+    // Listen for OS fullscreen change to synchronize button state
+    document.addEventListener('fullscreenchange', () => {
+      const bay = document.getElementById('weatherAsciiGameBay');
+      const modal = document.getElementById('weatherDashboardModal');
+      const card = document.getElementById('weatherModalCard');
+      const isDocFs = !!document.fullscreenElement;
+      if (!isDocFs && this.isFullscreen) {
+        this.isFullscreen = false;
+        bay?.classList.remove('is-ascii-fullscreen');
+        modal?.classList.remove('has-ascii-fullscreen');
+        card?.classList.remove('has-ascii-fullscreen');
+        if (this.fsLabelEl) this.fsLabelEl.textContent = 'FULLSCREEN [F]';
+      }
+    });
+  }
+
+  public toggleFullscreen(): void {
+    const bay = document.getElementById('weatherAsciiGameBay');
+    const modal = document.getElementById('weatherDashboardModal');
+    const card = document.getElementById('weatherModalCard');
+    if (!bay) return;
+    this.isFullscreen = !this.isFullscreen;
+
+    bay.classList.toggle('is-ascii-fullscreen', this.isFullscreen);
+    modal?.classList.toggle('has-ascii-fullscreen', this.isFullscreen);
+    card?.classList.toggle('has-ascii-fullscreen', this.isFullscreen);
+
+    if (this.isFullscreen) {
+      if (this.fsLabelEl) this.fsLabelEl.textContent = 'EXIT FULLSCREEN [F]';
+      if (bay.requestFullscreen) {
+        bay.requestFullscreen().catch(() => {});
+      }
+    } else {
+      if (this.fsLabelEl) this.fsLabelEl.textContent = 'FULLSCREEN [F]';
+      if (document.fullscreenElement && document.exitFullscreen) {
+        document.exitFullscreen().catch(() => {});
+      }
+    }
+  }
+
+  public toggleRules(): void {
+    this.isRulesOpen = !this.isRulesOpen;
+    if (this.rulesOverlayEl) {
+      this.rulesOverlayEl.style.display = this.isRulesOpen ? 'flex' : 'none';
+    }
+    if (this.isRulesOpen && this.mode === 'PLAYING') {
+      this.pause();
+    }
+  }
+
+  public toggleAudio(): void {
+    const isMuted = this.audio.toggleMute();
+    if (this.audioLabelEl) {
+      this.audioLabelEl.textContent = isMuted ? 'AUDIO: OFF [M]' : 'AUDIO: ON [M]';
+    }
+  }
+
+  public start(): void {
+    if (this.frameId) return;
+    this.lastTime = performance.now();
+    const loop = (time: number) => {
+      const dt = Math.min(time - this.lastTime, 100);
+      this.lastTime = time;
+      this.update(dt);
+      this.render();
+      this.frameId = requestAnimationFrame(loop);
+    };
+    this.frameId = requestAnimationFrame(loop);
+  }
+
+  public stop(): void {
+    if (this.frameId) {
+      cancelAnimationFrame(this.frameId);
+      this.frameId = null;
+    }
+  }
+
+  public pause(): void {
+    if (this.mode === 'PLAYING') {
+      this.mode = 'PAUSED';
+      if (this.pauseLabelEl) this.pauseLabelEl.textContent = 'RESUME';
+      this.render();
+    }
+  }
+
+  public resume(): void {
+    if (this.mode === 'PAUSED') {
+      this.mode = 'PLAYING';
+      if (this.pauseLabelEl) this.pauseLabelEl.textContent = 'PAUSE';
+    }
+    this.start();
+  }
+
+  public togglePause(): void {
+    if (this.mode === 'PLAYING') {
+      this.pause();
+    } else if (this.mode === 'PAUSED') {
+      this.resume();
+    }
+  }
+
+  public startMission(): void {
+    this.mode = 'PLAYING';
+    this.shield = 100;
+    this.score = 0;
+    this.altitude = 10000;
+    this.empCooldown = 0;
+    this.pulseActive = false;
+    this.weaponLevel = 1;
+    this.bullets = [];
+    this.obstacles = [];
+    this.collectibles = [];
+    this.probeX = 26;
+    this.statusMessage = 'ATMOSPHERIC SENSOR PROBE DEPLOYED';
+    this.statusTimer = 2200;
+    if (this.pauseLabelEl) this.pauseLabelEl.textContent = 'PAUSE';
+    if (this.rulesOverlayEl) this.rulesOverlayEl.style.display = 'none';
+    this.isRulesOpen = false;
+    this.audio.playLaser(1);
+    this.start();
+  }
+
+  public fireBullets(): void {
+    if (this.mode !== 'PLAYING' || this.fireCooldown > 0) return;
+    this.fireCooldown = 180; // milliseconds between rapid shots
+
+    this.audio.playLaser(this.weaponLevel);
+
+    const px = Math.round(this.probeX);
+    if (this.weaponLevel === 1) {
+      // Level 1: 1 forward kinetic tracer
+      this.bullets.push({
+        x: px,
+        y: 15,
+        vx: 0,
+        vy: -0.9,
+        symbol: '^',
+        damage: 30,
+        colorType: 'col-bullet-1',
+      });
+    } else if (this.weaponLevel === 2) {
+      // Level 2: 2 parallel dual blasters
+      this.bullets.push(
+        {
+          x: px - 1.5,
+          y: 15,
+          vx: 0,
+          vy: -0.92,
+          symbol: '^',
+          damage: 30,
+          colorType: 'col-bullet-2',
+        },
+        {
+          x: px + 1.5,
+          y: 15,
+          vx: 0,
+          vy: -0.92,
+          symbol: '^',
+          damage: 30,
+          colorType: 'col-bullet-2',
+        },
+      );
+    } else {
+      // Level 3: 3-way triple plasma spread
+      this.bullets.push(
+        {
+          x: px,
+          y: 15,
+          vx: 0,
+          vy: -0.95,
+          symbol: '|',
+          damage: 35,
+          colorType: 'col-bullet-3',
+        },
+        {
+          x: px - 1.5,
+          y: 15,
+          vx: -0.25,
+          vy: -0.85,
+          symbol: '\\',
+          damage: 30,
+          colorType: 'col-bullet-3',
+        },
+        {
+          x: px + 1.5,
+          y: 15,
+          vx: 0.25,
+          vy: -0.85,
+          symbol: '/',
+          damage: 30,
+          colorType: 'col-bullet-3',
+        },
+      );
+    }
+  }
+
+  public triggerRadarPulse(): void {
+    if (this.empCooldown > 0 || this.mode !== 'PLAYING') return;
+    this.pulseActive = true;
+    this.pulseY = 17;
+    this.empCooldown = 4500;
+
+    this.audio.playPulse();
+
+    let vaporizedCount = 0;
+    this.obstacles = this.obstacles.filter((obs) => {
+      if (obs.y < 18) {
+        vaporizedCount++;
+        return false;
+      }
+      return true;
+    });
+
+    const bonus = vaporizedCount * 60;
+    this.score += bonus;
+    this.statusMessage =
+      bonus > 0
+        ? `RADAR EMP: ${vaporizedCount} HAZARDS NEUTRALIZED (+${bonus} PTS)`
+        : 'RADAR EMP SHOCKWAVE DISCHARGED';
+    this.statusTimer = 2200;
+  }
+
+  private update(dt: number): void {
+    this.animTick++;
+
+    if (this.statusTimer > 0) {
+      this.statusTimer -= dt;
+      if (this.statusTimer <= 0) this.statusMessage = '';
+    }
+
+    if (this.empCooldown > 0) {
+      this.empCooldown = Math.max(0, this.empCooldown - dt);
+    }
+
+    if (this.fireCooldown > 0) {
+      this.fireCooldown = Math.max(0, this.fireCooldown - dt);
+    }
+
+    // Background wind streamers update
+    for (const st of this.streamers) {
+      st.y += st.speed;
+      if (st.y >= this.rows - 1) {
+        st.y = 1;
+        st.x = Math.floor(Math.random() * (this.cols - 4)) + 2;
+      }
+    }
+
+    if (this.mode !== 'PLAYING') return;
+
+    // Progression scaled by active difficulty
+    const cfg = DIFFICULTY_CONFIG[this.difficulty];
+    this.altitude += Math.round(12 * cfg.speedMultiplier);
+    this.score += Math.max(1, Math.round(1 * cfg.scoreMultiplier));
+    if (this.score > this.highScore) {
+      this.highScore = this.score;
+      try {
+        localStorage.setItem('weather_ascii_game_highscore', this.highScore.toString());
+      } catch {
+        // ignore storage errors
+      }
+    }
+
+    // Steer probe
+    if (this.keys.left) this.probeX -= 0.65;
+    if (this.keys.right) this.probeX += 0.65;
+    this.probeX = Math.max(4, Math.min(this.cols - 5, this.probeX));
+
+    // Continuous fire if space is held
+    if (this.keys.space && this.fireCooldown <= 0) {
+      this.fireBullets();
+    }
+
+    // Pulse wave movement
+    if (this.pulseActive) {
+      this.pulseY -= 0.75;
+      if (this.pulseY <= 1) {
+        this.pulseActive = false;
+      }
+    }
+
+    // Advance bullets
+    for (let i = this.bullets.length - 1; i >= 0; i--) {
+      const b = this.bullets[i];
+      b.x += b.vx;
+      b.y += b.vy;
+
+      if (b.y <= 1 || b.x <= 1 || b.x >= this.cols - 2) {
+        this.bullets.splice(i, 1);
+        continue;
+      }
+
+      // Check collision with obstacles
+      let hit = false;
+      for (let j = this.obstacles.length - 1; j >= 0; j--) {
+        const obs = this.obstacles[j];
+        if (Math.abs(b.y - obs.y) < 1.2 && b.x >= obs.x - 0.5 && b.x <= obs.x + obs.width + 0.5) {
+          obs.hp -= b.damage;
+          this.audio.playHit();
+          hit = true;
+
+          if (obs.hp <= 0) {
+            const reward =
+              obs.type === 'dreadnought'
+                ? Math.round(800 * cfg.scoreMultiplier)
+                : Math.round(obs.damage * 4 * cfg.scoreMultiplier);
+            this.score += reward;
+            this.statusMessage =
+              obs.type === 'dreadnought'
+                ? `DREADNOUGHT VAPORIZED (+${reward} PTS)!`
+                : `HAZARD DESTROYED (+${reward} PTS)`;
+            this.statusTimer = 1600;
+            this.obstacles.splice(j, 1);
+          }
+          break;
+        }
+      }
+
+      if (hit) {
+        this.bullets.splice(i, 1);
+      }
+    }
+
+    // Spawn hazards dynamically based on difficulty
+    if (this.obstacles.length < cfg.maxObstacles && Math.random() < cfg.spawnRate) {
+      const types = [
+        {
+          symbol: '[###]',
+          width: 5,
+          damage: Math.round(25 * cfg.damageMultiplier),
+          hp: 50,
+          colorType: 'col-hazard-meteor' as const,
+          type: 'meteor' as const,
+        },
+        {
+          symbol: '>==>',
+          width: 4,
+          damage: Math.round(22 * cfg.damageMultiplier),
+          hp: 35,
+          colorType: 'col-hazard-meteor' as const,
+          type: 'interceptor' as const,
+        },
+        {
+          symbol: '/\\/\\',
+          width: 4,
+          damage: Math.round(20 * cfg.damageMultiplier),
+          hp: 30,
+          colorType: 'col-hazard-flare' as const,
+          type: 'flare' as const,
+        },
+        {
+          symbol: '~~~~~',
+          width: 5,
+          damage: Math.round(25 * cfg.damageMultiplier),
+          hp: 40,
+          colorType: 'col-hazard-plasma' as const,
+          type: 'flare' as const,
+        },
+        {
+          symbol: '(@*)',
+          width: 4,
+          damage: Math.round(35 * cfg.damageMultiplier),
+          hp: 25,
+          colorType: 'col-hazard-mine' as const,
+          type: 'mine' as const,
+        },
+      ];
+
+      // Add Dreadnought Boss at high altitudes or on APEX mode
+      const hasDreadnought = this.obstacles.some((o) => o.type === 'dreadnought');
+      if (
+        !hasDreadnought &&
+        this.altitude >= 13500 &&
+        Math.random() < (this.difficulty === 'APEX' ? 0.35 : 0.15)
+      ) {
+        types.push({
+          symbol: '[==#==]',
+          width: 7,
+          damage: Math.round(45 * cfg.damageMultiplier),
+          hp: 120,
+          colorType: 'col-upgrade' as const,
+          type: 'dreadnought' as const,
+        });
+      }
+
+      const pick = types[Math.floor(Math.random() * types.length)];
+      const x = Math.floor(Math.random() * (this.cols - pick.width - 4)) + 2;
+      this.obstacles.push({
+        x,
+        y: 1,
+        symbol: pick.symbol,
+        width: pick.width,
+        damage: pick.damage,
+        hp: pick.hp,
+        colorType: pick.colorType,
+        type: pick.type,
+      });
+    }
+
+    // Spawn non-hazardous collectibles & upgrades
+    if (this.collectibles.length < 3) {
+      const hasUpgrade = this.collectibles.some((c) => c.type === 'weapon');
+      const hasHealth = this.collectibles.some((c) => c.type === 'health');
+
+      // 1. Weapon Upgrade drop (Gold): upgrade bullets from 1 -> 2 -> 3
+      if (!hasUpgrade && Math.random() < cfg.upgradeDropChance) {
+        const x = Math.floor(Math.random() * (this.cols - 11)) + 2;
+        this.collectibles.push({
+          x,
+          y: 1,
+          symbol: '[^UPG^]',
+          width: 7,
+          type: 'weapon',
+          points: 300,
+          heal: 0,
+          colorType: 'col-upgrade',
+        });
+      }
+      // 2. Sparse Health drops (Emerald Green): restore +25% hull integrity
+      else if (
+        !hasHealth &&
+        Math.random() < (this.shield < 40 ? cfg.healDropChance * 2 : cfg.healDropChance)
+      ) {
+        const x = Math.floor(Math.random() * (this.cols - 10)) + 2;
+        this.collectibles.push({
+          x,
+          y: 1,
+          symbol: '[HULL+]',
+          width: 6,
+          type: 'health',
+          points: 150,
+          heal: 25,
+          colorType: 'col-heal',
+        });
+      }
+      // 3. Regular telemetry packets (Cyan)
+      else if (Math.random() < 0.024) {
+        const types = [
+          { symbol: '(+)', width: 3, points: 100, heal: 3 },
+          { symbol: '[o]', width: 3, points: 250, heal: 5 },
+          { symbol: '<*>', width: 3, points: 500, heal: 8 },
+        ];
+        const pick = types[Math.floor(Math.random() * types.length)];
+        const x = Math.floor(Math.random() * (this.cols - pick.width - 4)) + 2;
+        this.collectibles.push({
+          x,
+          y: 1,
+          symbol: pick.symbol,
+          width: pick.width,
+          type: 'points',
+          points: pick.points,
+          heal: pick.heal,
+          colorType: 'col-collect',
+        });
+      }
+    }
+
+    const currentSpeed =
+      (0.3 + Math.min((this.altitude - 10000) / 75000, 0.45)) * cfg.speedMultiplier;
+
+    // Update obstacles with AI behaviors
+    for (let i = this.obstacles.length - 1; i >= 0; i--) {
+      const obs = this.obstacles[i];
+      obs.y += currentSpeed;
+
+      // Enemy AI behaviors based on hazard type
+      if (obs.type === 'interceptor') {
+        const px = this.probeX;
+        if (obs.x < px - 1) obs.x += 0.22 * cfg.speedMultiplier;
+        else if (obs.x > px + 1) obs.x -= 0.22 * cfg.speedMultiplier;
+      } else if (obs.type === 'flare') {
+        obs.x += Math.sin(this.animTick * 0.2 + obs.y) * 0.4 * cfg.speedMultiplier;
+      }
+      obs.x = Math.max(2, Math.min(this.cols - obs.width - 2, obs.x));
+
+      // Pulse wave collision
+      if (this.pulseActive && Math.abs(obs.y - this.pulseY) < 1.5) {
+        this.score += Math.round(60 * cfg.scoreMultiplier);
+        this.obstacles.splice(i, 1);
+        continue;
+      }
+
+      // Player collision (probe rows 16..18)
+      if (obs.y >= 16 && obs.y <= 18.5) {
+        const probeCenter = Math.round(this.probeX);
+        const obsLeft = obs.x;
+        const obsRight = obs.x + obs.width;
+        if (obsRight >= probeCenter - 2 && obsLeft <= probeCenter + 2) {
+          this.shield = Math.max(0, this.shield - obs.damage);
+          this.statusMessage = `! HULL IMPACT: -${obs.damage}% SHIELD !`;
+          this.statusTimer = 1800;
+          this.audio.playDamage();
+          if (this.screenEl) {
+            this.screenEl.classList.remove('crt-shake');
+            void this.screenEl.offsetWidth;
+            this.screenEl.classList.add('crt-shake');
+          }
+          this.obstacles.splice(i, 1);
+
+          if (this.shield <= 0) {
+            this.mode = 'GAMEOVER';
+            this.statusMessage = 'STRATOS PROBE HULL SEVERED';
+            if (this.pauseLabelEl) this.pauseLabelEl.textContent = 'PAUSE';
+            this.audio.playGameOver();
+          }
+          continue;
+        }
+      }
+
+      if (obs.y >= this.rows - 1) {
+        this.obstacles.splice(i, 1);
+      }
+    }
+
+    // Update collectibles
+    for (let i = this.collectibles.length - 1; i >= 0; i--) {
+      const col = this.collectibles[i];
+      col.y += currentSpeed * 0.9;
+
+      // Player collision
+      if (col.y >= 16 && col.y <= 18.5) {
+        const probeCenter = Math.round(this.probeX);
+        const colLeft = col.x;
+        const colRight = col.x + col.width;
+        if (colRight >= probeCenter - 2 && colLeft <= probeCenter + 2) {
+          if (col.type === 'weapon') {
+            if (this.weaponLevel < 3) {
+              this.weaponLevel++;
+              const label = this.weaponLevel === 2 ? 'DUAL ION BLASTERS' : 'TRIPLE PLASMA SPREAD';
+              this.statusMessage = `WEAPON UPGRADED // LEVEL ${this.weaponLevel}: ${label}!`;
+            } else {
+              this.score += Math.round(500 * cfg.scoreMultiplier);
+              this.statusMessage = 'WEAPON CORE MAXED // OVERCHARGE (+500 PTS)';
+            }
+            this.audio.playUpgrade();
+          } else if (col.type === 'health') {
+            this.shield = Math.min(100, this.shield + col.heal);
+            this.statusMessage = `HULL INTEGRITY RESTORED (+${col.heal}%)`;
+            this.audio.playHeal();
+          } else {
+            const pts = Math.round(col.points * cfg.scoreMultiplier);
+            this.score += pts;
+            this.shield = Math.min(100, this.shield + col.heal);
+            this.statusMessage = `+${pts} TELEMETRY PACKET ARCHIVED`;
+            this.audio.playCollect();
+          }
+
+          this.statusTimer = 2000;
+          this.collectibles.splice(i, 1);
+          continue;
+        }
+      }
+
+      if (col.y >= this.rows - 1) {
+        this.collectibles.splice(i, 1);
+      }
+    }
+  }
+
+  private render(): void {
+    if (!this.screenEl) return;
+
+    const grid: AsciiCell[][] = Array.from({ length: this.rows }, () =>
+      Array.from({ length: this.cols }, () => ({ char: ' ', color: '' })),
+    );
+
+    const setStr = (y: number, x: number, str: string, color: string = '') => {
+      if (y < 0 || y >= this.rows) return;
+      for (let i = 0; i < str.length; i++) {
+        const cx = x + i;
+        if (cx >= 0 && cx < this.cols) {
+          grid[y][cx] = { char: str[i], color };
+        }
+      }
+    };
+
+    const centerStr = (y: number, str: string, color: string = '') => {
+      const x = Math.max(1, Math.floor((this.cols - str.length) / 2));
+      setStr(y, x, str, color);
+    };
+
+    // Draw frame borders
+    for (let x = 0; x < this.cols; x++) {
+      grid[0][x] = { char: '-', color: 'col-border' };
+      grid[this.rows - 1][x] = { char: '-', color: 'col-border' };
+    }
+    for (let y = 0; y < this.rows; y++) {
+      grid[y][0] = { char: '|', color: 'col-border' };
+      grid[y][this.cols - 1] = { char: '|', color: 'col-border' };
+    }
+    grid[0][0] = { char: '+', color: 'col-border' };
+    grid[0][this.cols - 1] = { char: '+', color: 'col-border' };
+    grid[this.rows - 1][0] = { char: '+', color: 'col-border' };
+    grid[this.rows - 1][this.cols - 1] = { char: '+', color: 'col-border' };
+
+    const cfg = DIFFICULTY_CONFIG[this.difficulty];
+
+    if (this.mode === 'START') {
+      centerStr(1, '=== ATMOSPHERIC SENSOR ESCORT // PROJECT STRATOS ===', 'col-title');
+      centerStr(3, '  ____ _____ ____      _  _____ ___  ____  ', 'col-title');
+      centerStr(4, ' / ___|_   _|  _ \\    / \\|_   _/ _ \\/ ___| ', 'col-title');
+      centerStr(5, ' \\___ \\ | | | |_) |  / _ \\ | || | | \\___ \\ ', 'col-title');
+      centerStr(6, '  ___) || | |  _ <  / ___ \\| || |_| |___) |', 'col-title');
+      centerStr(7, ' |____/ |_| |_| \\_\\/_/   \\_\\_| \\___/|____/ ', 'col-title');
+      centerStr(8, '      [ HIGH-ALTITUDE STRATOSPHERE DEFENSE ]       ', 'col-title');
+
+      centerStr(10, '>> GPS SATELLITE FIX: OFFLINE // NO BEACON <<', 'col-hazard-meteor');
+      centerStr(11, 'ESCORT THE WEATHER PROBE THROUGH THE IONOSPHERE');
+
+      const diffColor =
+        this.difficulty === 'APEX'
+          ? 'col-hazard-meteor'
+          : this.difficulty === 'VETERAN'
+            ? 'col-upgrade'
+            : 'col-bullet-2';
+      centerStr(
+        13,
+        `DIFFICULTY: [1] CADET  [2] VETERAN  [3] APEX  (${this.difficulty})`,
+        diffColor,
+      );
+      centerStr(14, '[A] / [D] / ARROWS : STEER  |  [SPACE] : FIRE CANNONS');
+      centerStr(15, '[E] : RADAR EMP  |  [F] : FULLSCREEN  |  [H] : FLIGHT RULES');
+
+      centerStr(
+        17,
+        'HAZARDS: [###] >==> /\\/\\ (@*) [==#==]  |  REPAIR: [HULL+]',
+        'col-hazard-mine',
+      );
+      centerStr(18, '>>> PRESS SPACE OR CLICK TO LAUNCH STRATOS PROBE <<<', 'col-upgrade');
+    } else if (this.mode === 'GAMEOVER') {
+      centerStr(1, '=== STRATOS IONOSPHERIC LINK SEVERED ===', 'col-hazard-meteor');
+      centerStr(3, ' ___   _   __  __ ___    _____   _____ ___  ', 'col-hazard-meteor');
+      centerStr(4, '/ __| /_\\ |  \\/  | __|  / _ \\ \\ / / __| _ \\ ', 'col-hazard-meteor');
+      centerStr(5, '| (_ |/ _ \\| |\\/| | _|  | (_) \\ V /| _||   / ', 'col-hazard-meteor');
+      centerStr(6, ' \\___/_/ \\_\\_|  |_|___|  \\___/ \\_/ |___|_|_\\ ', 'col-hazard-meteor');
+
+      centerStr(8, '// HULL COMPROMISED: ATMOSPHERIC BURNOUT //', 'col-hazard-flare');
+      centerStr(
+        10,
+        `DIFFICULTY TIER     : ${this.difficulty} (${cfg.scoreMultiplier}x SCORE)`,
+        'col-upgrade',
+      );
+      centerStr(
+        11,
+        `TELEMETRY COLLECTED : ${this.score.toString().padStart(5, '0')} PTS`,
+        'col-collect',
+      );
+      centerStr(12, `MAXIMUM ALTITUDE    : ${this.altitude.toLocaleString()} METERS`);
+      centerStr(
+        13,
+        `RECORD ARCHIVE      : ${this.highScore.toString().padStart(5, '0')} PTS`,
+        'col-upgrade',
+      );
+
+      centerStr(15, '>> DE-ORBIT HAZARDS LOGGED IN FLIGHT RECORDER <<', 'col-hazard-plasma');
+      centerStr(17, '[ PRESS SPACE OR CLICK TO RE-DEPLOY STRATOS PROBE ]', 'col-upgrade');
+      centerStr(18, '[ PRESS 1/2/3 TO CHANGE DIFFICULTY // H FOR RULES ]');
+    } else {
+      setStr(0, 3, '[ RADAR PROBE: IONOSPHERE SECTOR ]', 'col-border');
+
+      const px = Math.round(this.probeX);
+
+      // Draw background streamers
+      for (const st of this.streamers) {
+        const sy = Math.floor(st.y);
+        if (sy >= 1 && sy < this.rows - 1 && grid[sy][st.x].char === ' ') {
+          if (sy >= 16 && Math.abs(st.x - px) <= 4) continue;
+          grid[sy][st.x] = { char: st.char, color: 'col-streamer' };
+        }
+      }
+
+      // Draw pulse wave
+      if (this.pulseActive) {
+        const py = Math.floor(this.pulseY);
+        if (py >= 1 && py < this.rows - 1) {
+          centerStr(py, '((( ( ( ( RADAR EMP SHOCKWAVE ) ) ) )))', 'col-pulse');
+        }
+      }
+
+      // Draw bullets
+      for (const b of this.bullets) {
+        const bx = Math.round(b.x);
+        const by = Math.round(b.y);
+        if (by >= 1 && by < this.rows - 1 && bx >= 1 && bx < this.cols - 1) {
+          grid[by][bx] = { char: b.symbol, color: b.colorType };
+        }
+      }
+
+      // Draw collectibles (Telemetry packets, weapon upgrades, health nanites)
+      for (const col of this.collectibles) {
+        const cy = Math.floor(col.y);
+        if (cy >= 1 && cy < this.rows - 1) {
+          setStr(cy, col.x, col.symbol, col.colorType);
+        }
+      }
+
+      // Draw obstacles (Hazards in red, orange, pink)
+      for (const obs of this.obstacles) {
+        const oy = Math.floor(obs.y);
+        if (oy >= 1 && oy < this.rows - 1) {
+          setStr(oy, obs.x, obs.symbol, obs.colorType);
+        }
+      }
+
+      // Clear probe area and draw sharp probe silhouette
+      for (let r = 16; r <= 19; r++) {
+        for (let c = px - 4; c <= px + 4; c++) {
+          if (c >= 1 && c < this.cols - 1) grid[r][c] = { char: ' ', color: '' };
+        }
+      }
+
+      setStr(16, px - 1, ' ▲ ', 'col-probe');
+      setStr(17, px - 2, '/=#=\\', 'col-probe');
+      setStr(18, px - 3, '<-o-o->', 'col-probe');
+      const flame = this.animTick % 4 < 2 ? ' : : ' : ' ! ! ';
+      setStr(19, px - 2, flame, 'col-flame');
+
+      if (this.statusMessage) {
+        centerStr(2, `[ ${this.statusMessage} ]`, 'col-upgrade');
+      }
+
+      if (this.mode === 'PAUSED') {
+        centerStr(9, '+---------------------------------------+', 'col-upgrade');
+        centerStr(10, '|   MISSION PAUSED // PRESS P TO RESUME |', 'col-upgrade');
+        centerStr(11, '+---------------------------------------+', 'col-upgrade');
+      }
+    }
+
+    // Convert grid to rich multi-color CRT HTML
+    const escapeHtml = (s: string) =>
+      s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+
+    const htmlRows = grid.map((row) => {
+      let rowHtml = '';
+      let curColor = '';
+      let curRun = '';
+
+      for (let c = 0; c < row.length; c++) {
+        const cell = row[c];
+        if (cell.color === curColor) {
+          curRun += cell.char;
+        } else {
+          if (curRun) {
+            rowHtml += curColor
+              ? `<span class="${curColor}">${escapeHtml(curRun)}</span>`
+              : escapeHtml(curRun);
+          }
+          curColor = cell.color;
+          curRun = cell.char;
+        }
+      }
+      if (curRun) {
+        rowHtml += curColor
+          ? `<span class="${curColor}">${escapeHtml(curRun)}</span>`
+          : escapeHtml(curRun);
+      }
+      return rowHtml;
+    });
+
+    this.screenEl.innerHTML = htmlRows.join('\n');
+
+    // Update Telemetry Bar
+    if (this.altEl) this.altEl.textContent = `${this.altitude.toLocaleString()} M`;
+    if (this.scoreEl) this.scoreEl.textContent = this.score.toString().padStart(5, '0');
+    if (this.bestEl) this.bestEl.textContent = this.highScore.toString().padStart(5, '0');
+
+    if (this.wepEl) {
+      if (this.weaponLevel === 1) {
+        this.wepEl.textContent = 'LVL 1 [1x PULSE]';
+        this.wepEl.className = 'hud-val hud-weap-lvl weap-lvl-1';
+      } else if (this.weaponLevel === 2) {
+        this.wepEl.textContent = 'LVL 2 [2x DUAL]';
+        this.wepEl.className = 'hud-val hud-weap-lvl weap-lvl-2';
+      } else {
+        this.wepEl.textContent = 'LVL 3 [3x SPREAD]';
+        this.wepEl.className = 'hud-val hud-weap-lvl weap-lvl-3';
+      }
+    }
+
+    if (this.shieldEl) {
+      const pips = Math.ceil(this.shield / 10);
+      this.shieldEl.textContent = `[${'|'.repeat(pips).padEnd(10, '.')}] ${this.shield}%`;
+      this.shieldEl.style.color =
+        this.shield > 50 ? '#22c55e' : this.shield > 25 ? '#f59e0b' : '#ef4444';
+    }
+    if (this.empEl) {
+      if (this.empCooldown <= 0) {
+        this.empEl.textContent = 'READY [E]';
+        this.empEl.className = 'hud-val hud-emp-ready';
+      } else {
+        this.empEl.textContent = `CHARGING [${(this.empCooldown / 1000).toFixed(1)}s]`;
+        this.empEl.className = 'hud-val';
+      }
+    }
+  }
+}
+
 export class WeatherDashboardController {
   private modal: HTMLElement | null = null;
   private modalCard: HTMLElement | null = null;
@@ -117,6 +1575,13 @@ export class WeatherDashboardController {
   private state: WeatherTelemetryState = { ...DEFAULT_WEATHER_STATE };
   private isOpen: boolean = false;
   private activeHourlyMode: 'temp' | 'rain' | 'wind' = 'temp';
+
+  // Geolocation & Fallback ASCII Game state
+  private currentLat: number = 12.9716;
+  private currentLon: number = 77.5946;
+  private isLocationDetermined: boolean = false;
+  private isAsciiBayActive: boolean = false;
+  private asciiGame: AsciiAtmosphericGame | null = null;
 
   // Persistence caches
   private pinnedCards: Set<string> = new Set();
@@ -144,12 +1609,31 @@ export class WeatherDashboardController {
   private frameCount: number = 0;
   private currentFps: number = 60;
 
+  public isEasterEggUnlocked(): boolean {
+    if (typeof document === 'undefined') return false;
+    try {
+      return (
+        document.documentElement.classList.contains('easter-egg-unlocked') ||
+        sessionStorage.getItem('easter_egg_unlocked') === 'true'
+      );
+    } catch {
+      return false;
+    }
+  }
+
   constructor() {
     this.loadCachedPreferences();
     this.initDOM();
     this.initDynamicLiquidGlass();
     this.initAsciiRadar();
-    this.fetchLiveTelemetry();
+    this.initAsciiGame();
+    // Ask for location permission ONLY when easter egg is unlocked and NOT on initial visit
+    if (this.isEasterEggUnlocked()) {
+      this.locateUserAndFetch(false);
+    } else {
+      this.isLocationDetermined = false;
+      this.showAsciiGameBay('// STRATOS SATELLITE BEACON: OFFLINE // LOCATION INDETERMINATE');
+    }
   }
 
   private loadCachedPreferences(): void {
@@ -172,9 +1656,25 @@ export class WeatherDashboardController {
   public onPageLoad(): void {
     this.initDOM();
     this.initAsciiRadar();
+    this.initAsciiGame();
     this.applyVisibility();
     this.applyCachedOrder();
     this.renderTelemetry();
+    // Ask for location permission ONLY when easter egg is unlocked and NOT on initial visit
+    if (this.isEasterEggUnlocked()) {
+      this.locateUserAndFetch(false);
+    } else {
+      this.isLocationDetermined = false;
+      this.showAsciiGameBay('// STRATOS SATELLITE BEACON: OFFLINE // LOCATION INDETERMINATE');
+    }
+  }
+
+  public initAsciiGame(): void {
+    if (!this.asciiGame) {
+      this.asciiGame = new AsciiAtmosphericGame();
+    } else {
+      this.asciiGame.initDOM();
+    }
   }
 
   public initDOM(): void {
@@ -264,6 +1764,58 @@ export class WeatherDashboardController {
       }
     });
 
+    // ASCII Game Toggle Button
+    const asciiToggleBtn = document.getElementById('weatherAsciiGameToggleBtn');
+    if (asciiToggleBtn && asciiToggleBtn.dataset.bound !== 'true') {
+      asciiToggleBtn.dataset.bound = 'true';
+      asciiToggleBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        this.toggleAsciiGameMode();
+      });
+    }
+
+    // Locate Button
+    const locateBtn = document.getElementById('weatherLocateBtn');
+    if (locateBtn && locateBtn.dataset.bound !== 'true') {
+      locateBtn.dataset.bound = 'true';
+      locateBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        this.locateUserAndFetch(true);
+      });
+    }
+
+    // Return to Telemetry Button inside ASCII bay
+    const returnTelemetryBtn = document.getElementById('asciiReturnTelemetryBtn');
+    if (returnTelemetryBtn && returnTelemetryBtn.dataset.bound !== 'true') {
+      returnTelemetryBtn.dataset.bound = 'true';
+      returnTelemetryBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        this.showTelemetryBay();
+      });
+    }
+
+    // Retry Location Button inside ASCII bay
+    const retryLocBtn = document.getElementById('asciiRetryLocBtn');
+    if (retryLocBtn && retryLocBtn.dataset.bound !== 'true') {
+      retryLocBtn.dataset.bound = 'true';
+      retryLocBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        this.locateUserAndFetch(true);
+      });
+    }
+
+    // Reactively trigger location detection ONLY when easter-egg is unlocked
+    if (typeof window !== 'undefined' && !(window as any).__weatherEggBound) {
+      (window as any).__weatherEggBound = true;
+      window.addEventListener('easter-egg:unlock', () => {
+        this.locateUserAndFetch(true);
+      });
+      window.addEventListener('easter-egg:lock', () => {
+        this.isLocationDetermined = false;
+        this.showAsciiGameBay('// STRATOS SATELLITE BEACON: OFFLINE // LOCATION INDETERMINATE');
+      });
+    }
+
     this.bindDragAndDrop();
   }
 
@@ -272,13 +1824,18 @@ export class WeatherDashboardController {
     this.isOpen = true;
     this.applyVisibility();
     this.updateMasterSwitchUI();
-    this.startAsciiRadar();
+    if (this.isAsciiBayActive) {
+      this.asciiGame?.resume();
+    } else {
+      this.startAsciiRadar();
+    }
   }
 
   public closeModal(): void {
     this.isOpen = false;
     this.applyVisibility();
     this.updateMasterSwitchUI();
+    this.asciiGame?.pause();
     this.stopAsciiRadar();
   }
 
@@ -824,24 +2381,253 @@ export class WeatherDashboardController {
     this.renderHourlyRail();
   }
 
-  // ── Telemetry Fetch & Parsing ──────────────────────────────────
-  private async fetchLiveTelemetry(): Promise<void> {
+  // ── ASCII Game & Telemetry Bay Views ───────────────────────────
+  public showAsciiGameBay(reason = 'LOCATION SIGNAL LOST'): void {
+    this.isAsciiBayActive = true;
+    if (this.rail) this.rail.style.display = 'none';
+    const gameBay = document.getElementById('weatherAsciiGameBay');
+    if (gameBay) gameBay.style.display = 'flex';
+
+    const toggleText = document.getElementById('weatherAsciiToggleText');
+    if (toggleText) toggleText.textContent = 'TELEMETRY';
+
+    const headerTag = document.getElementById('weatherStationHeaderTag');
+    if (headerTag) {
+      headerTag.textContent = '// STATION MET-01 [STRATOS PROBE ESCORT PROTOCOL]';
+    }
+
+    const statusTag = document.getElementById('asciiGameStatusTag');
+    if (statusTag) {
+      statusTag.textContent = `// STRATOS BEACON: ${reason.toUpperCase()}`;
+    }
+
+    this.stopAsciiRadar();
+    this.asciiGame?.start();
+  }
+
+  public showTelemetryBay(): void {
+    this.isAsciiBayActive = false;
+    if (this.rail) this.rail.style.display = 'grid';
+    const gameBay = document.getElementById('weatherAsciiGameBay');
+    if (gameBay) gameBay.style.display = 'none';
+
+    const toggleText = document.getElementById('weatherAsciiToggleText');
+    if (toggleText) toggleText.textContent = 'STRATOS';
+
+    const headerTag = document.getElementById('weatherStationHeaderTag');
+    if (headerTag) {
+      headerTag.textContent = `// STATION MET-01 [${this.state.city.toUpperCase()}]`;
+    }
+
+    this.asciiGame?.pause();
+    this.startAsciiRadar();
+  }
+
+  public toggleAsciiGameMode(): void {
+    if (this.isAsciiBayActive) {
+      this.showTelemetryBay();
+    } else {
+      this.showAsciiGameBay('MANUAL PROBE ESCORT INITIATED');
+    }
+  }
+
+  // ── Client Location Auto-Detection & Geolocation Pipeline ──────
+  public async locateUserAndFetch(force = false): Promise<void> {
+    const headerTag = document.getElementById('weatherStationHeaderTag');
+    if (headerTag) headerTag.textContent = '// STATION MET-01 [ACQUIRING GEOLOCATION...]';
+
     try {
-      let lat = 12.9716;
-      let lon = 77.5946;
-      let city = 'Bengaluru';
-
-      const savedLat = parseFloat(localStorage.getItem('client_geo_lat') || '');
-      const savedLon = parseFloat(localStorage.getItem('client_geo_lon') || '');
-      const savedCity = localStorage.getItem('client_geo_city');
-
-      if (!isNaN(savedLat) && !isNaN(savedLon)) {
-        lat = savedLat;
-        lon = savedLon;
+      const loc = await this.detectUserLocation(force);
+      if (loc) {
+        this.currentLat = loc.lat;
+        this.currentLon = loc.lon;
+        this.isLocationDetermined = true;
+        try {
+          localStorage.setItem('client_geo_lat', loc.lat.toString());
+          localStorage.setItem('client_geo_lon', loc.lon.toString());
+          localStorage.setItem('client_geo_city', loc.city);
+        } catch {
+          // ignore storage errors
+        }
+        await this.fetchLiveTelemetry(loc.lat, loc.lon, loc.city);
+        this.showTelemetryBay();
+      } else {
+        throw new Error('Location acquisition unresolved');
       }
-      if (savedCity) {
-        city = savedCity;
+    } catch {
+      this.isLocationDetermined = false;
+      this.showAsciiGameBay('// STRATOS SATELLITE BEACON: OFFLINE // LOCATION INDETERMINATE');
+    }
+  }
+
+  private async detectUserLocation(
+    force = false,
+  ): Promise<{ lat: number; lon: number; city: string } | null> {
+    // Only detect user location when easter egg is unlocked and NOT on initial visit
+    if (!this.isEasterEggUnlocked()) {
+      return null;
+    }
+
+    // 1. Try browser HTML5 geolocation first (prompts permission dialog if unlocked)
+    const browserLoc = await this.tryBrowserGeolocation(6000);
+    if (browserLoc) {
+      const city = await this.reverseGeocode(browserLoc.lat, browserLoc.lon);
+      return {
+        lat: browserLoc.lat,
+        lon: browserLoc.lon,
+        city: city || 'LOCAL STATION',
+      };
+    }
+
+    // 2. Try IP Geolocation fallback
+    const ipLoc = await this.tryIpGeolocation(5000);
+    if (ipLoc) {
+      return ipLoc;
+    }
+
+    // 3. Fallback to cached client location if valid and not Bengaluru baseline
+    if (!force) {
+      try {
+        const savedLat = parseFloat(localStorage.getItem('client_geo_lat') || '');
+        const savedLon = parseFloat(localStorage.getItem('client_geo_lon') || '');
+        const savedCity = localStorage.getItem('client_geo_city');
+        if (
+          !isNaN(savedLat) &&
+          !isNaN(savedLon) &&
+          savedCity &&
+          savedCity.toLowerCase() !== 'bengaluru'
+        ) {
+          return { lat: savedLat, lon: savedLon, city: savedCity };
+        }
+      } catch {
+        // ignore storage errors
       }
+    }
+
+    return null;
+  }
+
+  private tryBrowserGeolocation(timeoutMs = 6000): Promise<{ lat: number; lon: number } | null> {
+    if (typeof window === 'undefined' || !navigator.geolocation) {
+      return Promise.resolve(null);
+    }
+    // Ask for location permission ONLY when easter egg is unlocked and NOT on initial visit
+    if (!this.isEasterEggUnlocked()) {
+      return Promise.resolve(null);
+    }
+    return new Promise((resolve) => {
+      let settled = false;
+      const timer = setTimeout(() => {
+        if (!settled) {
+          settled = true;
+          resolve(null);
+        }
+      }, timeoutMs);
+
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          if (!settled) {
+            settled = true;
+            clearTimeout(timer);
+            resolve({
+              lat: pos.coords.latitude,
+              lon: pos.coords.longitude,
+            });
+          }
+        },
+        () => {
+          if (!settled) {
+            settled = true;
+            clearTimeout(timer);
+            resolve(null);
+          }
+        },
+        { enableHighAccuracy: false, timeout: timeoutMs, maximumAge: 300000 },
+      );
+    });
+  }
+
+  private async reverseGeocode(lat: number, lon: number): Promise<string | null> {
+    try {
+      const controller = new AbortController();
+      const id = setTimeout(() => controller.abort(), 4000);
+      const res = await fetch(
+        `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${lat}&longitude=${lon}&localityLanguage=en`,
+        { signal: controller.signal },
+      );
+      clearTimeout(id);
+      if (!res.ok) return null;
+      const data = await res.json();
+      return data.city || data.locality || data.principalSubdivision || null;
+    } catch {
+      return null;
+    }
+  }
+
+  private async tryIpGeolocation(
+    timeoutMs = 5000,
+  ): Promise<{ lat: number; lon: number; city: string } | null> {
+    // Attempt A: ipwho.is
+    try {
+      const controller = new AbortController();
+      const id = setTimeout(() => controller.abort(), timeoutMs);
+      const res = await fetch('https://ipwho.is/', { signal: controller.signal });
+      clearTimeout(id);
+      if (res.ok) {
+        const data = await res.json();
+        if (
+          data.success !== false &&
+          typeof data.latitude === 'number' &&
+          typeof data.longitude === 'number'
+        ) {
+          return {
+            lat: data.latitude,
+            lon: data.longitude,
+            city: data.city || data.region || data.country || 'LOCAL STATION',
+          };
+        }
+      }
+    } catch {
+      // Continue to Attempt B
+    }
+
+    // Attempt B: geojs.io
+    try {
+      const controller = new AbortController();
+      const id = setTimeout(() => controller.abort(), timeoutMs);
+      const res = await fetch('https://get.geojs.io/v1/ip/geo.json', {
+        signal: controller.signal,
+      });
+      clearTimeout(id);
+      if (res.ok) {
+        const data = await res.json();
+        const lat = parseFloat(data.latitude);
+        const lon = parseFloat(data.longitude);
+        if (!isNaN(lat) && !isNaN(lon)) {
+          return {
+            lat,
+            lon,
+            city: data.city || data.country || 'LOCAL STATION',
+          };
+        }
+      }
+    } catch {
+      // Unresolved
+    }
+
+    return null;
+  }
+
+  // ── Telemetry Fetch & Parsing ──────────────────────────────────
+  private async fetchLiveTelemetry(
+    customLat?: number,
+    customLon?: number,
+    customCity?: string,
+  ): Promise<void> {
+    try {
+      const lat = customLat ?? this.currentLat;
+      const lon = customLon ?? this.currentLon;
+      const city = customCity ?? this.state.city;
 
       const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,relative_humidity_2m,apparent_temperature,precipitation,weather_code,surface_pressure,wind_speed_10m,wind_direction_10m,wind_gusts_10m&hourly=temperature_2m,precipitation_probability,weather_code,wind_speed_10m&daily=weather_code,temperature_2m_max,temperature_2m_min,sunrise,sunset,uv_index_max,precipitation_probability_max&timezone=auto`;
 
@@ -849,11 +2635,16 @@ export class WeatherDashboardController {
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const data = await res.json();
 
+      this.currentLat = lat;
+      this.currentLon = lon;
       this.parseOpenMeteoData(city, data);
       this.renderTelemetry();
     } catch {
-      // Retain crisp baseline fallback
-      this.renderTelemetry();
+      if (!this.isLocationDetermined) {
+        this.showAsciiGameBay('TELEMETRY OFFLINE // SATELLITE COMM TIMEOUT');
+      } else {
+        this.renderTelemetry();
+      }
     }
   }
 
@@ -1273,6 +3064,15 @@ export class WeatherDashboardController {
 
     setText('weatherCity', s.city.toUpperCase());
     setText('weatherStationHeaderTag', `// STATION MET-01 [${s.city.toUpperCase()}]`);
+    const latStr =
+      this.currentLat >= 0
+        ? `${this.currentLat.toFixed(2)}°N`
+        : `${Math.abs(this.currentLat).toFixed(2)}°S`;
+    const lonStr =
+      this.currentLon >= 0
+        ? `${this.currentLon.toFixed(2)}°E`
+        : `${Math.abs(this.currentLon).toFixed(2)}°W`;
+    setText('weatherCoords', `[${latStr}, ${lonStr}]`);
     setText('weatherBigTemp', s.temp);
     setText('weatherCondition', `[ STATUS: ${s.condition.toUpperCase()} ]`);
     setText('weatherHigh', `HIGH ${s.high}°C`);

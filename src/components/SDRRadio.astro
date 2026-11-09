@@ -639,6 +639,54 @@ const defaultStation: FMStation = RADIO_STATIONS[0];
   </div>
 
   <!-- ══════════════════════════════════════════════════════════
+       RADIO SHACK SEARCH & FREQUENCY FILTER BAR
+       ══════════════════════════════════════════════════════════ -->
+  <div class="sdr-search-toolbar">
+    <div class="sdr-search-box">
+      <span class="sdr-search-icon" aria-hidden="true">
+        <svg
+          viewBox="0 0 24 24"
+          width="13"
+          height="13"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <circle cx="11" cy="11" r="8"></circle>
+          <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+        </svg>
+      </span>
+      <input
+        type="text"
+        id="sdr-search-input"
+        class="sdr-search-input"
+        placeholder="SEARCH STATIONS // NAME, FREQUENCY, GENRE, ORIGIN..."
+        aria-label="Search radio stations"
+        autocomplete="off"
+        spellcheck="false"
+      />
+      <button
+        type="button"
+        id="sdr-search-clear"
+        class="sdr-search-clear"
+        aria-label="Clear station search"
+        style="display: none;"
+      >
+        CLEAR
+      </button>
+    </div>
+    <div class="sdr-search-status">
+      <span
+        id="sdr-search-match-count"
+        class="sdr-search-match-count"
+        style="display: none;"
+      ></span>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════
        RADIO SHACK STATION RACK
        ══════════════════════════════════════════════════════════ -->
   <div class="sdr-stations-grid" id="sdr-stations-grid" role="list">
@@ -727,6 +775,17 @@ const defaultStation: FMStation = RADIO_STATIONS[0];
       ))}
   </div>
 
+  <!-- Empty State Notice when no stations match -->
+  <div class="sdr-empty-notice" id="sdr-empty-notice" style="display: none;">
+    <div class="sdr-empty-icon">// [NO SIGNAL DETECTED] //</div>
+    <p class="sdr-empty-msg">
+      No broadcast frequencies matched your active filter or search query.
+    </p>
+    <button type="button" class="sdr-reset-search-btn" id="sdr-reset-search-btn">
+      RESET STATION SEARCH
+    </button>
+  </div>
+
   <!-- Headless YouTube Audio Player -->
   <div class="sdr-hidden-player" aria-hidden="true">
     <div id="youtube-sdr-frame"></div>
@@ -758,6 +817,7 @@ const defaultStation: FMStation = RADIO_STATIONS[0];
     private isMuted = false;
     private currentGenre = 'ALL';
     private currentSubgenre = '';
+    private currentSearch = '';
 
     private ytPlayer: any = null;
     private ytApiReady = false;
@@ -1354,6 +1414,44 @@ const defaultStation: FMStation = RADIO_STATIONS[0];
         });
       });
 
+      // Search input & reset controls
+      const searchInput = document.getElementById('sdr-search-input') as HTMLInputElement | null;
+      const searchClearBtn = document.getElementById('sdr-search-clear');
+      const resetSearchBtn = document.getElementById('sdr-reset-search-btn');
+
+      if (searchInput) {
+        searchInput.addEventListener('input', () => {
+          this.currentSearch = searchInput.value.trim().toLowerCase();
+          this.applyFilters();
+        });
+        searchInput.addEventListener('keydown', (e: KeyboardEvent) => {
+          if (e.key === 'Escape') {
+            searchInput.value = '';
+            this.currentSearch = '';
+            this.applyFilters();
+          }
+        });
+      }
+
+      if (searchClearBtn) {
+        searchClearBtn.addEventListener('click', () => {
+          if (searchInput) {
+            searchInput.value = '';
+            searchInput.focus();
+          }
+          this.currentSearch = '';
+          this.applyFilters();
+        });
+      }
+
+      if (resetSearchBtn) {
+        resetSearchBtn.addEventListener('click', () => {
+          if (searchInput) searchInput.value = '';
+          this.currentSearch = '';
+          this.filterGenre('ALL');
+        });
+      }
+
       // Station preset cards click
       const stationCards = document.querySelectorAll<HTMLElement>('.sdr-station-card');
       stationCards.forEach((card) => {
@@ -1744,47 +1842,13 @@ const defaultStation: FMStation = RADIO_STATIONS[0];
         }
       }
 
-      // Filter station cards
-      const cards = document.querySelectorAll<HTMLElement>('.sdr-station-card');
-      let visibleCount = 0;
-      cards.forEach((card) => {
-        const cardGenre = card.getAttribute('data-genre');
-        if (genre === 'ALL' || cardGenre === genre) {
-          card.style.display = 'flex';
-          visibleCount++;
-        } else {
-          card.style.display = 'none';
-        }
-      });
-
-      const countBadge = document.getElementById('sdr-station-count');
-      if (countBadge) {
-        countBadge.textContent = `${visibleCount} STATIONS VISIBLE`;
-      }
-
-      // Filter playlist cards
-      const plCards = document.querySelectorAll<HTMLElement>('.sdr-playlist-card');
-      let plCount = 0;
-      plCards.forEach((card) => {
-        const cardGenre = card.getAttribute('data-genre');
-        if (genre === 'ALL' || cardGenre === genre) {
-          card.style.display = 'flex';
-          plCount++;
-        } else {
-          card.style.display = 'none';
-        }
-      });
-      const plCountBadge = document.getElementById('sdr-playlists-count');
-      if (plCountBadge) {
-        plCountBadge.textContent = `${plCount} PLAYLISTS VISIBLE`;
-      }
+      this.applyFilters();
     }
 
     private filterSubgenre(subgenre: string) {
       this.currentSubgenre = subgenre;
 
       // Update sub-genre pills active state in current genre's subgenre container
-      const isAllSub = subgenre.startsWith('ALL');
       document
         .querySelectorAll(`.sdr-subgenre-pill[data-genre="${this.currentGenre}"]`)
         .forEach((pill) => {
@@ -1794,40 +1858,89 @@ const defaultStation: FMStation = RADIO_STATIONS[0];
           pill.setAttribute('aria-selected', isActive ? 'true' : 'false');
         });
 
-      // Filter station cards by subgenre within currentGenre
+      this.applyFilters();
+    }
+
+    private applyFilters() {
+      const query = this.currentSearch;
+      const isAllSub = !this.currentSubgenre || this.currentSubgenre.startsWith('ALL');
+
+      // Filter station cards
       const cards = document.querySelectorAll<HTMLElement>('.sdr-station-card');
       let visibleCount = 0;
+
       cards.forEach((card) => {
-        const cardGenre = card.getAttribute('data-genre');
-        const cardSubgenre = card.getAttribute('data-subgenre');
-        if (cardGenre === this.currentGenre && (isAllSub || cardSubgenre === subgenre)) {
-          card.style.display = 'flex';
-          visibleCount++;
-        } else {
-          card.style.display = 'none';
-        }
+        const cardGenre = card.getAttribute('data-genre') || '';
+        const cardSubgenre = card.getAttribute('data-subgenre') || '';
+        const name = (card.getAttribute('data-name') || '').toLowerCase();
+        const freqStr = (card.getAttribute('data-freq-str') || '').toLowerCase();
+        const desc = (card.getAttribute('data-desc') || '').toLowerCase();
+        const origin = (card.getAttribute('data-origin') || '').toLowerCase();
+        const genreStr = cardGenre.toLowerCase();
+        const subgenreStr = cardSubgenre.toLowerCase();
+
+        const matchGenre = this.currentGenre === 'ALL' || cardGenre === this.currentGenre;
+        const matchSub = isAllSub || cardSubgenre === this.currentSubgenre;
+        const matchSearch =
+          !query ||
+          name.includes(query) ||
+          freqStr.includes(query) ||
+          desc.includes(query) ||
+          origin.includes(query) ||
+          genreStr.includes(query) ||
+          subgenreStr.includes(query);
+
+        const isVisible = matchGenre && matchSub && matchSearch;
+        card.style.display = isVisible ? 'flex' : 'none';
+        if (isVisible) visibleCount++;
       });
 
+      // Update station count badge & empty state
       const countBadge = document.getElementById('sdr-station-count');
       if (countBadge) {
         countBadge.textContent = `${visibleCount} STATIONS VISIBLE`;
       }
 
-      // Filter playlist cards by subgenre within currentGenre
+      const emptyNotice = document.getElementById('sdr-empty-notice');
+      if (emptyNotice) {
+        emptyNotice.style.display = visibleCount === 0 ? 'block' : 'none';
+      }
+
+      const clearBtn = document.getElementById('sdr-search-clear');
+      if (clearBtn) {
+        clearBtn.style.display = query ? 'inline-block' : 'none';
+      }
+
+      const matchBadge = document.getElementById('sdr-search-match-count');
+      if (matchBadge) {
+        if (query) {
+          matchBadge.textContent = `${visibleCount} MATCHES`;
+          matchBadge.style.display = 'inline-block';
+        } else {
+          matchBadge.style.display = 'none';
+        }
+      }
+
+      // Filter playlist cards
       const plCards = document.querySelectorAll<HTMLElement>('.sdr-playlist-card');
       let plCount = 0;
       plCards.forEach((card) => {
-        const cardGenre = card.getAttribute('data-genre');
-        const cardSubgenre = card.getAttribute('data-subgenre');
+        const cardGenre = card.getAttribute('data-genre') || '';
+        const cardSubgenre = card.getAttribute('data-subgenre') || '';
+        const cardText = (card.textContent || '').toLowerCase();
+
         const matchGenre = this.currentGenre === 'ALL' || cardGenre === this.currentGenre;
-        const matchSub = isAllSub || cardSubgenre === subgenre;
-        if (matchGenre && matchSub) {
+        const matchSub = isAllSub || cardSubgenre === this.currentSubgenre;
+        const matchSearch = !query || cardText.includes(query);
+
+        if (matchGenre && matchSub && matchSearch) {
           card.style.display = 'flex';
           plCount++;
         } else {
           card.style.display = 'none';
         }
       });
+
       const plCountBadge = document.getElementById('sdr-playlists-count');
       if (plCountBadge) {
         plCountBadge.textContent = `${plCount} PLAYLISTS VISIBLE`;
@@ -1835,13 +1948,23 @@ const defaultStation: FMStation = RADIO_STATIONS[0];
     }
 
     private getFilteredStations(): FMStation[] {
-      if (this.currentGenre === 'ALL') return this.stations;
-      if (this.currentSubgenre && !this.currentSubgenre.startsWith('ALL')) {
-        return this.stations.filter(
-          (s) => s.genre === this.currentGenre && s.subgenre === this.currentSubgenre,
-        );
-      }
-      return this.stations.filter((s) => s.genre === this.currentGenre);
+      const query = this.currentSearch;
+      const isAllSub = !this.currentSubgenre || this.currentSubgenre.startsWith('ALL');
+
+      return this.stations.filter((s) => {
+        const matchGenre = this.currentGenre === 'ALL' || s.genre === this.currentGenre;
+        const matchSub = isAllSub || s.subgenre === this.currentSubgenre;
+        const matchSearch =
+          !query ||
+          s.name.toLowerCase().includes(query) ||
+          s.freq.toLowerCase().includes(query) ||
+          s.desc.toLowerCase().includes(query) ||
+          (s.origin && s.origin.toLowerCase().includes(query)) ||
+          s.genre.toLowerCase().includes(query) ||
+          (s.subgenre && s.subgenre.toLowerCase().includes(query));
+
+        return matchGenre && matchSub && matchSearch;
+      });
     }
 
     private updateDisplay() {

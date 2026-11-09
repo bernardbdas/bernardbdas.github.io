@@ -24,7 +24,7 @@ import MediaTV from '../components/MediaTV.astro';
 
   <div class="page-grid">
     <!-- ─── LEFT: CONTENT COLUMN ─────────────────────────────── -->
-    <main class="content-col" id="top">
+    <main class="content-col media-content-col" id="top">
       <!-- Media Multi-Mode Switcher Deck -->
       <nav class="media-mode-switcher-wrap" aria-label="Media deck mode selector">
         <div class="mode-switch-title">
@@ -299,6 +299,11 @@ import MediaTV from '../components/MediaTV.astro';
   <!-- Interactive Client Controller for Multi-Mode Media Switcher and Tactical Filters -->
   <script>
     function setupMediaDeck() {
+      const deckRoot = document.querySelector('.media-content-col');
+      if (!deckRoot) return;
+      if ((deckRoot as any).__mediaDeckInit) return;
+      (deckRoot as any).__mediaDeckInit = true;
+
       const tabs = document.querySelectorAll<HTMLButtonElement>('.media-mode-tab');
       if (tabs.length === 0) return;
       const views = {
@@ -341,8 +346,12 @@ import MediaTV from '../components/MediaTV.astro';
         });
 
         if (updateHash) {
-          history.replaceState(null, '', `#${targetMode}`);
+          const hashVal = targetMode === 'cinema' ? 'movies' : targetMode;
+          history.replaceState(null, '', `#${hashVal}`);
         }
+
+        // Notify navigation and components of active mode
+        window.dispatchEvent(new CustomEvent('mediamodechange', { detail: { mode: targetMode } }));
 
         // Check if radio is playing to show persistent mini ticker
         updateMiniTicker();
@@ -390,11 +399,30 @@ import MediaTV from '../components/MediaTV.astro';
         switchMode('radio');
       });
 
-      // Handle URL hash on initial load
-      const initialHash = window.location.hash.replace('#', '').toLowerCase();
-      if (initialHash === 'cinema' || initialHash === 'tv' || initialHash === 'radio') {
-        switchMode(initialHash as 'radio' | 'cinema' | 'tv', false);
+      // Expose switchMode globally for header media dropdown
+      (window as any).__switchMediaMode = switchMode;
+
+      function parseMediaHash(hash: string): 'radio' | 'cinema' | 'tv' | null {
+        const h = hash.replace('#', '').toLowerCase();
+        if (h === 'radio') return 'radio';
+        if (h === 'cinema' || h === 'movies') return 'cinema';
+        if (h === 'tv') return 'tv';
+        return null;
       }
+
+      // Handle URL hash on initial load
+      const initialMode = parseMediaHash(window.location.hash);
+      if (initialMode) {
+        switchMode(initialMode, false);
+      }
+
+      // Handle browser back/forward or hash change navigation
+      window.addEventListener('hashchange', () => {
+        const targetMode = parseMediaHash(window.location.hash);
+        if (targetMode) {
+          switchMode(targetMode, false);
+        }
+      });
 
       // Check audio status periodically for mini ticker
       if ((window as any).__mediaTickerInterval) {
@@ -435,6 +463,91 @@ import MediaTV from '../components/MediaTV.astro';
         const resetBtnTop = document.getElementById(`${category}-reset-filters-btn-top`);
         const resetBtnBottom = document.getElementById(`${category}-reset-filters-btn`);
         const grid = document.getElementById(`${category}-cards-grid`);
+
+        // Glass dropdown elements
+        const glassWrap = document.getElementById(`${category}-genre-glass-wrap`);
+        const glassTrigger = document.getElementById(`${category}-genre-trigger`);
+        const glassMenu = document.getElementById(`${category}-genre-menu`);
+        const glassVal = document.getElementById(`${category}-genre-selected-val`);
+        const glassItems = glassMenu?.querySelectorAll<HTMLElement>('.glass-dropdown-item') || [];
+
+        function closeGlassDropdown() {
+          if (!glassMenu || !glassWrap) return;
+          glassMenu.style.display = 'none';
+          glassWrap.classList.remove('is-open');
+          glassTrigger?.setAttribute('aria-expanded', 'false');
+          glassWrap.closest('.media-tactical-toolbar')?.classList.remove('has-open-dropdown');
+        }
+
+        function openGlassDropdown() {
+          if (!glassMenu || !glassWrap) return;
+          document.querySelectorAll('.hud-glass-dropdown-menu').forEach((menu) => {
+            (menu as HTMLElement).style.display = 'none';
+          });
+          document.querySelectorAll('.hud-glass-select-wrap').forEach((wrap) => {
+            wrap.classList.remove('is-open');
+          });
+          document.querySelectorAll('.hud-glass-select-trigger').forEach((trig) => {
+            trig.setAttribute('aria-expanded', 'false');
+          });
+          document.querySelectorAll('.media-tactical-toolbar').forEach((tb) => {
+            tb.classList.remove('has-open-dropdown');
+          });
+
+          glassMenu.style.display = 'block';
+          glassWrap.classList.add('is-open');
+          glassTrigger?.setAttribute('aria-expanded', 'true');
+          glassWrap.closest('.media-tactical-toolbar')?.classList.add('has-open-dropdown');
+        }
+
+        function toggleGlassDropdown(e: Event) {
+          e.stopPropagation();
+          const isOpen = glassWrap?.classList.contains('is-open');
+          if (isOpen) {
+            closeGlassDropdown();
+          } else {
+            openGlassDropdown();
+          }
+        }
+
+        if (glassTrigger) {
+          glassTrigger.onclick = toggleGlassDropdown;
+        }
+
+        if (glassWrap) {
+          glassWrap.onclick = (e) => {
+            if (glassMenu && glassMenu.contains(e.target as Node)) return;
+            toggleGlassDropdown(e);
+          };
+        }
+
+        glassItems.forEach((item) => {
+          item.onclick = (e) => {
+            e.stopPropagation();
+            const val = item.getAttribute('data-value') || 'ALL';
+            if (glassVal) {
+              glassVal.textContent = val === 'ALL' ? 'ALL GENRES' : val.toUpperCase();
+            }
+            glassItems.forEach((i) => {
+              const active = i.getAttribute('data-value') === val;
+              i.classList.toggle('is-active', active);
+              i.setAttribute('aria-selected', active ? 'true' : 'false');
+            });
+            if (genreSelect) {
+              genreSelect.value = val;
+              genreSelect.dispatchEvent(new Event('change', { bubbles: true }));
+            }
+            closeGlassDropdown();
+            glassTrigger?.focus();
+          };
+
+          item.onkeydown = (e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+              e.preventDefault();
+              item.click();
+            }
+          };
+        });
 
         const crossHintBar = document.getElementById(`${category}-cross-hint-bar`);
         const crossHintText = document.getElementById(`${category}-cross-hint-text`);
@@ -652,6 +765,12 @@ import MediaTV from '../components/MediaTV.astro';
 
           if (genreSelect) genreSelect.value = 'ALL';
           currentGenre = 'ALL';
+          if (glassVal) glassVal.textContent = 'ALL GENRES';
+          glassItems.forEach((i) => {
+            const active = i.getAttribute('data-value') === 'ALL';
+            i.classList.toggle('is-active', active);
+            i.setAttribute('aria-selected', active ? 'true' : 'false');
+          });
 
           platformChips.forEach((c, idx) => {
             c.classList.toggle('active', idx === 0);
@@ -675,6 +794,44 @@ import MediaTV from '../components/MediaTV.astro';
       // ── Tactical Search & Filter Logic for Cinema & TV ───────────
       setupTacticalFilterMatrix('cinema');
       setupTacticalFilterMatrix('tv');
+
+      // Global outside-click and escape handlers for glass dropdowns
+      document.addEventListener('click', (e) => {
+        const target = e.target as HTMLElement | null;
+        if (!target?.closest('.hud-glass-select-wrap')) {
+          document.querySelectorAll('.hud-glass-dropdown-menu').forEach((menu) => {
+            (menu as HTMLElement).style.display = 'none';
+          });
+          document.querySelectorAll('.hud-glass-select-wrap').forEach((wrap) => {
+            wrap.classList.remove('is-open');
+          });
+          document.querySelectorAll('.hud-glass-select-trigger').forEach((trig) => {
+            trig.setAttribute('aria-expanded', 'false');
+          });
+          document.querySelectorAll('.media-tactical-toolbar').forEach((tb) => {
+            tb.classList.remove('has-open-dropdown');
+          });
+        }
+      });
+
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+          const openWrap = document.querySelector('.hud-glass-select-wrap.is-open');
+          if (openWrap) {
+            const menu = openWrap.querySelector('.hud-glass-dropdown-menu') as HTMLElement | null;
+            const trigger = openWrap.querySelector(
+              '.hud-glass-select-trigger',
+            ) as HTMLElement | null;
+            if (menu) menu.style.display = 'none';
+            openWrap.classList.remove('is-open');
+            trigger?.setAttribute('aria-expanded', 'false');
+            trigger?.focus();
+          }
+          document.querySelectorAll('.media-tactical-toolbar').forEach((tb) => {
+            tb.classList.remove('has-open-dropdown');
+          });
+        }
+      });
     }
 
     // Initialize when DOM ready

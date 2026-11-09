@@ -268,14 +268,16 @@ const education: EduEntry[] = [
   function initHeaderScrollDock(): void {
     const heroHeading = document.getElementById('hero-heading');
     const contentCol = document.querySelector('.content-col');
+    const chromeTop = document.querySelector('.chrome-top');
     const html = document.documentElement;
     if (!heroHeading) return;
 
     function updateDock(): void {
       const rect = heroHeading!.getBoundingClientRect();
-      // The fixed header is ~46px - 50px tall.
-      // When the hero heading scrolls past the header (rect.bottom <= 52), dock the name.
-      const shouldDock = rect.bottom <= 52;
+      // The fixed header height (~46px).
+      // The moment the big hero name touches or moves past the header, dock the name and vanish the big name.
+      const headerBottom = chromeTop ? chromeTop.getBoundingClientRect().bottom : 48;
+      const shouldDock = rect.top <= headerBottom + 2;
 
       if (shouldDock) {
         if (!html.classList.contains('header-name-docked')) {
@@ -300,17 +302,10 @@ const education: EduEntry[] = [
     // IntersectionObserver for compositor-level frame updates
     if ('IntersectionObserver' in window) {
       const observer = new IntersectionObserver(
-        (entries) => {
-          for (const entry of entries) {
-            const isAbove = entry.boundingClientRect.bottom <= 52;
-            if (!entry.isIntersecting && isAbove) {
-              html.classList.add('header-name-docked');
-            } else if (entry.isIntersecting || !isAbove) {
-              html.classList.remove('header-name-docked');
-            }
-          }
+        () => {
+          updateDock();
         },
-        { root: null, rootMargin: '-48px 0px 0px 0px', threshold: 0 },
+        { root: null, rootMargin: '-46px 0px 0px 0px', threshold: [0, 0.5, 1] },
       );
       observer.observe(heroHeading);
     }
